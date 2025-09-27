@@ -1,4 +1,4 @@
-
+<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,19 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Skydash Admin Dashboard</title>
   <!-- plugins:css -->
-  <link rel="stylesheet" href="../../vendors/feather/feather.css">
-  <link rel="stylesheet" href="../../vendors/ti-icons/css/themify-icons.css">
-  <link rel="stylesheet" href="../../vendors/css/vendor.bundle.base.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/feather/feather.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/ti-icons/css/themify-icons.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/css/vendor.bundle.base.css">
   <!-- endinject -->
   <!-- plugin css for this page -->
-  <link rel="stylesheet" href="../template/vendors/codemirror/codemirror.css">
-  <link rel="stylesheet" href="../template/vendors/codemirror/ambiance.css">
-  <link rel="stylesheet" href="../template/vendors/pwstabs/jquery.pwstabs.min.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/codemirror/codemirror.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/codemirror/ambiance.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/pwstabs/jquery.pwstabs.min.css">
   <!-- End plugin css for this page -->
   <!-- inject:css -->
-  <link rel="stylesheet" href="../../css/vertical-layout-light/style.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/css/vertical-layout-light/style.css">
   <!-- endinject -->
-  <link rel="shortcut icon" href="../../images/favicon.png" />
+  <link rel="shortcut icon" href="${pageContext.request.contextPath}/admin/images/favicon.png" />
 </head>
 
 <body>
@@ -53,31 +53,28 @@
               </div>
             </div>
             <!-- partial:../../partials/footer.jsp -->
-            <footer class="footer">
-          <div class="d-sm-flex justify-content-center justify-content-sm-between">
-            <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2021.  Premium <a href="https://www.bootstrapdash.com/" target="_blank">Bootstrap admin template</a> from BootstrapDash. All rights reserved.</span>
-            <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="ti-heart text-danger ml-1"></i></span>
-          </div>
-        </footer>
+
+            <jsp:include page="../../partials/footer.jsp" />
+
             <!-- partial -->
           </div>
         </div>
       </div>
 <!-- plugins:js -->
-<script src="../../vendors/js/vendor.bundle.base.js"></script>
+<script src="${pageContext.request.contextPath}/admin/vendors/js/vendor.bundle.base.js"></script>
 <!-- endinject -->
 <!-- inject:js -->
-<script src="../../js/off-canvas.js"></script>
-<script src="../../js/hoverable-collapse.js"></script>
-<script src="../../js/template.js"></script>
-<script src="../../js/settings.js"></script>
-<script src="../../js/todolist.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/off-canvas.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/hoverable-collapse.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/template.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/settings.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/todolist.js"></script>
 <!-- endinject -->
 <!-- Custom js for this page-->
-<script src="../../js/codeEditor.js"></script>
-<script src="../../js/tabs.js"></script>
-<script src="../../js/tooltips.js"></script>
-<script src="../../js/documentation.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/codeEditor.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/tabs.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/tooltips.js"></script>
+<script src="${pageContext.request.contextPath}/admin/docs/documentation.js"></script>
 <!-- End custom js for this page-->
 </body>
 
