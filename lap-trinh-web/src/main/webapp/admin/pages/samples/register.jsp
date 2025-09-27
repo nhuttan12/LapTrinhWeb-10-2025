@@ -1,3 +1,4 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,16 +8,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Skydash Admin</title>
   <!-- plugins:css -->
-  <link rel="stylesheet" href="../../vendors/feather/feather.css">
-  <link rel="stylesheet" href="../../vendors/ti-icons/css/themify-icons.css">
-  <link rel="stylesheet" href="../../vendors/css/vendor.bundle.base.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/feather/feather.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/ti-icons/css/themify-icons.css">
+  <link rel="stylesheet" href=".${pageContext.request.contextPath}/admin/vendors/css/vendor.bundle.base.css">
   <!-- endinject -->
   <!-- Plugin css for this page -->
   <!-- End plugin css for this page -->
   <!-- inject:css -->
-  <link rel="stylesheet" href="../../css/vertical-layout-light/style.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/css/vertical-layout-light/style.css">
   <!-- endinject -->
-  <link rel="shortcut icon" href="../../images/favicon.png" />
+  <link rel="shortcut icon" href="${pageContext.request.contextPath}/admin/images/favicon.png" />
 </head>
 
 <body>
@@ -27,7 +28,7 @@
           <div class="col-lg-4 mx-auto">
             <div class="auth-form-light text-left py-5 px-4 px-sm-5">
               <div class="brand-logo">
-                <img src="../../images/logo.svg" alt="logo">
+                <img src="${pageContext.request.contextPath}/admin/images/logo.svg" alt="logo">
               </div>
               <h4>New here?</h4>
               <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
@@ -63,7 +64,7 @@
                   <a class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" href="../../index.jsp">SIGN UP</a>
                 </div>
                 <div class="text-center mt-4 font-weight-light">
-                  Already have an account? <a href="login.html" class="text-primary">Login</a>
+                  Already have an account? <a href="login.jsp" class="text-primary">Login</a>
                 </div>
               </form>
             </div>
@@ -76,16 +77,16 @@
   </div>
   <!-- container-scroller -->
   <!-- plugins:js -->
-  <script src="../../vendors/js/vendor.bundle.base.js"></script>
+  <script src="${pageContext.request.contextPath}/admin/vendors/js/vendor.bundle.base.js"></script>
   <!-- endinject -->
   <!-- Plugin js for this page -->
   <!-- End plugin js for this page -->
   <!-- inject:js -->
-  <script src="../../js/off-canvas.js"></script>
-  <script src="../../js/hoverable-collapse.js"></script>
-  <script src="../../js/template.js"></script>
-  <script src="../../js/settings.js"></script>
-  <script src="../../js/todolist.js"></script>
+  <script src="${pageContext.request.contextPath}/admin/js/off-canvas.js"></script>
+  <script src="${pageContext.request.contextPath}/admin/js/hoverable-collapse.js"></script>
+  <script src="${pageContext.request.contextPath}/admin/js/template.js"></script>
+  <script src="${pageContext.request.contextPath}/admin/js/settings.js"></script>
+  <script src="${pageContext.request.contextPath}/admin/js/todolist.js"></script>
   <!-- endinject -->
 </body>
 
