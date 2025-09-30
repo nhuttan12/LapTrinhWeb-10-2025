@@ -1,3 +1,4 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
     <ul class="nav">
         <li class="nav-item">
@@ -15,13 +16,13 @@
             <div class="collapse" id="ui-basic">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"><a class="nav-link"
-                                            href="${pageContext.request.contextPath}/admin/pages/ui-features/buttons.html">Buttons</a>
+                                            href="${pageContext.request.contextPath}/admin/pages/ui-features/buttons.jsp">Buttons</a>
                     </li>
                     <li class="nav-item"><a class="nav-link"
-                                            href="${pageContext.request.contextPath}/admin/pages/ui-features/dropdowns.html">Dropdowns</a>
+                                            href="${pageContext.request.contextPath}/admin/pages/ui-features/dropdowns.jsp">Dropdowns</a>
                     </li>
                     <li class="nav-item"><a class="nav-link"
-                                            href="${pageContext.request.contextPath}/admin/pages/ui-features/typography.html">Typography</a>
+                                            href="${pageContext.request.contextPath}/admin/pages/ui-features/typography.jsp">Typography</a>
                     </li>
                 </ul>
             </div>
@@ -36,7 +37,7 @@
             <div class="collapse" id="form-elements">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"><a class="nav-link"
-                                            href="${pageContext.request.contextPath}/admin/pages/forms/basic_elements.html">Basic
+                                            href="${pageContext.request.contextPath}/admin/pages/forms/basic_elements.jsp">Basic
                         Elements</a>
                     </li>
                 </ul>
@@ -51,7 +52,7 @@
             <div class="collapse" id="charts">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"><a class="nav-link"
-                                            href="${pageContext.request.contextPath}/admin/pages/charts/chartjs.html">ChartJs</a>
+                                            href="${pageContext.request.contextPath}/admin/pages/charts/chartjs.jsp">ChartJs</a>
                     </li>
                 </ul>
             </div>
@@ -65,7 +66,7 @@
             <div class="collapse" id="tables">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"><a class="nav-link"
-                                            href="${pageContext.request.contextPath}/admin/pages/tables/basic-table.html">Basic
+                                            href="${pageContext.request.contextPath}/admin/pages/tables/basic-table.jsp">Basic
                         table</a></li>
                 </ul>
             </div>
@@ -79,7 +80,7 @@
             <div class="collapse" id="icons">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"><a class="nav-link"
-                                            href="${pageContext.request.contextPath}/admin/pages/icons/mdi.html">Mdi
+                                            href="${pageContext.request.contextPath}/admin/pages/icons/mdi.jsp">Mdi
                         icons</a></li>
                 </ul>
             </div>
@@ -93,10 +94,10 @@
             <div class="collapse" id="auth">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"><a class="nav-link"
-                                            href="${pageContext.request.contextPath}/admin/pages/samples/login.html">
+                                            href="${pageContext.request.contextPath}/admin/pages/samples/login.jsp">
                         Login </a></li>
                     <li class="nav-item"><a class="nav-link"
-                                            href="${pageContext.request.contextPath}/admin/pages/samples/register.html">
+                                            href="${pageContext.request.contextPath}/admin/pages/samples/register.jsp">
                         Register </a></li>
                 </ul>
             </div>
@@ -110,16 +111,16 @@
             <div class="collapse" id="error">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"><a class="nav-link"
-                                            href="${pageContext.request.contextPath}/admin/pages/samples/error-404.html">
+                                            href="${pageContext.request.contextPath}/admin/pages/samples/error-404.jsp">
                         404 </a></li>
                     <li class="nav-item"><a class="nav-link"
-                                            href="${pageContext.request.contextPath}/admin/pages/samples/error-500.html">
+                                            href="${pageContext.request.contextPath}/admin/pages/samples/error-500.jsp">
                         500 </a></li>
                 </ul>
             </div>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="${pageContext.request.contextPath}/admin/pages/documentation/documentation.html">
+            <a class="nav-link" href="${pageContext.request.contextPath}/admin/pages/documentation/documentation.jsp">
                 <i class="icon-paper menu-icon"></i>
                 <span class="menu-title">Documentation</span>
             </a>
