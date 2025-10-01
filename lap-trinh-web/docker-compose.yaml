@@ -1,0 +1,20 @@
+name: lap-trinh-web
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: no
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123123
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    networks:
+      - lap-trinh-web
+
+networks:
+  lap-trinh-web:
+    name: lap-trinh-web
