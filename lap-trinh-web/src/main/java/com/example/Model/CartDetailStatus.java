@@ -1,5 +1,5 @@
 package com.example.Model;
 
-public enum ImageStatus {
+public enum CartDetailStatus {
     ACTIVE, INACTIVE
 }

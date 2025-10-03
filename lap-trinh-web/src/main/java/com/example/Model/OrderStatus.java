@@ -1,5 +1,5 @@
 package com.example.Model;
 
-public enum ImageStatus {
-    ACTIVE, INACTIVE
+public enum OrderStatus {
+    PENDING, PAID, SHIPPED, COMPLETED, CANCELLED
 }

@@ -6,13 +6,6 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%
-    // Decide which middle column content to include
-    String contentPage = request.getParameter("page");
-    if (contentPage == null) {
-        contentPage = "user-profile-form.jsp"; // default content
-    }
-%>
 <html>
 <head>
     <title>Thông tin người dùng</title>
@@ -25,6 +18,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/jquery-ui.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/owl.carousel.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/owl.theme.default.min.css">
+
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/fonts/icomoon/style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/aos.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/style.css">
     <script>
       $(document).ready(function () {
         var readURL = function (input) {
@@ -53,15 +50,85 @@
     <jsp:include page="header.jsp"/>
 
     <%--    Content    --%>
-    <div class="row">
+    <div class="row justify-content-center">
         <!-- Sidebar -->
         <div class="col-md-3">
             <jsp:include page="user-profile-side-bar.jsp"/>
         </div>
 
-        <!-- Middle Content (Form + Upload Image) -->
+        <!-- User Profile -->
         <div class="col-md-9">
-            <jsp:include page="<%= contentPage %>"/>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="home">
+                            <form class="form" action="${pageContext.request.contextPath}/profile" method="post">
+                                <div class="form-group">
+                                    <div class="col-xs-6">
+                                        <label for="fullName"><h4>Họ tên:</h4></label>
+                                        <input type="text" class="form-control" name="fullName" id="fullName">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-xs-6">
+                                        <label for="phone"><h4>Số điện thoại:</h4></label>
+                                        <input type="tel" class="form-control" name="phone" id="phone">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-xs-6">
+                                        <label for="email"><h4>Email:</h4></label>
+                                        <input type="email" class="form-control" name="email" id="email">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-xs-6">
+                                        <label for="address1"><h4>Địa chỉ 1:</h4></label>
+                                        <input type="text" class="form-control" name="address1" id="address1">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-xs-6">
+                                        <label for="address2"><h4>Địa chỉ 2:</h4></label>
+                                        <input type="text" class="form-control" name="address2" id="address2">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-xs-6">
+                                        <label for="address3"><h4>Địa chỉ 3:</h4></label>
+                                        <input type="text" class="form-control" name="address3" id="address3">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-xs-12">
+                                        <button class="btn btn-lg btn-success" type="submit"><i
+                                                class="glyphicon glyphicon-ok-sign"></i> Lưu thay đổi
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Image -->
+                <div class="col-md-4 text-center">
+                    <div class="text-center">
+                        <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png"
+                             class="avatar img-circle img-thumbnail"
+                             alt="avatar">
+                        <h6>Tải hình ảnh cá nhân</h6>
+                        <input type="file" class="text-center center-block file-upload">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

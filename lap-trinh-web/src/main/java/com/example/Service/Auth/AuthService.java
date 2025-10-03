@@ -1,12 +1,14 @@
 package com.example.Service.Auth;
 
-import com.example.Controller.DAO.AuthDAO;
+import com.example.Service.User.UserService;
+
+import java.sql.Connection;
 
 public class AuthService {
-    private final AuthDAO authDAO;
+    private final UserService userService;
 
-    public AuthService() {
-        authDAO = new AuthDAO();
+    public AuthService(Connection conn) {
+        userService = new UserService(conn);
     }
 
     /**
@@ -22,7 +24,7 @@ public class AuthService {
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             return false;
         }
-        return authDAO.login(username, password);
+        return userService.getUserByUsernameAndPassword(username, password);
     }
 
     /**
@@ -37,30 +39,30 @@ public class AuthService {
             return false;
         }
 
-        if (authDAO.existsByUsername(username)) {
+        if (existsByUsername(username)) {
             System.out.println("Tài khoản đã có người sử dụng.");
             return false;
         }
 
-        if (authDAO.existsByEmail(email)) {
+        if (existsByEmail(email)) {
             System.out.println("Email đã có người sử dụng.");
             return false;
         }
 
-        return authDAO.signUp(username, email, password);
+        return userService.insertNewUser(username, email, password, 1);
     }
 
     /**
      * Wrapper to check if user exists by email.
      */
     public boolean existsByEmail(String email) {
-        return authDAO.existsByEmail(email);
+        return userService.existsByEmail(email);
     }
 
     /**
      * Wrapper to check if user exists by username.
      */
     public boolean existsByUsername(String username) {
-        return authDAO.existsByUsername(username);
+        return userService.existsByUsername(username);
     }
 }

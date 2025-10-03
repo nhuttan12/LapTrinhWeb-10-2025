@@ -9,11 +9,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class OrderDetail {
-    private int id;
-    private int orderId;
-    private int productId;
-    private int quantity;
-    private double price;
+    private Integer id;
+    private Integer orderId;
+    private Integer productId;
+    private Integer quantity;
+    private Double price;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }

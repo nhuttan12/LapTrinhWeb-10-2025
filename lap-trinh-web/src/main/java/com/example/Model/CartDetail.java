@@ -9,12 +9,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CartDetail {
-    private int id;
-    private int cartId;
-    private int productId;
-    private int quantity;
-    private String status;
+    private Integer id;
+    private Integer cartId;
+    private Integer productId;
+    private Integer quantity;
+    private CartDetailStatus status;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }
-

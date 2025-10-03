@@ -1,16 +1,12 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: NhutTan
-  Date: 10/3/2025
-  Time: 2:32 PM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-  <head>
-    <title>$Title$</title>
-  </head>
-  <body>
-  $END$
-  </body>
-</html>
+<div class="list-group">
+    <a href="${pageContext.request.contextPath}/profile" class="list-group-item list-group-item-action">
+        <i class="fas fa-user"></i> Thông tin người dùng
+    </a>
+    <a href="${pageContext.request.contextPath}/change-password" class="list-group-item list-group-item-action">
+        <i class="fas fa-lock"></i> Đổi mật khẩu
+    </a>
+    <a href="${pageContext.request.contextPath}/orderManagement" class="list-group-item list-group-item-action">
+        <i class="fas fa-shopping-cart"></i> Hoá đơn người dùng
+    </a>
+</div>

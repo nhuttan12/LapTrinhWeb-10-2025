@@ -1,5 +1,5 @@
 package com.example.Model;
 
-public enum RoleStatus {
+public enum ProductStatus {
     ACTIVE, INACTIVE
 }

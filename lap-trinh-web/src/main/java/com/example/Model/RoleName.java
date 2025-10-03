@@ -1,4 +1,6 @@
 package com.example.Model;
 
 public enum RoleName {
+    ADMIN,
+    CUSTOMER;
 }

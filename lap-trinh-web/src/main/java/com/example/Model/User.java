@@ -12,13 +12,13 @@ import lombok.Builder;
 @AllArgsConstructor
 @Builder
 public class User {
-    private int id;
+    private Integer id;
     private String username;
     private String password;
     private String fullName;
     private String email;
-    private String status;
-    private int roleId;
+    private UserStatus status;
+    private Integer roleId;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }

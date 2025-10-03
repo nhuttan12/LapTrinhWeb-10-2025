@@ -29,7 +29,8 @@
     <div class="bg-light py-3">
         <div class="container">
             <div class="row">
-                <div class="col-md-12 mb-0"><a href="/home">Home</a> <span class="mx-2 mb-0">/</span> <strong
+                <div class="col-md-12 mb-0"><a href="${pageContext.request.contextPath}/home">Home</a> <span
+                        class="mx-2 mb-0">/</span> <strong
                         class="text-black">Tank Top T-Shirt</strong></div>
             </div>
         </div>
@@ -89,7 +90,8 @@
                         </div>
 
                     </div>
-                    <p><a href="/cart" class="buy-now btn btn-sm btn-primary">Add To Cart</a></p>
+                    <p><a href="${pageContext.request.contextPath}/cart" class="buy-now btn btn-sm btn-primary">Add To
+                        Cart</a></p>
 
                 </div>
             </div>
@@ -109,7 +111,8 @@
                         <div class="item">
                             <div class="block-4 text-center">
                                 <figure class="block-4-image">
-                                    <img src="${pageContext.request.contextPath}/user/images/cloth_1.jpg" alt="Image placeholder" class="img-fluid">
+                                    <img src="${pageContext.request.contextPath}/user/images/cloth_1.jpg"
+                                         alt="Image placeholder" class="img-fluid">
                                 </figure>
                                 <div class="block-4-text p-4">
                                     <h3><a href="#">Tank Top</a></h3>
@@ -121,7 +124,8 @@
                         <div class="item">
                             <div class="block-4 text-center">
                                 <figure class="block-4-image">
-                                    <img src="${pageContext.request.contextPath}/user/images/shoe_1.jpg" alt="Image placeholder" class="img-fluid">
+                                    <img src="${pageContext.request.contextPath}/user/images/shoe_1.jpg"
+                                         alt="Image placeholder" class="img-fluid">
                                 </figure>
                                 <div class="block-4-text p-4">
                                     <h3><a href="#">Corater</a></h3>
@@ -133,7 +137,8 @@
                         <div class="item">
                             <div class="block-4 text-center">
                                 <figure class="block-4-image">
-                                    <img src="${pageContext.request.contextPath}/user/images/cloth_2.jpg" alt="Image placeholder" class="img-fluid">
+                                    <img src="${pageContext.request.contextPath}/user/images/cloth_2.jpg"
+                                         alt="Image placeholder" class="img-fluid">
                                 </figure>
                                 <div class="block-4-text p-4">
                                     <h3><a href="#">Polo Shirt</a></h3>
@@ -145,7 +150,8 @@
                         <div class="item">
                             <div class="block-4 text-center">
                                 <figure class="block-4-image">
-                                    <img src="${pageContext.request.contextPath}/user/images/cloth_3.jpg" alt="Image placeholder" class="img-fluid">
+                                    <img src="${pageContext.request.contextPath}/user/images/cloth_3.jpg"
+                                         alt="Image placeholder" class="img-fluid">
                                 </figure>
                                 <div class="block-4-text p-4">
                                     <h3><a href="#">T-Shirt Mockup</a></h3>
@@ -157,7 +163,8 @@
                         <div class="item">
                             <div class="block-4 text-center">
                                 <figure class="block-4-image">
-                                    <img src="${pageContext.request.contextPath}/user/images/shoe_1.jpg" alt="Image placeholder" class="img-fluid">
+                                    <img src="${pageContext.request.contextPath}/user/images/shoe_1.jpg"
+                                         alt="Image placeholder" class="img-fluid">
                                 </figure>
                                 <div class="block-4-text p-4">
                                     <h3><a href="#">Corater</a></h3>

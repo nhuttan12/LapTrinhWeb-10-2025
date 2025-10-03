@@ -2,6 +2,7 @@ package com.example.Controller.Auth;
 
 import com.example.Service.Auth.AuthService;
 import com.example.Service.Auth.MailService;
+import com.example.Service.Database.JDBCConnection;
 import jakarta.mail.MessagingException;
 
 import javax.servlet.ServletException;
@@ -10,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 @WebServlet("/register")
 public class Register extends HttpServlet {
@@ -22,7 +25,12 @@ public class Register extends HttpServlet {
         /*
          * init service
          */
-        authService = new AuthService();
+        try {
+            Connection conn = JDBCConnection.getConnection();
+            authService = new AuthService(conn);
+        } catch (SQLException e) {
+            throw new ServletException("Failed to initialize DB connection", e);
+        }
         mailService = new MailService();
     }
 

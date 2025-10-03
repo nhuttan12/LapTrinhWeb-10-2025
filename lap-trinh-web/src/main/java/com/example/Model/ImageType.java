@@ -1,4 +1,5 @@
 package com.example.Model;
 
-public interface ImageType {
+public enum ImageType {
+    THUMBNAIL, GALLERY, OTHER
 }

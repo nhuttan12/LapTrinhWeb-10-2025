@@ -9,9 +9,9 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Role {
-    private int id;
-    private String name;
-    private String status;
+    private Integer id;
+    private RoleName name;
+    private RoleStatus status;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }

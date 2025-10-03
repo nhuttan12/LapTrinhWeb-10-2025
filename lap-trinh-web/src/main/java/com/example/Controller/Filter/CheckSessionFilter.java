@@ -9,15 +9,17 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-@WebFilter
+@WebFilter("/*")
 public class CheckSessionFilter implements Filter {
 
     private static final List<String> PUBLIC_PATHS = Arrays.asList(
+            "/",
             "/login",
             "/product",
             "/about-us",
             "/contact",
-            "/register"
+            "/register",
+            "/home"
     );
 
     @Override
@@ -38,8 +40,11 @@ public class CheckSessionFilter implements Filter {
         /*
          * Check if path is public or user is logged in
          */
-        boolean isPublic = PUBLIC_PATHS.stream().anyMatch(path::startsWith);
-        boolean loggedIn = (session != null && session.getAttribute("username") != null);
+        boolean isPublic = PUBLIC_PATHS.contains(path);
+        boolean loggedIn = (
+                session != null &&
+                        session.getAttribute("username") != null &&
+                        session.getAttribute("userId") != null);
 
         if (isPublic || loggedIn) {
             /*

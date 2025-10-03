@@ -9,10 +9,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Image {
-    private int id;
+    private Integer id;
     private String url;
-    private String status;
+    private ImageStatus status;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+
 }
 
