@@ -44,7 +44,7 @@
 </head>
 
 <body>
-<hr>
+
 <div class="container bootstrap snippet">
     <%--    Header--%>
     <jsp:include page="header.jsp"/>
@@ -113,7 +113,7 @@
                                     </div>
                                 </div>
                             </form>
-                            <hr>
+                            
                         </div>
                     </div>
                 </div>

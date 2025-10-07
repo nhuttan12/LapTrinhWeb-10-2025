@@ -46,7 +46,28 @@ public class CheckSessionFilter implements Filter {
                         session.getAttribute("username") != null &&
                         session.getAttribute("userId") != null);
 
-        if (isPublic || loggedIn) {
+        /**
+         * Check resource file
+         */
+        boolean isStaticResource =
+                path.startsWith("/admin/") ||
+                        path.startsWith("/vendors/") ||
+                        path.startsWith("/images/") ||
+                        path.startsWith("/css/") ||
+                        path.startsWith("/js/") ||
+                        path.endsWith(".css") ||
+                        path.endsWith(".js") ||
+                        path.endsWith(".png") ||
+                        path.endsWith(".jpg") ||
+                        path.endsWith(".jpeg") ||
+                        path.endsWith(".gif") ||
+                        path.endsWith(".svg") ||
+                        path.endsWith(".ico") ||
+                        path.endsWith(".woff") ||
+                        path.endsWith(".woff2") ||
+                        path.endsWith(".ttf");
+
+        if (isPublic || loggedIn || isStaticResource) {
             /*
              * Allow request to continue
              */

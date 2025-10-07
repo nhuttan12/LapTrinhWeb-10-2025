@@ -30,25 +30,6 @@
     <%
         }
     %>
-
-    <script>
-      document.querySelector("form").addEventListener("submit", function (event) {
-        const username = document.querySelector("input[name='username']").value.trim();
-        const password = document.querySelector("input[name='password']").value.trim();
-
-        if (!username || !password) {
-          alert("Tài khoản và mật khẩu không được để trống!");
-          event.preventDefault(); // Stop form submission
-          return;
-        }
-
-        if (username.length < 4 || password.length < 4) {
-          alert("Tài khoản và mật khẩu phải có ít nhất 4 ký tự!");
-          event.preventDefault();
-          return;
-        }
-      });
-    </script>
 </head>
 
 <body>
@@ -78,7 +59,7 @@
                             <div class="mt-3">
                                 <button type="submit"
                                         class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">
-                                    SIGN IN
+                                    Đăng nhập
                                 </button>
                             </div>
                             <div class="my-2 d-flex justify-content-between align-items-center">
@@ -96,7 +77,7 @@
                             <%--                </div>--%>
                             <div class="text-center mt-4 font-weight-light">
                                 Nếu bạn chưa có tài khoản? <a href="${pageContext.request.contextPath}/register"
-                                                          class="text-primary">Tạo tài khoản</a>
+                                                              class="text-primary">Tạo tài khoản</a>
                             </div>
                         </form>
                     </div>
@@ -120,6 +101,25 @@
 <script src="${pageContext.request.contextPath}/admin/js/settings.js"></script>
 <script src="${pageContext.request.contextPath}/admin/js/todolist.js"></script>
 <!-- end inject -->
+
+<script>
+  document.querySelector("form").addEventListener("submit", function (event) {
+    const username = document.querySelector("input[name='username']").value.trim();
+    const password = document.querySelector("input[name='password']").value.trim();
+
+    if (!username || !password) {
+      alert("Tài khoản và mật khẩu không được để trống!");
+      event.preventDefault(); // Stop form submission
+      return;
+    }
+
+    if (username.length < 4 || password.length < 4) {
+      alert("Tài khoản và mật khẩu phải có ít nhất 4 ký tự!");
+      event.preventDefault();
+      return;
+    }
+  });
+</script>
 </body>
 
 </html>
