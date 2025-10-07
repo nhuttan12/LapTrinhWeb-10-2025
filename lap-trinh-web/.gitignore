@@ -36,3 +36,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Ignore Docker volumes ###
+data/
+db_data/

@@ -9,12 +9,12 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ProductDetail {
-    private int id;
+    private Integer id;
+    private Integer productId;
     private String size;
     private String color;
     private String description;
-    private double rating;
+    private Double rating;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }
-

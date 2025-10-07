@@ -9,10 +9,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ProductImage {
-    private int id;
-    private int imageId;
-    private int productId;
-    private String type;
+    private Integer id;
+    private Integer imageId;
+    private Integer productId;
+    private ImageType type;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }

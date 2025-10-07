@@ -9,11 +9,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class UserDetail {
-    private int id;
+    private Integer id;
+    private Integer userId;
     private String address1;
     private String address2;
     private String address3;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }
-

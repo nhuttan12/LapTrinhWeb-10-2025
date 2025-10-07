@@ -9,15 +9,17 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-@WebFilter
+@WebFilter("/*")
 public class CheckSessionFilter implements Filter {
 
     private static final List<String> PUBLIC_PATHS = Arrays.asList(
+            "/",
             "/login",
             "/product",
             "/about-us",
             "/contact",
-            "/register"
+            "/register",
+            "/home"
     );
 
     @Override
@@ -38,10 +40,34 @@ public class CheckSessionFilter implements Filter {
         /*
          * Check if path is public or user is logged in
          */
-        boolean isPublic = PUBLIC_PATHS.stream().anyMatch(path::startsWith);
-        boolean loggedIn = (session != null && session.getAttribute("username") != null);
+        boolean isPublic = PUBLIC_PATHS.contains(path);
+        boolean loggedIn = (
+                session != null &&
+                        session.getAttribute("username") != null &&
+                        session.getAttribute("userId") != null);
 
-        if (isPublic || loggedIn) {
+        /**
+         * Check resource file
+         */
+        boolean isStaticResource =
+                path.startsWith("/admin/") ||
+                        path.startsWith("/vendors/") ||
+                        path.startsWith("/images/") ||
+                        path.startsWith("/css/") ||
+                        path.startsWith("/js/") ||
+                        path.endsWith(".css") ||
+                        path.endsWith(".js") ||
+                        path.endsWith(".png") ||
+                        path.endsWith(".jpg") ||
+                        path.endsWith(".jpeg") ||
+                        path.endsWith(".gif") ||
+                        path.endsWith(".svg") ||
+                        path.endsWith(".ico") ||
+                        path.endsWith(".woff") ||
+                        path.endsWith(".woff2") ||
+                        path.endsWith(".ttf");
+
+        if (isPublic || loggedIn || isStaticResource) {
             /*
              * Allow request to continue
              */

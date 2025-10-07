@@ -9,10 +9,9 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Cart {
-    private int id;
-    private int userId;
-    private String status;
+    private Integer id;
+    private Integer userId;
+    private CartStatus status;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }
-

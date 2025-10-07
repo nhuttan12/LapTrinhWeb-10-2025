@@ -12,13 +12,12 @@ import lombok.Builder;
 @AllArgsConstructor
 @Builder
 public class Product {
-    private int id;
+    private Integer id;
     private String name;
-    private double price;
-    private double discount;
-    private String status;
+    private Double price;
+    private Double discount;
+    private ProductStatus status;
     private String category;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }
-

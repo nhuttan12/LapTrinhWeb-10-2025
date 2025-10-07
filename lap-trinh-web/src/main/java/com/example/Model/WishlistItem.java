@@ -9,11 +9,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class WishlistItem {
-    private int id;
-    private int productId;
-    private int userId;
-    private String status;
+    private Integer id;
+    private Integer productId;
+    private Integer userId;
+    private WishlistStatus status;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }
-

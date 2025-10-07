@@ -1,6 +1,9 @@
 package com.example.Controller.Auth;
 
+import com.example.Model.User;
 import com.example.Service.Auth.AuthService;
+import com.example.Service.Database.JDBCConnection;
+import com.example.Service.User.UserService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,18 +12,27 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 @WebServlet("/login")
 public class Login extends HttpServlet {
 
     private AuthService authService;
+    private UserService userService;
 
     @Override
     public void init() throws ServletException {
         /*
          * init service
          */
-        authService = new AuthService();
+        try {
+            Connection conn = JDBCConnection.getConnection();
+            authService = new AuthService(conn);
+            userService = new UserService(conn);
+        } catch (SQLException e) {
+            throw new ServletException("Failed to initialize DB connection", e);
+        }
     }
 
 
@@ -58,7 +70,12 @@ public class Login extends HttpServlet {
 
         if (success) {
             HttpSession session = req.getSession();
+
+            User user = userService.getUserByUsername(username);
+
             session.setAttribute("username", username);
+            session.setAttribute("userId", user.getId());
+            session.setAttribute("role", user);
 
             /*
              * redirect to /home

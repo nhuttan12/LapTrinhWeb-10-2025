@@ -9,10 +9,9 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class UserImage {
-    private int id;
-    private int userId;
-    private int imageId;
+    private Integer id;
+    private Integer userId;
+    private Integer imageId;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }
-
