@@ -1,5 +1,5 @@
 package com.example.Model;
 
 public enum ImageType {
-    THUMBNAIL, GALLERY, OTHER
+    THUMBNAIL, GALLERY, PRODUCT
 }

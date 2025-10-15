@@ -1,6 +1,6 @@
 package com.example.Service.User;
 
-import com.example.Controller.DAO.UserDAO;
+import com.example.DAO.UserDAO;
 import com.example.Model.User;
 
 import java.sql.Connection;

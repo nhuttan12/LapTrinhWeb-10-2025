@@ -1,10 +1,8 @@
-package com.example.Controller.DAO;
+package com.example.DAO;
 
-import com.example.Model.RoleName;
 import com.example.Model.User;
 import com.example.Model.UserDetail;
 import com.example.Model.UserStatus;
-import com.example.Service.Database.JDBCConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
