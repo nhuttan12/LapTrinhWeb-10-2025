@@ -21,4 +21,7 @@ public class User {
     private Integer roleId;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+
+    private UserDetail userDetail;
+    private UserImage userImage;
 }

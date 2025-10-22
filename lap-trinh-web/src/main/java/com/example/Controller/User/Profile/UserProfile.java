@@ -1,10 +1,13 @@
 package com.example.Controller.User.Profile;
 
+import com.example.DTO.User.UserProfileDTO;
 import com.example.Model.User;
 import com.example.Service.Database.JDBCConnection;
+import com.example.Service.Image.ImageService;
 import com.example.Service.User.UserService;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -15,14 +18,21 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @WebServlet("/profile")
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 1, // 1 MB
+        maxFileSize = 1024 * 1024 * 10,      // 10 MB
+        maxRequestSize = 1024 * 1024 * 15    // 15 MB
+)
 public class UserProfile extends HttpServlet {
     private UserService userService;
+    private ImageService imageService;
 
     @Override
     public void init() throws ServletException {
         try {
             Connection conn = JDBCConnection.getConnection();
             userService = new UserService(conn);
+            imageService = new ImageService();
         } catch (SQLException e) {
             throw new ServletException("Failed to initialize DB connection", e);
         }
@@ -32,11 +42,44 @@ public class UserProfile extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         HttpSession session = req.getSession(false);
         int userId = (Integer) session.getAttribute("userId");
+        System.out.println("User id in session" + userId);
 
-        User user = userService.getUserProfile(userId);
+        UserProfileDTO profile = userService.getUserProfile(userId);
 
-        if (user != null) {
-            req.setAttribute("user", user);
+        if (profile != null) {
+            req.setAttribute("userProfile", profile);
+            req.getRequestDispatcher("/user/user-profile.jsp").forward(req, resp);
+        } else {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "User not found");
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        HttpSession session = req.getSession(false);
+        int userId = (Integer) session.getAttribute("userId");
+
+        // 1. Get parameter from form
+        String fullName = req.getParameter("fullName");
+        String phone = req.getParameter("phone");
+        String address1 = req.getParameter("address1");
+        String address2 = req.getParameter("address2");
+        String address3 = req.getParameter("address3");
+
+        // 2. Upload image path
+        String imagePath = imageService.upload(req, "avatar");
+
+        // 3. Update user profile
+        UserProfileDTO profile = null;
+        try {
+            profile = userService.updateUserProfile(userId, fullName, phone, address1, address2, address3, imagePath);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        // 4. Check user profile updated successfully
+        if (profile != null) {
+            req.setAttribute("userProfile", profile);
             req.getRequestDispatcher("/user/user-profile.jsp").forward(req, resp);
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "User not found");

@@ -1,4 +1,4 @@
-<%--
+<%@ page import="com.example.DTO.User.UserProfileDTO" %><%--
   Created by IntelliJ IDEA.
   User: NhutTan
   Date: 10/2/2025
@@ -56,52 +56,65 @@
             <jsp:include page="user-profile-side-bar.jsp"/>
         </div>
 
+        <%
+            UserProfileDTO user = (UserProfileDTO) request.getAttribute("userProfile");
+        %>
+
         <!-- User Profile -->
         <div class="col-md-9">
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="home">
-                            <form class="form" action="${pageContext.request.contextPath}/profile" method="post">
+            <div class="tab-content">
+                <div class="tab-pane active" id="home">
+                    <form class="form" action="${pageContext.request.contextPath}/profile" method="post"
+                          enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-8">
                                 <div class="form-group">
                                     <div class="col-xs-6">
                                         <label for="fullName"><h4>Họ tên:</h4></label>
-                                        <input type="text" class="form-control" name="fullName" id="fullName">
+                                        <input type="text" class="form-control" name="fullName" id="fullName"
+                                               value="<%= user.getFullName() == null ? "" : user.getFullName()%>">
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-xs-6">
                                         <label for="phone"><h4>Số điện thoại:</h4></label>
-                                        <input type="tel" class="form-control" name="phone" id="phone">
+                                        <input type="tel" class="form-control" name="phone" id="phone"
+                                               value="<%= user.getPhone() == null ? "" : user.getPhone()%>">
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-xs-6">
                                         <label for="email"><h4>Email:</h4></label>
-                                        <input type="email" class="form-control" name="email" id="email">
+                                        <input type="email"
+                                               class="form-control" <%= user.getEmail() != null ? "disabled" : "" %>
+                                               name="email" id="email"
+                                               value="<%= user.getEmail() == null ? "" : user.getEmail()%>">
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-xs-6">
                                         <label for="address1"><h4>Địa chỉ 1:</h4></label>
-                                        <input type="text" class="form-control" name="address1" id="address1">
+                                        <input type="text" class="form-control" name="address1" id="address1"
+                                               value="<%= user.getAddress1() == null ? "" : user.getAddress1()%>">
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-xs-6">
                                         <label for="address2"><h4>Địa chỉ 2:</h4></label>
-                                        <input type="text" class="form-control" name="address2" id="address2">
+                                        <input type="text" class="form-control" name="address2" id="address2"
+                                               value="<%= user.getAddress2() == null ? "" : user.getAddress2()%>">
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-xs-6">
                                         <label for="address3"><h4>Địa chỉ 3:</h4></label>
-                                        <input type="text" class="form-control" name="address3" id="address3">
+                                        <input type="text" class="form-control" name="address3" id="address3"
+                                               value="<%= user.getAddress3() == null ? "" : user.getAddress3()%>">
                                     </div>
                                 </div>
 
@@ -112,21 +125,27 @@
                                         </button>
                                     </div>
                                 </div>
-                            </form>
-                            
-                        </div>
-                    </div>
-                </div>
+                            </div>
 
-                <!-- Upload Image -->
-                <div class="col-md-4 text-center">
-                    <div class="text-center">
-                        <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png"
-                             class="avatar img-circle img-thumbnail"
-                             alt="avatar">
-                        <h6>Tải hình ảnh cá nhân</h6>
-                        <input type="file" class="text-center center-block file-upload">
-                    </div>
+                            <!-- Upload Image -->
+                            <div class="col-md-4 text-center">
+                                <div class="text-center">
+                                    <%
+                                        String avatarUrl = user.getAvatar();
+//                                        if (avatarUrl == null || avatarUrl.isEmpty()) {
+//                                            avatarUrl = "http://ssl.gstatic.com/accounts/ui/avatar_2x.png";
+//                                        }
+                                    %>
+                                    <img src="<%= avatarUrl %>"
+                                         class="avatar img-circle img-thumbnail"
+                                         alt="avatar">
+                                    <h6>Tải hình ảnh cá nhân</h6>
+                                    <input type="file" name="avatar" accept="image/*"
+                                           class="text-center center-block file-upload"/>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -143,5 +162,21 @@
 <script src="${pageContext.request.contextPath}/user/js/bootstrap.min.js"></script>
 <script src="${pageContext.request.contextPath}/user/js/owl.carousel.min.js"></script>
 <script src="${pageContext.request.contextPath}/user/js/jquery.magnific-popup.min.js"></script>
+
+<!-- Image preview script -->
+<script>
+  $(function () {
+    $(".file-upload").on("change", function () {
+      const input = this;
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          $(".avatar").attr("src", e.target.result);
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    });
+  });
+</script>
 </body>
 </html>

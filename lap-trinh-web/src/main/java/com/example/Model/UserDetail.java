@@ -11,6 +11,7 @@ import lombok.*;
 public class UserDetail {
     private Integer id;
     private Integer userId;
+    private String phone;
     private String address1;
     private String address2;
     private String address3;

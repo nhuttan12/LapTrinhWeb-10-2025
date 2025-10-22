@@ -14,6 +14,5 @@ public class Image {
     private ImageStatus status;
     private Timestamp createdAt;
     private Timestamp updatedAt;
-
 }
 

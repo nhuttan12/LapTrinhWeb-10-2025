@@ -1,8 +1,6 @@
 package com.example.DAO;
 
-import com.example.Model.User;
-import com.example.Model.UserDetail;
-import com.example.Model.UserStatus;
+import com.example.Model.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,36 +16,83 @@ public class UserDAO {
     }
 
     public User getUserProfile(int userId) throws SQLException {
-        String sql = "SELECT u.id, u.username, u.full_name, u.email, u.role_id, u.status, " +
-                "u.created_at, u.updated_at, " +
-                "ud.id AS ud_id, ud.address_1, ud.address_2, " +
-                "ud.created_at AS ud_created, ud.updated_at AS ud_updated " +
-                "FROM users u " +
-                "LEFT JOIN user_details ud ON u.id = ud.user_id " +
-                "WHERE u.id = ?";
+        String sql = """
+            SELECT
+                u.id AS u_id, u.username AS u_username, u.password AS u_password,
+                u.full_name AS u_full_name, u.email AS u_email, u.status AS u_status,
+                u.role_id AS u_role_id, u.created_at AS u_created_at, u.updated_at AS u_updated_at,
+
+                ud.id AS ud_id, ud.phone AS ud_phone, ud.user_id AS ud_user_id,
+                ud.address_1 AS ud_address_1, ud.address_2 AS ud_address_2, ud.address_3 AS ud_address_3,
+                ud.created_at AS ud_created_at, ud.updated_at AS ud_updated_at,
+
+                ui.id AS ui_id, ui.user_id AS ui_user_id, ui.image_id AS ui_image_id,
+                ui.created_at AS ui_created_at, ui.updated_at AS ui_updated_at,
+
+                i.id AS i_id, i.url AS i_url, i.status AS i_status,
+                i.created_at AS i_created_at, i.updated_at AS i_updated_at
+            FROM users u
+            LEFT JOIN user_details ud ON u.id = ud.user_id
+            LEFT JOIN LATERAL (
+                SELECT *
+                FROM user_images
+                WHERE user_id = u.id
+                ORDER BY created_at DESC
+                LIMIT 1
+            ) ui ON TRUE
+            LEFT JOIN images i ON ui.image_id = i.id
+            WHERE u.id = ?
+        """;
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                UserDetail details = UserDetail.builder()
+                UserDetail userDetail = UserDetail.builder()
                         .id(rs.getInt("ud_id"))
-                        .address1(rs.getString("address_1"))
-                        .address2(rs.getString("address_2"))
-                        .createdAt(rs.getTimestamp("ud_created"))
-                        .updatedAt(rs.getTimestamp("ud_updated"))
+                        .userId(rs.getInt("ud_user_id"))
+                        .phone(rs.getString("ud_phone"))
+                        .address1(rs.getString("ud_address_1"))
+                        .address2(rs.getString("ud_address_2"))
+                        .address3(rs.getString("ud_address_3"))
+                        .createdAt(rs.getTimestamp("ud_created_at"))
+                        .updatedAt(rs.getTimestamp("ud_updated_at"))
+                        .build();
+
+                Image image = Image.builder()
+                        .id(rs.getInt("i_id"))
+                        .url(rs.getString("i_url"))
+                        .status(rs.getString("i_status") != null
+                                ? ImageStatus.valueOf(rs.getString("i_status").toUpperCase())
+                                : null)
+                        .createdAt(rs.getTimestamp("i_created_at"))
+                        .updatedAt(rs.getTimestamp("i_updated_at"))
+                        .build();
+
+                UserImage userImage = UserImage.builder()
+                        .id(rs.getInt("ui_id"))
+                        .userId(rs.getInt("ui_user_id"))
+                        .imageId(rs.getInt("ui_image_id"))
+                        .createdAt(rs.getTimestamp("ui_created_at"))
+                        .updatedAt(rs.getTimestamp("ui_updated_at"))
+                        .image(image)
                         .build();
 
                 return User.builder()
-                        .id(rs.getInt("id"))
-                        .username(rs.getString("username"))
-                        .fullName(rs.getString("full_name"))
-                        .email(rs.getString("email"))
-                        .status(UserStatus.valueOf(rs.getString("status").toUpperCase()))
-                        .roleId(rs.getInt("role_id"))
-                        .createdAt(rs.getTimestamp("created_at"))
-                        .updatedAt(rs.getTimestamp("updated_at"))
+                        .id(rs.getInt("u_id"))
+                        .username(rs.getString("u_username"))
+                        .password(rs.getString("u_password"))
+                        .fullName(rs.getString("u_full_name"))
+                        .email(rs.getString("u_email"))
+                        .status(rs.getString("u_status") != null
+                                ? UserStatus.valueOf(rs.getString("u_status").toUpperCase())
+                                : null)
+                        .roleId(rs.getInt("u_role_id"))
+                        .createdAt(rs.getTimestamp("u_created_at"))
+                        .updatedAt(rs.getTimestamp("u_updated_at"))
+                        .userDetail(userDetail)
+                        .userImage(userImage)
                         .build();
             }
         }
@@ -120,10 +165,15 @@ public class UserDAO {
                     INSERT INTO users (username, email, password, role_id, status)
                     VALUES (?, ?, ?, ?, ?)
                     RETURNING id
+                ),
+                inserted_details AS (
+                    INSERT INTO user_details (user_id, phone, address_1, address_2, address_3)
+                    SELECT id, '', '', '', ''
+                    FROM new_user
                 )
                 INSERT INTO user_images (user_id, image_id)
-                SELECT new_user.id, ?
-                FROM new_user
+                SELECT id, ?
+                FROM new_user;
                 """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -137,19 +187,23 @@ public class UserDAO {
             stmt.setInt(6, DEFAULT_IMAGE_ID);
 
             int rowsAffected = stmt.executeUpdate();
-
             conn.commit();
 
             return rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             try {
-                // rollback on error
                 conn.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
             return false;
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -167,5 +221,77 @@ public class UserDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean updateUserProfile(
+            int userId,
+            String fullName,
+            String phone,
+            String address1,
+            String address2,
+            String address3,
+            String imageUrl
+    ) {
+        String updateSQL = """
+                    WITH updated_user AS (
+                        UPDATE users
+                        SET full_name = ?, updated_at = NOW()
+                        WHERE id = ?
+                        RETURNING id
+                    ),
+                    updated_details AS (
+                        UPDATE user_details
+                        SET phone = ?, address_1 = ?, address_2 = ?, address_3 = ?, updated_at = NOW()
+                        WHERE user_id = ?
+                        RETURNING user_id
+                    ),
+                    inserted_image AS (
+                        INSERT INTO images (url, status, created_at, updated_at)
+                        VALUES (?, ?, NOW(), NOW())
+                        RETURNING id
+                    )
+                    INSERT INTO user_images (user_id, image_id, created_at, updated_at)
+                    SELECT ?, ii.id, NOW(), NOW()
+                    FROM updated_details ud, inserted_image ii;
+                """;
+
+        boolean success = false;
+
+        try {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement stmt = conn.prepareStatement(updateSQL)) {
+                stmt.setString(1, fullName);
+                stmt.setInt(2, userId);
+                stmt.setString(3, phone);
+                stmt.setString(4, address1);
+                stmt.setString(5, address2);
+                stmt.setString(6, address3);
+                stmt.setInt(7, userId);
+                stmt.setString(8, imageUrl);
+                stmt.setString(9, ImageStatus.ACTIVE.name().toLowerCase());
+                stmt.setInt(10, userId);
+
+                stmt.executeUpdate();
+            }
+
+            conn.commit();
+            success = true;
+        } catch (SQLException e) {
+            try {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            e.printStackTrace();
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return success;
     }
 }
