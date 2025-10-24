@@ -13,7 +13,7 @@ public class MailService {
     private final String smtpPort;
 
     public MailService() {
-        this.smtpHost = "smtp.gmail.com"; // or your SMTP host
+        this.smtpHost = "smtp.gmail.com";  // or your SMTP host
         this.smtpPort = "587";             // TLS port
     }
 

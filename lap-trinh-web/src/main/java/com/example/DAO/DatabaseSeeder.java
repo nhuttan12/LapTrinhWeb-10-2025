@@ -1,4 +1,4 @@
-package com.example.Controller.DAO;
+package com.example.DAO;
 
 import com.example.Model.ImageStatus;
 import com.example.Model.RoleName;

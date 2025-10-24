@@ -1,5 +1,6 @@
 package com.example.Service.Auth;
 
+import com.example.Model.User;
 import com.example.Service.User.UserService;
 
 import java.sql.Connection;
@@ -64,5 +65,9 @@ public class AuthService {
      */
     public boolean existsByUsername(String username) {
         return userService.existsByUsername(username);
+    }
+
+    public boolean changePassword(String username, String password, String newPassword) {
+        return userService.changePassword(username, password, newPassword);
     }
 }

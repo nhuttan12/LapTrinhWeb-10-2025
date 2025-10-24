@@ -26,14 +26,14 @@
 <body>
 <div class="container-scroller">
     <!-- partial:partials/navbar.jsp -->
-    <jsp:include page="partials/navbar.jsp" />
+    <jsp:include page="partials/navbar.jsp"/>
     <!-- partial -->
     <div class="container-fluid page-body-wrapper">
         <!-- partial:partials/settings-panel.jsp -->
-        <jsp:include page="partials/settings-panel.jsp" />
+        <jsp:include page="partials/settings-panel.jsp"/>
         <!-- partial -->
         <!-- partial:partials/sidebar.jsp -->
-        <%@ include file="partials/sidebar.jsp" %>
+        <jsp:include page="partials/sidebar.jsp"/>
         <!-- partial -->
         <div class="main-panel">
             <div class="content-wrapper">
@@ -811,7 +811,7 @@
             </div>
             <!-- content-wrapper ends -->
             <!-- partial:partials/footer.jsp -->
-            <%@ include file="partials/footer.jsp" %>
+            <jsp:include page="partials/footer.jsp"/>
             <!-- partial -->
         </div>
         <!-- main-panel ends -->

@@ -15,5 +15,7 @@ public class ProductImage {
     private ImageType type;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+
+    private Image image;
 }
 
