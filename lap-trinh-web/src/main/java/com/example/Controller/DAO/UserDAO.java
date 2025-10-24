@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO {
     private final Connection conn;
@@ -170,4 +172,55 @@ public class UserDAO {
             return false;
         }
     }
+
+
+    // Lấy danh sách tất cả user chưa bị xoá (status != 'deleted')
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT id, username, email, role_id, status FROM users WHERE status != 'deleted'";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User user = User.builder()
+                        .id(rs.getInt("id"))
+                        .username(rs.getString("username"))
+                        .email(rs.getString("email"))
+                        .roleId(rs.getInt("role_id"))
+                        .status(UserStatus.valueOf(rs.getString("status").toUpperCase()))
+                        .build();
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return users;
+    }
+
+    // Soft delete user: đổi status thành 'deleted'
+    public boolean softDeleteUser(int userId) {
+        String sql = "UPDATE users SET status = 'deleted' WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Đổi role user
+    public boolean changeUserRole(int userId, int newRoleId) {
+        String sql = "UPDATE users SET role_id = ? WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, newRoleId);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
