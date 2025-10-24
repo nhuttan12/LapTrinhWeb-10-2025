@@ -17,32 +17,32 @@ public class UserDAO {
 
     public User getUserProfile(int userId) throws SQLException {
         String sql = """
-            SELECT
-                u.id AS u_id, u.username AS u_username, u.password AS u_password,
-                u.full_name AS u_full_name, u.email AS u_email, u.status AS u_status,
-                u.role_id AS u_role_id, u.created_at AS u_created_at, u.updated_at AS u_updated_at,
-
-                ud.id AS ud_id, ud.phone AS ud_phone, ud.user_id AS ud_user_id,
-                ud.address_1 AS ud_address_1, ud.address_2 AS ud_address_2, ud.address_3 AS ud_address_3,
-                ud.created_at AS ud_created_at, ud.updated_at AS ud_updated_at,
-
-                ui.id AS ui_id, ui.user_id AS ui_user_id, ui.image_id AS ui_image_id,
-                ui.created_at AS ui_created_at, ui.updated_at AS ui_updated_at,
-
-                i.id AS i_id, i.url AS i_url, i.status AS i_status,
-                i.created_at AS i_created_at, i.updated_at AS i_updated_at
-            FROM users u
-            LEFT JOIN user_details ud ON u.id = ud.user_id
-            LEFT JOIN LATERAL (
-                SELECT *
-                FROM user_images
-                WHERE user_id = u.id
-                ORDER BY created_at DESC
-                LIMIT 1
-            ) ui ON TRUE
-            LEFT JOIN images i ON ui.image_id = i.id
-            WHERE u.id = ?
-        """;
+                    SELECT
+                        u.id AS u_id, u.username AS u_username, u.password AS u_password,
+                        u.full_name AS u_full_name, u.email AS u_email, u.status AS u_status,
+                        u.role_id AS u_role_id, u.created_at AS u_created_at, u.updated_at AS u_updated_at,
+                
+                        ud.id AS ud_id, ud.phone AS ud_phone, ud.user_id AS ud_user_id,
+                        ud.address_1 AS ud_address_1, ud.address_2 AS ud_address_2, ud.address_3 AS ud_address_3,
+                        ud.created_at AS ud_created_at, ud.updated_at AS ud_updated_at,
+                
+                        ui.id AS ui_id, ui.user_id AS ui_user_id, ui.image_id AS ui_image_id,
+                        ui.created_at AS ui_created_at, ui.updated_at AS ui_updated_at,
+                
+                        i.id AS i_id, i.url AS i_url, i.status AS i_status,
+                        i.created_at AS i_created_at, i.updated_at AS i_updated_at
+                    FROM users u
+                    LEFT JOIN user_details ud ON u.id = ud.user_id
+                    LEFT JOIN LATERAL (
+                        SELECT *
+                        FROM user_images
+                        WHERE user_id = u.id
+                        ORDER BY created_at DESC
+                        LIMIT 1
+                    ) ui ON TRUE
+                    LEFT JOIN images i ON ui.image_id = i.id
+                    WHERE u.id = ?
+                """;
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
@@ -208,14 +208,15 @@ public class UserDAO {
     }
 
     public boolean getUserByUsernameAndPassword(String username, String password) {
-        String sql = "SELECT id FROM users WHERE username = ? AND password = ?";
+        String sql = "SELECT id FROM users WHERE username = ? AND password = ? AND status = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
+            stmt.setString(3, UserStatus.ACTIVE.name().toLowerCase());
 
             try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next(); // true if user exists
+                return rs.next();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -294,4 +295,82 @@ public class UserDAO {
 
         return success;
     }
+
+    public User getUserById(int userId) {
+        String sql = """
+                    SELECT *
+                    FROM users
+                    WHERE id = ?
+                """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return User.builder()
+                            .id(rs.getInt("id"))
+                            .username(rs.getString("username"))
+                            .password(rs.getString("password"))
+                            .fullName(rs.getString("full_name"))
+                            .email(rs.getString("email"))
+                            .status(UserStatus.valueOf(rs.getString("status").toUpperCase()))
+                            .roleId(rs.getInt("role_id"))
+                            .createdAt(rs.getTimestamp("created_at"))
+                            .updatedAt(rs.getTimestamp("updated_at"))
+                            .build();
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public boolean changePassword(String username, String password) {
+        String sql = "UPDATE users SET password = ? WHERE username = ?";
+
+        try {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+                stmt.setString(1, password);
+                stmt.setString(2, username);
+
+                int rowsUpdated = stmt.executeUpdate();
+
+                if (rowsUpdated > 0) {
+                    conn.commit();
+                    return true;
+                } else {
+                    conn.rollback();
+                    return false;
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            return false;
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 }

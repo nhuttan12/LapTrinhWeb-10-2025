@@ -16,5 +16,7 @@ public class OrderDetail {
     private Double price;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+
+    private Product product;
 }
 

@@ -16,6 +16,7 @@ public class ImageService {
             return null;
         }
 
+        // Lấy tên file gốc
         String originalFileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
         String extension = "";
 
@@ -25,15 +26,20 @@ public class ImageService {
             originalFileName = originalFileName.substring(0, dotIndex);
         }
 
-        // Add current timestamp to filename
+        // Thêm timestamp để tránh trùng file
         String timestamp = String.valueOf(System.currentTimeMillis());
         String newFileName = originalFileName + "_" + timestamp + extension;
 
-        File uploadDir = new File(UPLOAD_DIR);
+        // 📂 Lưu trong thư mục deploy hiện tại (target)
+        String appPath = request.getServletContext().getRealPath("");
+        // appPath thường sẽ là .../target/lap-trinh-web-1.0-SNAPSHOT/
+        String uploadPath = appPath + File.separator + "image-upload";
+
+        File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) uploadDir.mkdirs();
 
-        filePart.write(UPLOAD_DIR + File.separator + newFileName);
+        filePart.write(uploadPath + File.separator + newFileName);
 
-        return "image-upload/" + newFileName;
+        return request.getContextPath() + "/image-upload/" + newFileName;
     }
 }

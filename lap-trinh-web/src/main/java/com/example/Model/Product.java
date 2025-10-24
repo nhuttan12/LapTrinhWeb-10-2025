@@ -20,4 +20,6 @@ public class Product {
     private String category;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+
+    private ProductImage productImage;
 }

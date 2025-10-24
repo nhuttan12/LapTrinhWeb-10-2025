@@ -1,5 +1,6 @@
-package com.example.Mappers.User;
+package com.example.Mappers;
 
+import com.example.DTO.User.UserChangePasswordResponseDTO;
 import com.example.DTO.User.UserProfileDTO;
 import com.example.Model.User;
 import org.mapstruct.Mapper;
@@ -18,4 +19,8 @@ public interface UserMapper {
     @Mapping(source = "userDetail.address3", target = "address3")
     @Mapping(source = "userImage.image.url", target = "avatar")
     UserProfileDTO toUserProfileDTO(User user);
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "username", target = "username")
+    UserChangePasswordResponseDTO toUserChangePasswordResponseDto(User user);
 }

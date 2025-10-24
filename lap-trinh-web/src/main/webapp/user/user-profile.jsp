@@ -1,10 +1,11 @@
-<%@ page import="com.example.DTO.User.UserProfileDTO" %><%--
+<%--
   Created by IntelliJ IDEA.
   User: NhutTan
   Date: 10/2/2025
   Time: 8:12 PM
   To change this template use File | Settings | File Templates.
 --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -56,10 +57,6 @@
             <jsp:include page="user-profile-side-bar.jsp"/>
         </div>
 
-        <%
-            UserProfileDTO user = (UserProfileDTO) request.getAttribute("userProfile");
-        %>
-
         <!-- User Profile -->
         <div class="col-md-9">
             <div class="tab-content">
@@ -72,7 +69,7 @@
                                     <div class="col-xs-6">
                                         <label for="fullName"><h4>Họ tên:</h4></label>
                                         <input type="text" class="form-control" name="fullName" id="fullName"
-                                               value="<%= user.getFullName() == null ? "" : user.getFullName()%>">
+                                               value="${userProfile.fullName}">
                                     </div>
                                 </div>
 
@@ -80,7 +77,7 @@
                                     <div class="col-xs-6">
                                         <label for="phone"><h4>Số điện thoại:</h4></label>
                                         <input type="tel" class="form-control" name="phone" id="phone"
-                                               value="<%= user.getPhone() == null ? "" : user.getPhone()%>">
+                                               value="${userProfile.phone}">
                                     </div>
                                 </div>
 
@@ -88,9 +85,10 @@
                                     <div class="col-xs-6">
                                         <label for="email"><h4>Email:</h4></label>
                                         <input type="email"
-                                               class="form-control" <%= user.getEmail() != null ? "disabled" : "" %>
+                                               class="form-control"
                                                name="email" id="email"
-                                               value="<%= user.getEmail() == null ? "" : user.getEmail()%>">
+                                               value="${userProfile.email}"
+                                               <c:if test="${not empty userProfile.email}">readonly</c:if>>
                                     </div>
                                 </div>
 
@@ -98,7 +96,7 @@
                                     <div class="col-xs-6">
                                         <label for="address1"><h4>Địa chỉ 1:</h4></label>
                                         <input type="text" class="form-control" name="address1" id="address1"
-                                               value="<%= user.getAddress1() == null ? "" : user.getAddress1()%>">
+                                               value="${userProfile.address1}">
                                     </div>
                                 </div>
 
@@ -106,7 +104,7 @@
                                     <div class="col-xs-6">
                                         <label for="address2"><h4>Địa chỉ 2:</h4></label>
                                         <input type="text" class="form-control" name="address2" id="address2"
-                                               value="<%= user.getAddress2() == null ? "" : user.getAddress2()%>">
+                                               value="${userProfile.address2}">
                                     </div>
                                 </div>
 
@@ -114,7 +112,7 @@
                                     <div class="col-xs-6">
                                         <label for="address3"><h4>Địa chỉ 3:</h4></label>
                                         <input type="text" class="form-control" name="address3" id="address3"
-                                               value="<%= user.getAddress3() == null ? "" : user.getAddress3()%>">
+                                               value="${userProfile.address3}">
                                     </div>
                                 </div>
 
@@ -130,16 +128,14 @@
                             <!-- Upload Image -->
                             <div class="col-md-4 text-center">
                                 <div class="text-center">
-                                    <%
-                                        String avatarUrl = user.getAvatar();
-//                                        if (avatarUrl == null || avatarUrl.isEmpty()) {
-//                                            avatarUrl = "http://ssl.gstatic.com/accounts/ui/avatar_2x.png";
-//                                        }
-                                    %>
-                                    <img src="<%= avatarUrl %>"
+                                    <c:set var="avatarUrl"
+                                           value="${empty userProfile.avatar ? 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png' : userProfile.avatar}"/>
+
+                                    <img src="${avatarUrl}"
                                          class="avatar img-circle img-thumbnail"
+                                         onerror="this.src='http://ssl.gstatic.com/accounts/ui/avatar_2x.png'"
                                          alt="avatar">
-                                    <h6>Tải hình ảnh cá nhân</h6>
+
                                     <input type="file" name="avatar" accept="image/*"
                                            class="text-center center-block file-upload"/>
                                 </div>

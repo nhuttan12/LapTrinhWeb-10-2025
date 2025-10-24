@@ -23,7 +23,7 @@
 <body>
 
 <div class="site-wrap">
-    <%@ include file="header.jsp" %>
+    <jsp:include page="header.jsp"/>
 
     <div class="site-blocks-cover"
          style="background-image: url('${pageContext.request.contextPath}/user/images/hero_1.jpg');" data-aos="fade">
@@ -227,7 +227,7 @@
         </div>
     </div>
 
-    <%@ include file="footer.jsp" %>
+    <jsp:include page="footer.jsp"/>
 </div>
 
 <script src="${pageContext.request.contextPath}/user/js/jquery-3.3.1.min.js"></script>

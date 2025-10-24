@@ -1,8 +1,9 @@
 package com.example.Service.User;
 
 import com.example.DAO.UserDAO;
+import com.example.DTO.User.UserChangePasswordResponseDTO;
 import com.example.DTO.User.UserProfileDTO;
-import com.example.Mappers.User.UserMapper;
+import com.example.Mappers.UserMapper;
 import com.example.Model.User;
 
 import java.sql.Connection;
@@ -98,5 +99,38 @@ public class UserService {
 
         // 5. Get user profile for return
         return this.getUserProfile(userId);
+    }
+
+    public UserChangePasswordResponseDTO getUserChangePasswordResponse(int userId) {
+        try {
+            User user = userDAO.getUserById(userId);
+            if (user == null) {
+                throw new SQLException("User not found");
+            }
+
+            UserChangePasswordResponseDTO result = userMapper.toUserChangePasswordResponseDto(user);
+            System.out.println("Get user change password response in User Serivce: " + result);
+
+            return result;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public User getUserById(int userId) {
+        return userDAO.getUserById(userId);
+    }
+
+    public boolean changePassword(String username, String password, String newPassword) {
+//        System.out.println("Info username: " + username + " password: " + password);
+        boolean userExist = userDAO.getUserByUsernameAndPassword(username, password);
+        System.out.println("Check user exist in user service: " + userExist);
+
+        if (!userExist) {
+            return false;
+        }
+
+        return userDAO.changePassword(username, newPassword);
     }
 }

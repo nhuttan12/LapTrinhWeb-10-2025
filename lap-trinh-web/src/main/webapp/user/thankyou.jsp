@@ -24,7 +24,7 @@
 <body>
 
 <div class="site-wrap">
-    <%@ include file="header.jsp" %>
+    <jsp:include page="header.jsp"/>
 
     <div class="bg-light py-3">
         <div class="container">
@@ -48,7 +48,7 @@
         </div>
     </div>
 
-    <%@ include file="footer.jsp" %>
+    <jsp:include page="footer.jsp"/>
 </div>
 
 <script src="${pageContext.request.contextPath}/user/js/jquery-3.3.1.min.js"></script>

@@ -1,7 +1,6 @@
 package com.example.Controller.User.Profile;
 
 import com.example.DTO.User.UserProfileDTO;
-import com.example.Model.User;
 import com.example.Service.Database.JDBCConnection;
 import com.example.Service.Image.ImageService;
 import com.example.Service.User.UserService;
@@ -23,7 +22,7 @@ import java.sql.SQLException;
         maxFileSize = 1024 * 1024 * 10,      // 10 MB
         maxRequestSize = 1024 * 1024 * 15    // 15 MB
 )
-public class UserProfile extends HttpServlet {
+public class UserProfileController extends HttpServlet {
     private UserService userService;
     private ImageService imageService;
 
