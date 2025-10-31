@@ -26,6 +26,7 @@ CREATE TABLE users (
 CREATE TABLE user_details (
     id SERIAL PRIMARY KEY,
     user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    phone VARCHAR(25),
     address_1 TEXT,
     address_2 TEXT,
     address_3 TEXT,

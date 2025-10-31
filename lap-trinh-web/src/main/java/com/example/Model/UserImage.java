@@ -14,4 +14,6 @@ public class UserImage {
     private Integer imageId;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+
+    private Image image;
 }

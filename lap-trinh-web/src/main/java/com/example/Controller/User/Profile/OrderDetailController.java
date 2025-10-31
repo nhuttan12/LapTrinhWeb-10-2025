@@ -1,8 +1,8 @@
 package com.example.Controller.User.Profile;
 
-import com.example.Model.User;
+import com.example.DTO.Order.OrderDetailUserResponseDTO;
 import com.example.Service.Database.JDBCConnection;
-import com.example.Service.User.UserService;
+import com.example.Service.Order.OrderDetailService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,33 +13,32 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
-@WebServlet("/profile")
-public class UserProfile extends HttpServlet {
-    private UserService userService;
+@WebServlet("/order-detail")
+public class OrderDetailController extends HttpServlet {
+    private OrderDetailService orderDetailService;
 
     @Override
     public void init() throws ServletException {
         try {
             Connection conn = JDBCConnection.getConnection();
-            userService = new UserService(conn);
+            orderDetailService = new OrderDetailService(conn);
         } catch (SQLException e) {
             throw new ServletException("Failed to initialize DB connection", e);
         }
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
         int userId = (Integer) session.getAttribute("userId");
 
-        User user = userService.getUserProfile(userId);
+        int orderId = Integer.parseInt(req.getParameter("orderId"));
 
-        if (user != null) {
-            req.setAttribute("user", user);
-            req.getRequestDispatcher("/user/user-profile.jsp").forward(req, resp);
-        } else {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "User not found");
-        }
+        List<OrderDetailUserResponseDTO> orderDetails = orderDetailService.getOrderDetailByOrderId(orderId, userId, 1, 10);
+
+        req.setAttribute("orderDetails", orderDetails);
+        req.getRequestDispatcher("/user/order-detail.jsp").forward(req, resp);
     }
 }

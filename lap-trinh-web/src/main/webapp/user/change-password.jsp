@@ -5,6 +5,8 @@
   Time: 8:12 PM
   To change this template use File | Settings | File Templates.
 --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -24,6 +26,17 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/style.css">
 </head>
 
+<c:if test="${not empty error}">
+    <script>
+      alert("${fn:escapeXml(error)}");
+    </script>
+</c:if>
+
+<c:if test="${not empty message}">
+    <script>
+      alert("${fn:escapeXml(message)}");
+    </script>
+</c:if>
 <body>
 <div class="container bootstrap snippet">
     <%--    Header--%>
@@ -40,11 +53,13 @@
         <div class="col-sm-9">
             <div class="tab-content">
                 <div class="tab-pane active" id="home">
-                    <form class="form" action="##" method="post">
+                    <form class="form" action="${pageContext.request.contextPath}/change-password" method="post">
                         <div class="form-group">
                             <div class="col-xs-6">
                                 <label for="username"><h4>Tài khoản:</h4></label>
-                                <input type="text" class="form-control" name="username" id="username">
+                                <input type="text" class="form-control" name="username" id="username"
+                                       value="${username}"
+                                       <c:if test="${not empty username}">readonly</c:if>>
                             </div>
                         </div>
 

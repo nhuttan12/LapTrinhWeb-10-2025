@@ -6,7 +6,7 @@
     <a href="${pageContext.request.contextPath}/change-password" class="list-group-item list-group-item-action">
         <i class="fas fa-lock"></i> Đổi mật khẩu
     </a>
-    <a href="${pageContext.request.contextPath}/orderManagement" class="list-group-item list-group-item-action">
+    <a href="${pageContext.request.contextPath}/orders" class="list-group-item list-group-item-action">
         <i class="fas fa-shopping-cart"></i> Hoá đơn người dùng
     </a>
 </div>
