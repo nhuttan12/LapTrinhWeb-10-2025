@@ -1,6 +1,6 @@
 package com.example.Mappers;
 
-import com.example.DTO.Order.OrderDetailUserResponseDTO;
+import com.example.DTO.Orders.OrderDetailUserResponseDTO;
 import com.example.Model.OrderDetail;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

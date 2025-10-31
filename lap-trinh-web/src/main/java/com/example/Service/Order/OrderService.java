@@ -2,7 +2,7 @@ package com.example.Service.Order;
 
 
 import com.example.DAO.OrderDAO;
-import com.example.DTO.Order.OrderUserResponseDTO;
+import com.example.DTO.Orders.OrderUserResponseDTO;
 import com.example.Mappers.OrderMapper;
 import com.example.Model.Order;
 
@@ -19,7 +19,9 @@ public class OrderService {
     }
 
     public List<OrderUserResponseDTO> findOrdersByUserId(int userId, int page, int pageSize) {
-        List<Order> orders = orderDAO.findOrdersByUserIdPaging(userId, page, pageSize);
+        int offset = (page - 1) * pageSize;
+
+        List<Order> orders = orderDAO.findOrdersByUserIdPaging(userId, offset, pageSize);
 
         return orderMapper.toOrderUserResponseDTOList(orders);
     }

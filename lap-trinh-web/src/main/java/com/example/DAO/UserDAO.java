@@ -64,7 +64,7 @@ public class UserDAO {
                         .id(rs.getInt("i_id"))
                         .url(rs.getString("i_url"))
                         .status(rs.getString("i_status") != null
-                                ? ImageStatus.valueOf(rs.getString("i_status").toUpperCase())
+                                ? ImageStatus.fromString(rs.getString("i_status"))
                                 : null)
                         .createdAt(rs.getTimestamp("i_created_at"))
                         .updatedAt(rs.getTimestamp("i_updated_at"))
@@ -86,7 +86,7 @@ public class UserDAO {
                         .fullName(rs.getString("u_full_name"))
                         .email(rs.getString("u_email"))
                         .status(rs.getString("u_status") != null
-                                ? UserStatus.valueOf(rs.getString("u_status").toUpperCase())
+                                ? UserStatus.fromString(rs.getString("u_status"))
                                 : null)
                         .roleId(rs.getInt("u_role_id"))
                         .createdAt(rs.getTimestamp("u_created_at"))
@@ -183,7 +183,7 @@ public class UserDAO {
             stmt.setString(2, email);
             stmt.setString(3, password);
             stmt.setInt(4, roleId);
-            stmt.setString(5, UserStatus.ACTIVE.name().toLowerCase());
+            stmt.setString(5, UserStatus.ACTIVE.getUserStatus());
             stmt.setInt(6, DEFAULT_IMAGE_ID);
 
             int rowsAffected = stmt.executeUpdate();
@@ -213,7 +213,7 @@ public class UserDAO {
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
-            stmt.setString(3, UserStatus.ACTIVE.name().toLowerCase());
+            stmt.setString(3, UserStatus.ACTIVE.getUserStatus());
 
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next();
@@ -270,8 +270,11 @@ public class UserDAO {
                 stmt.setString(6, address3);
                 stmt.setInt(7, userId);
                 stmt.setString(8, imageUrl);
-                stmt.setString(9, ImageStatus.ACTIVE.name().toLowerCase());
+                stmt.setString(9, ImageStatus.ACTIVE.getImageStatus());
                 stmt.setInt(10, userId);
+
+                System.out.println("Query params: "
+                        + fullName + ", " + phone + ", " + address1 + ", " + address2 + ", " + address3 + ", " + userId + ", " + imageUrl);
 
                 stmt.executeUpdate();
             }
@@ -314,7 +317,7 @@ public class UserDAO {
                             .password(rs.getString("password"))
                             .fullName(rs.getString("full_name"))
                             .email(rs.getString("email"))
-                            .status(UserStatus.valueOf(rs.getString("status").toUpperCase()))
+                            .status(UserStatus.fromString(rs.getString("status")))
                             .roleId(rs.getInt("role_id"))
                             .createdAt(rs.getTimestamp("created_at"))
                             .updatedAt(rs.getTimestamp("updated_at"))

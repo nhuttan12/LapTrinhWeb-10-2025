@@ -1,10 +1,8 @@
 package com.example.Service.Order;
 
-import com.example.DAO.OrderDAO;
 import com.example.DAO.OrderDetailDAO;
-import com.example.DTO.Order.OrderDetailUserResponseDTO;
+import com.example.DTO.Orders.OrderDetailUserResponseDTO;
 import com.example.Mappers.OrderDetailMapper;
-import com.example.Mappers.OrderMapper;
 import com.example.Model.OrderDetail;
 
 import java.sql.Connection;
@@ -20,7 +18,9 @@ public class OrderDetailService {
     }
 
     public List<OrderDetailUserResponseDTO> getOrderDetailByOrderId(int orderId, int userId, int page, int pageSize) {
-        List<OrderDetail> orderDetails = orderDetailDAO.getOrderDetailsPaging(orderId, userId, page, pageSize);
+        int offset = (page - 1) * pageSize;
+
+        List<OrderDetail> orderDetails = orderDetailDAO.getOrderDetailsPaging(orderId, userId, pageSize, offset);
 
         return orderDetailMapper.toOrderDetailUserResponseDTOList(orderDetails);
     }

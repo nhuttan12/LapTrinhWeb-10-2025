@@ -6,7 +6,7 @@
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Skydash Admin</title>
+  <title>Lỗi</title>
   <!-- plugins:css -->
   <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/feather/feather.css">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/ti-icons/css/themify-icons.css">
@@ -31,18 +31,13 @@
                 <h1 class="display-1 mb-0">404</h1>
               </div>
               <div class="col-lg-6 error-page-divider text-lg-left pl-lg-4">
-                <h2>SORRY!</h2>
-                <h3 class="font-weight-light">The page you’re looking for was not found.</h3>
+                <h2>Xin lỗi!</h2>
+                <h3 class="font-weight-light">Trang bạn tìm kiếm hiện tại không tìm thấy, vui lòng thực hiện lại sau</h3>
               </div>
             </div>
             <div class="row mt-5">
               <div class="col-12 text-center mt-xl-2">
-                <a class="text-white font-weight-medium" href="../../index.jsp">Back to home</a>
-              </div>
-            </div>
-            <div class="row mt-5">
-              <div class="col-12 mt-xl-2">
-                <p class="text-white font-weight-medium text-center">Copyright &copy; 2021  All rights reserved.</p>
+                <a class="text-white font-weight-medium" href="../../index.jsp">Về trang chủ</a>
               </div>
             </div>
           </div>
