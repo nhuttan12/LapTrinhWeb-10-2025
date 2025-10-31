@@ -1,3 +1,5 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,8 +31,9 @@
     <div class="bg-light py-3">
         <div class="container">
             <div class="row">
-                <div class="col-md-12 mb-0"><a href="/home">Home</a> <span class="mx-2 mb-0">/</span> <strong
-                        class="text-black">Shop</strong></div>
+                <div class="col-md-12 mb-0"><a href="${pageContext.request.contextPath}/home">Trang chủ</a> <span
+                        class="mx-2 mb-0">/</span> <strong
+                        class="text-black">Danh sách sản phẩm</strong></div>
             </div>
         </div>
     </div>
@@ -43,221 +46,73 @@
 
                     <div class="row">
                         <div class="col-md-12 mb-5">
-                            <div class="float-md-left mb-4"><h2 class="text-black h5">Shop All</h2></div>
+                            <div class="float-md-left mb-4"><h2 class="text-black h5">Danh sách sản phẩm</h2></div>
                             <div class="d-flex">
                                 <div class="dropdown mr-1 ml-md-auto">
                                     <button type="button" class="btn btn-secondary btn-sm dropdown-toggle"
                                             id="dropdownMenuOffset" data-toggle="dropdown" aria-haspopup="true"
                                             aria-expanded="false">
-                                        Latest
+                                        Giá
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuOffset">
-                                        <a class="dropdown-item" href="#">Men</a>
-                                        <a class="dropdown-item" href="#">Women</a>
-                                        <a class="dropdown-item" href="#">Children</a>
+                                        <a class="dropdown-item"
+                                           href="${pageContext.request.contextPath}/product-list?page=1
+                                           &pageSize=${meta.pageSize}
+                                           &sortBy=price
+                                           &sortDirection=asc">Thấp
+                                            tới cao</a>
+                                        <a class="dropdown-item"
+                                           href="${pageContext.request.contextPath}/product-list?page=1
+                                           &pageSize=${meta.pageSize}
+                                           &sortBy=price
+                                           &sortDirection=desc">Cao
+                                            tới thấp</a>
                                     </div>
                                 </div>
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-secondary btn-sm dropdown-toggle"
-                                            id="dropdownMenuReference" data-toggle="dropdown">Reference
+                                            id="dropdownMenuReference" data-toggle="dropdown">Thứ tự
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuReference">
-                                        <a class="dropdown-item" href="#">Relevance</a>
-                                        <a class="dropdown-item" href="#">Name, A to Z</a>
-                                        <a class="dropdown-item" href="#">Name, Z to A</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#">Price, low to high</a>
-                                        <a class="dropdown-item" href="#">Price, high to low</a>
+                                        <a class="dropdown-item"
+                                           href="${pageContext.request.contextPath}/product-list?page=1&pageSize=${meta.pageSize}&sortBy=name&sortDirection=asc">A
+                                            to Z</a>
+                                        <a class="dropdown-item"
+                                           href="${pageContext.request.contextPath}/product-list?page=1&pageSize=${meta.pageSize}&sortBy=name&sortDirection=desc">Z
+                                            to A</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="row mb-5">
-
-                        <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                            <div class="block-4 text-center border">
-                                <figure class="block-4-image">
-                                    <a href="${pageContext.request.contextPath}/product-detail"><img
-                                            src="${pageContext.request.contextPath}/user/images/cloth_1.jpg"
-                                            alt="Image placeholder"
-                                            class="img-fluid"></a>
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="${pageContext.request.contextPath}/product-detail">Tank Top</a></h3>
-                                    <p class="mb-0">Finding perfect t-shirt</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
+                        <c:forEach var="product" items="${products}">
+                            <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
+                                <div class="block-4 text-center border">
+                                    <figure class="block-4-image">
+                                        <a href="${pageContext.request.contextPath}/product-detail?id=${product.id}"><img
+                                                src="${product.thumbnail}"
+                                                alt="${product.name}"
+                                                class="img-fluid"></a>
+                                    </figure>
+                                    <div class="block-4-text p-4">
+                                        <h3>
+                                            <a href="${pageContext.request.contextPath}/product-detail?id=${product.id}"
+                                               class="fw-light">${product.name}</a>
+                                        </h3>
+                                        <p class="mb-0">${product.description}</p>
+                                        <p class="text-primary font-weight-bold pt-1">
+                                                ${product.price} vnđ
+                                            <c:if test="${product.discount > 0}">
+                                                <span class="text-muted" style="text-decoration:line-through;">
+                                                    ${product.price + product.discount} vnđ
+                                                </span>
+                                            </c:if>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                            <div class="block-4 text-center border">
-                                <figure class="block-4-image">
-                                    <a href="${pageContext.request.contextPath}/product-detail"><img
-                                            src="${pageContext.request.contextPath}/user/images/shoe_1.jpg"
-                                            alt="Image placeholder"
-                                            class="img-fluid"></a>
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="${pageContext.request.contextPath}/product-detail">Corater</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                            <div class="block-4 text-center border">
-                                <figure class="block-4-image">
-                                    <a href="${pageContext.request.contextPath}/product-detail"><img
-                                            src="${pageContext.request.contextPath}/user/images/cloth_2.jpg"
-                                            alt="Image placeholder"
-                                            class="img-fluid"></a>
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="${pageContext.request.contextPath}/product-detail">Polo Shirt</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                            <div class="block-4 text-center border">
-                                <figure class="block-4-image">
-                                    <a href="${pageContext.request.contextPath}/product-detail"><img
-                                            src="${pageContext.request.contextPath}/user/images/cloth_3.jpg"
-                                            alt="Image placeholder"
-                                            class="img-fluid"></a>
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="${pageContext.request.contextPath}/product-detail">T-Shirt Mockup</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                            <div class="block-4 text-center border">
-                                <figure class="block-4-image">
-                                    <a href="${pageContext.request.contextPath}/product-detail"><img
-                                            src="${pageContext.request.contextPath}/user/images/shoe_1.jpg"
-                                            alt="Image placeholder"
-                                            class="img-fluid"></a>
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="${pageContext.request.contextPath}/product-detail">Corater</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                            <div class="block-4 text-center border">
-                                <figure class="block-4-image">
-                                    <a href="${pageContext.request.contextPath}/product-detail"><img
-                                            src="${pageContext.request.contextPath}/user/images/cloth_1.jpg"
-                                            alt="Image placeholder"
-                                            class="img-fluid"></a>
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="${pageContext.request.contextPath}/product-detail">Tank Top</a></h3>
-                                    <p class="mb-0">Finding perfect t-shirt</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                            <div class="block-4 text-center border">
-                                <figure class="block-4-image">
-                                    <a href="${pageContext.request.contextPath}/product-detail"><img
-                                            src="${pageContext.request.contextPath}/user/images/shoe_1.jpg"
-                                            alt="Image placeholder"
-                                            class="img-fluid"></a>
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="${pageContext.request.contextPath}/product-detail">Corater</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                            <div class="block-4 text-center border">
-                                <figure class="block-4-image">
-                                    <a href="${pageContext.request.contextPath}/product-detail"><img
-                                            src="${pageContext.request.contextPath}/user/images/cloth_2.jpg"
-                                            alt="Image placeholder"
-                                            class="img-fluid"></a>
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="${pageContext.request.contextPath}/product-detail">Polo Shirt</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                            <div class="block-4 text-center border">
-                                <figure class="block-4-image">
-                                    <a href="${pageContext.request.contextPath}/product-detail"><img
-                                            src="${pageContext.request.contextPath}/user/images/cloth_3.jpg"
-                                            alt="Image placeholder"
-                                            class="img-fluid"></a>
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="${pageContext.request.contextPath}/product-detail">T-Shirt Mockup</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                            <div class="block-4 text-center border">
-                                <figure class="block-4-image">
-                                    <a href="${pageContext.request.contextPath}/product-detail"><img
-                                            src="${pageContext.request.contextPath}/user/images/shoe_1.jpg"
-                                            alt="Image placeholder"
-                                            class="img-fluid"></a>
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="${pageContext.request.contextPath}/product-detail">Corater</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                            <div class="block-4 text-center border">
-                                <figure class="block-4-image">
-                                    <a href="${pageContext.request.contextPath}/product-detail"><img
-                                            src="${pageContext.request.contextPath}/user/images/cloth_1.jpg"
-                                            alt="Image placeholder"
-                                            class="img-fluid"></a>
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="${pageContext.request.contextPath}/product-detail">Tank Top</a></h3>
-                                    <p class="mb-0">Finding perfect t-shirt</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                            <div class="block-4 text-center border">
-                                <figure class="block-4-image">
-                                    <a href="${pageContext.request.contextPath}/product-detail"><img
-                                            src="${pageContext.request.contextPath}/user/images/cloth_2.jpg"
-                                            alt="Image placeholder"
-                                            class="img-fluid"></a>
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="${pageContext.request.contextPath}/product-detail">Polo Shirt</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
+                        </c:forEach>
 
 
                     </div>
@@ -265,13 +120,62 @@
                         <div class="col-md-12 text-center">
                             <div class="site-block-27">
                                 <ul>
-                                    <li><a href="#">&lt;</a></li>
-                                    <li class="active"><span>1</span></li>
-                                    <li><a href="#">2</a></li>
-                                    <li><a href="#">3</a></li>
-                                    <li><a href="#">4</a></li>
-                                    <li><a href="#">5</a></li>
-                                    <li><a href="#">&gt;</a></li>
+                                    <!-- Base URL with context path and pageSize -->
+                                    <c:set var="baseUrl"
+                                           value="${pageContext.request.contextPath}/product-list?pageSize=${meta.pageSize}"/>
+
+                                    <!-- Keep sortBy and sortDir in URL -->
+                                    <c:if test="${not empty meta.sortBy}">
+                                        <c:forEach var="i" begin="0" end="${fn:length(meta.sortBy) - 1}">
+                                            <c:set var="baseUrl"
+                                                   value="${baseUrl}&sortBy=${meta.sortBy[i]}&sortDir=${meta.sortDirections[i]}"/>
+                                        </c:forEach>
+                                    </c:if>
+
+                                    <!-- Previous Button -->
+                                    <c:choose>
+                                        <c:when test="${meta.currentPage > 1}">
+                                            <li>
+                                                <a href="${baseUrl}&page=${meta.currentPage - 1}">&lt;</a>
+                                            </li>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <li class="disabled"><span>&lt;</span></li>
+                                        </c:otherwise>
+                                    </c:choose>
+
+                                    <!-- Page Numbers -->
+                                    <c:set var="startPage" value="${meta.currentPage - 2}"/>
+                                    <c:set var="endPage" value="${meta.currentPage + 2}"/>
+                                    <c:if test="${startPage < 1}">
+                                        <c:set var="startPage" value="1"/>
+                                    </c:if>
+                                    <c:if test="${endPage > meta.totalPages}">
+                                        <c:set var="endPage" value="${meta.totalPages}"/>
+                                    </c:if>
+
+                                    <c:forEach var="i" begin="${startPage}" end="${endPage}">
+                                        <c:choose>
+                                            <c:when test="${i == meta.currentPage}">
+                                                <li class="active"><span>${i}</span></li>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <li><a href="${baseUrl}&page=${i}">${i}</a></li>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:forEach>
+
+                                    <!-- Next Button -->
+                                    <c:choose>
+                                        <c:when test="${meta.currentPage < meta.totalPages}">
+                                            <li>
+                                                <a href="${baseUrl}&page=${meta.currentPage + 1}">&gt;</a>
+                                            </li>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <li class="disabled"><span>&gt;</span></li>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </ul>
                             </div>
                         </div>
@@ -280,20 +184,22 @@
 
                 <div class="col-md-3 order-1 mb-5 mb-md-0">
                     <div class="border p-4 rounded mb-4">
-                        <h3 class="mb-3 h6 text-uppercase text-black d-block">Categories</h3>
+                        <h3 class="mb-3 h6 text-uppercase text-black d-block">Thương hiệu</h3>
                         <ul class="list-unstyled mb-0">
-                            <li class="mb-1"><a href="#" class="d-flex"><span>Men</span> <span
-                                    class="text-black ml-auto">(2,220)</span></a></li>
-                            <li class="mb-1"><a href="#" class="d-flex"><span>Women</span> <span
-                                    class="text-black ml-auto">(2,550)</span></a></li>
-                            <li class="mb-1"><a href="#" class="d-flex"><span>Children</span> <span
-                                    class="text-black ml-auto">(2,124)</span></a></li>
+                            <c:forEach var="brand" items="${brands}">
+                                <li class="mb-1">
+                                    <a href="${pageContext.request.contextPath}/product-list?brandId=${brand.id}&page=1&pageSize=12"
+                                       class="d-flex">
+                                        <span>${brand.name}</span>
+                                        <span
+                                                class="text-black ml-auto">(${brand.productCount})</span></a></li>
+                            </c:forEach>
                         </ul>
                     </div>
 
                     <div class="border p-4 rounded mb-4">
                         <div class="mb-4">
-                            <h3 class="mb-3 h6 text-uppercase text-black d-block">Filter by Price</h3>
+                            <h3 class="mb-3 h6 text-uppercase text-black d-block">Lọc sản phẩm</h3>
                             <div id="slider-range" class="border-primary"></div>
                             <input type="text" name="text" id="amount" class="form-control border-0 pl-0 bg-white"
                                    disabled=""/>
@@ -335,58 +241,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="site-section site-blocks-2">
-                        <div class="row justify-content-center text-center mb-5">
-                            <div class="col-md-7 site-section-heading pt-4">
-                                <h2>Categories</h2>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-6 col-md-6 col-lg-4 mb-4 mb-lg-0" data-aos="fade" data-aos-delay="">
-                                <a class="block-2-item" href="#">
-                                    <figure class="image">
-                                        <img src="${pageContext.request.contextPath}/user/images/women.jpg" alt=""
-                                             class="img-fluid">
-                                    </figure>
-                                    <div class="text">
-                                        <span class="text-uppercase">Collections</span>
-                                        <h3>Women</h3>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-sm-6 col-md-6 col-lg-4 mb-5 mb-lg-0" data-aos="fade" data-aos-delay="100">
-                                <a class="block-2-item" href="#">
-                                    <figure class="image">
-                                        <img src="${pageContext.request.contextPath}/user/images/children.jpg" alt=""
-                                             class="img-fluid">
-                                    </figure>
-                                    <div class="text">
-                                        <span class="text-uppercase">Collections</span>
-                                        <h3>Children</h3>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-sm-6 col-md-6 col-lg-4 mb-5 mb-lg-0" data-aos="fade" data-aos-delay="200">
-                                <a class="block-2-item" href="#">
-                                    <figure class="image">
-                                        <img src="${pageContext.request.contextPath}/user/images/men.jpg" alt=""
-                                             class="img-fluid">
-                                    </figure>
-                                    <div class="text">
-                                        <span class="text-uppercase">Collections</span>
-                                        <h3>Men</h3>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 

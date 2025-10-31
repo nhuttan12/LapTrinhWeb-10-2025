@@ -1,7 +1,7 @@
 package com.example.Mappers;
 
-import com.example.DTO.User.UserChangePasswordResponseDTO;
-import com.example.DTO.User.UserProfileDTO;
+import com.example.DTO.Users.UserChangePasswordResponseDTO;
+import com.example.DTO.Users.UserProfileDTO;
 import com.example.Model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

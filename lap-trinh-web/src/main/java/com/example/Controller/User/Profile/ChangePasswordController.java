@@ -1,6 +1,6 @@
 package com.example.Controller.User.Profile;
 
-import com.example.DTO.User.UserChangePasswordResponseDTO;
+import com.example.DTO.Users.UserChangePasswordResponseDTO;
 import com.example.Service.Auth.AuthService;
 import com.example.Service.Database.JDBCConnection;
 import com.example.Service.User.UserService;

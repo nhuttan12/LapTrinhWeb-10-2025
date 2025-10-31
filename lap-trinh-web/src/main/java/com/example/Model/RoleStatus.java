@@ -1,5 +1,9 @@
 package com.example.Model;
 
 public enum RoleStatus {
-    ACTIVE, INACTIVE
+    ACTIVE, INACTIVE;
+
+    public String getRoleStatus() {
+        return name().toLowerCase();
+    }
 }

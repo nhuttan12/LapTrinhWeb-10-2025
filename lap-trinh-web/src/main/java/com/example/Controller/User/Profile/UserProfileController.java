@@ -1,6 +1,6 @@
 package com.example.Controller.User.Profile;
 
-import com.example.DTO.User.UserProfileDTO;
+import com.example.DTO.Users.UserProfileDTO;
 import com.example.Service.Database.JDBCConnection;
 import com.example.Service.Image.ImageService;
 import com.example.Service.User.UserService;

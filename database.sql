@@ -54,6 +54,28 @@ CREATE TABLE user_images (
 );
 
 -- ========================
+-- CATEGORY
+-- ========================
+--CREATE TABLE categories (
+--    id SERIAL PRIMARY KEY,
+--    name VARCHAR(255) UNIQUE NOT NULL,
+--    status VARCHAR(50) CHECK (status IN ('active','inactive')) DEFAULT 'active',
+--    created_at TIMESTAMP DEFAULT NOW(),
+--    updated_at TIMESTAMP DEFAULT NOW()
+--);
+
+-- ========================
+-- BRANDS
+-- ========================
+CREATE TABLE brands (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    status VARCHAR(50) CHECK (status IN ('active','inactive')) DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- ========================
 -- PRODUCTS
 -- ========================
 CREATE TABLE products (
@@ -62,6 +84,7 @@ CREATE TABLE products (
     price DOUBLE PRECISION NOT NULL,
     discount DOUBLE PRECISION DEFAULT 0,
     status VARCHAR(50) CHECK (status IN ('active','inactive')),
+--    category_id INT REFERENCES categories(id) ON DELETE SET NULL,
     category VARCHAR(255),
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
@@ -70,12 +93,27 @@ CREATE TABLE products (
 CREATE TABLE product_details (
     id SERIAL PRIMARY KEY,
     product_id INT UNIQUE REFERENCES products(id) ON DELETE CASCADE,
-    size VARCHAR(255),
-    color VARCHAR(255),
-    description TEXT,
-    rating DOUBLE PRECISION,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    brand_id INT REFERENCES brands(id) ON DELETE CASCADE,
+--	brand VARCHAR(100),
+	os VARCHAR(255),
+	ram VARCHAR(255),
+	storage VARCHAR(255),
+	battery_capacity INT,
+	screen_size DECIMAL(4, 2),
+	screen_resolution VARCHAR(255),
+	mobile_network VARCHAR(255),
+	cpu VARCHAR(255),
+	gpu VARCHAR(255),
+	water_resistance VARCHAR(255),
+	max_charge_watt INT,
+	design VARCHAR(255),
+	memory_card VARCHAR(255),
+	cpu_speed DECIMAL(4, 2),
+	release_date TIMESTAMP,
+	description TEXT,
+	rating DOUBLE PRECISION DEFAULT 0.0,
+	created_at TIMESTAMP DEFAULT NOW(),
+	updated_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE product_images (

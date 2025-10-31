@@ -1,3 +1,5 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <header class="site-navbar" role="banner">
     <div class="site-navbar-top">
         <div class="container">
@@ -6,7 +8,7 @@
                 <div class="col-6 col-md-4 order-2 order-md-1 site-search-icon text-left">
                     <form action="" class="site-block-top-search">
                         <span class="icon icon-search2"></span>
-                        <input type="text" class="form-control border-0" placeholder="Search">
+                        <input type="text" class="form-control border-0" placeholder="Tìm kiếm sản phẩm">
                     </form>
                 </div>
 
@@ -19,7 +21,8 @@
                 <div class="col-6 col-md-4 order-3 order-md-3 text-right">
                     <div class="site-top-icons">
                         <ul>
-                            <li><a href="${pageContext.request.contextPath}/profile"><span class="icon icon-person"></span></a></li>
+                            <li><a href="${pageContext.request.contextPath}/profile"><span
+                                    class="icon icon-person"></span></a></li>
                             <li><a href="#"><span class="icon icon-heart-o"></span></a></li>
                             <li>
                                 <a href="${pageContext.request.contextPath}/cart" class="site-cart">
@@ -40,34 +43,23 @@
     <nav class="site-navigation text-right text-md-center" role="navigation">
         <div class="container">
             <ul class="site-menu js-clone-nav d-none d-md-block">
-                <li class="has-children active">
-                    <a href="${pageContext.request.contextPath}/home">Home</a>
-                    <ul class="dropdown">
-                        <li><a href="#">Menu One</a></li>
-                        <li><a href="#">Menu Two</a></li>
-                        <li><a href="#">Menu Three</a></li>
-                        <li class="has-children">
-                            <a href="#">Sub Menu</a>
-                            <ul class="dropdown">
-                                <li><a href="#">Menu One</a></li>
-                                <li><a href="#">Menu Two</a></li>
-                                <li><a href="#">Menu Three</a></li>
-                            </ul>
-                        </li>
-                    </ul>
+                <li class="active">
+                    <a href="${pageContext.request.contextPath}/home">Trang chủ</a>
                 </li>
                 <li class="has-children">
-                    <a href="${pageContext.request.contextPath}/about">About</a>
+                    <a href="#">Thương hiệu</a>
                     <ul class="dropdown">
-                        <li><a href="#">Menu One</a></li>
-                        <li><a href="#">Menu Two</a></li>
-                        <li><a href="#">Menu Three</a></li>
+                        <c:forEach var="brand" items="${brands}">
+                            <li>
+                                <a href="${pageContext.request.contextPath}/product-list?brandId=${brand.id}">${brand.name}</a>
+                            </li>
+                        </c:forEach>
                     </ul>
                 </li>
-                <li><a href="${pageContext.request.contextPath}/product-list">Shop</a></li>
-                <li><a href="#">Catalogue</a></li>
-                <li><a href="#">New Arrivals</a></li>
-                <li><a href="${pageContext.request.contextPath}/contact">Contact</a></li>
+                <li><a href="${pageContext.request.contextPath}/product-list">Sản phẩm</a></li>
+                <li><a href="${pageContext.request.contextPath}/product-list?newProduct=true&page=1&pageSize=12">Hàng
+                    mới về</a></li>
+                <li><a href="${pageContext.request.contextPath}/contact">Liên hệ</a></li>
             </ul>
         </div>
     </nav>

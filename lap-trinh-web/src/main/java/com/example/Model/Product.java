@@ -22,4 +22,5 @@ public class Product {
     private Timestamp updatedAt;
 
     private ProductImage productImage;
+    private ProductDetail productDetail;
 }

@@ -1,6 +1,6 @@
 package com.example.Controller.User.Profile;
 
-import com.example.DTO.Order.OrderDetailUserResponseDTO;
+import com.example.DTO.Orders.OrderDetailUserResponseDTO;
 import com.example.Service.Database.JDBCConnection;
 import com.example.Service.Order.OrderDetailService;
 
@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @WebServlet("/order-detail")
 public class OrderDetailController extends HttpServlet {
@@ -35,8 +36,14 @@ public class OrderDetailController extends HttpServlet {
         int userId = (Integer) session.getAttribute("userId");
 
         int orderId = Integer.parseInt(req.getParameter("orderId"));
+        int page = Optional.ofNullable(req.getParameter("page"))
+                .map(Integer::parseInt)
+                .orElse(1);
+        int pageSize = Optional.ofNullable(req.getParameter("pageSize"))
+                .map(Integer::parseInt)
+                .orElse(10);
 
-        List<OrderDetailUserResponseDTO> orderDetails = orderDetailService.getOrderDetailByOrderId(orderId, userId, 1, 10);
+        List<OrderDetailUserResponseDTO> orderDetails = orderDetailService.getOrderDetailByOrderId(orderId, userId, page, pageSize);
 
         req.setAttribute("orderDetails", orderDetails);
         req.getRequestDispatcher("/user/order-detail.jsp").forward(req, resp);
