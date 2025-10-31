@@ -6,7 +6,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Skydash Admin</title>
+    <title>Đăng ký</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/feather/feather.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/ti-icons/css/themify-icons.css">
@@ -96,9 +96,9 @@
             <div class="row w-100 mx-0">
                 <div class="col-lg-4 mx-auto">
                     <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-                        <div class="brand-logo">
-                            <img src="${pageContext.request.contextPath}/admin/images/logo.svg" alt="logo">
-                        </div>
+<%--                        <div class="brand-logo">--%>
+<%--                            <img src="${pageContext.request.contextPath}/admin/images/logo.svg" alt="logo">--%>
+<%--                        </div>--%>
                         <h4>Bạn là người mới?</h4>
                         <h6 class="font-weight-light">Đăng ký cực nhanh, nó chỉ tốn một chút thời gian!</h6>
 

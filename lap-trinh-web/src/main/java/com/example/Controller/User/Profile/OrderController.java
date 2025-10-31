@@ -1,6 +1,6 @@
 package com.example.Controller.User.Profile;
 
-import com.example.DTO.Order.OrderUserResponseDTO;
+import com.example.DTO.Orders.OrderUserResponseDTO;
 import com.example.Service.Database.JDBCConnection;
 import com.example.Service.Order.OrderService;
 

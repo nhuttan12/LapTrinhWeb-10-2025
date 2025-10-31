@@ -16,7 +16,7 @@ public class OrderDetailDAO {
         this.conn = conn;
     }
 
-    public List<OrderDetail> getOrderDetailsPaging(int orderId, int userId, int page, int pageSize) {
+    public List<OrderDetail> getOrderDetailsPaging(int orderId, int userId, int limit, int offset) {
         List<OrderDetail> orderDetails = new ArrayList<>();
 
         String sql = """
@@ -58,12 +58,11 @@ public class OrderDetailDAO {
             conn.setAutoCommit(false);
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                int offset = (page - 1) * pageSize;
 
-                stmt.setString(1, ImageType.THUMBNAIL.toString().toLowerCase());
+                stmt.setString(1, ImageType.THUMBNAIL.getImageType());
                 stmt.setInt(2, orderId);
                 stmt.setInt(3, userId);
-                stmt.setInt(4, pageSize);
+                stmt.setInt(4, limit);
                 stmt.setInt(5, offset);
 
                 try (ResultSet rs = stmt.executeQuery()) {
@@ -73,7 +72,9 @@ public class OrderDetailDAO {
                             image = Image.builder()
                                     .id(rs.getInt("i_id"))
                                     .url(rs.getString("i_url"))
-                                    .status(rs.getString("i_status") != null ? ImageStatus.valueOf(rs.getString("i_status").toUpperCase()) : null)
+                                    .status(rs.getString("i_status") != null
+                                            ? ImageStatus.fromString(rs.getString("i_status"))
+                                            : null)
                                     .createdAt(rs.getTimestamp("i_created_at"))
                                     .updatedAt(rs.getTimestamp("i_updated_at"))
                                     .build();
@@ -84,7 +85,7 @@ public class OrderDetailDAO {
                             productImage = ProductImage.builder()
                                     .id(rs.getInt("pi_id"))
                                     .productId(rs.getInt("pi_product_id"))
-                                    .type(ImageType.valueOf(rs.getString("pi_type").toUpperCase()))
+                                    .type(ImageType.fromString(rs.getString("pi_type")))
                                     .image(image)
                                     .build();
                         }
@@ -94,7 +95,7 @@ public class OrderDetailDAO {
                                 .name(rs.getString("p_name"))
                                 .price(rs.getDouble("p_price"))
                                 .discount(rs.getDouble("p_discount"))
-                                .status(ProductStatus.valueOf(rs.getString("p_status").toUpperCase()))
+                                .status(ProductStatus.fromString(rs.getString("p_status")))
                                 .category(rs.getString("p_category"))
                                 .createdAt(rs.getTimestamp("p_created_at"))
                                 .updatedAt(rs.getTimestamp("p_updated_at"))

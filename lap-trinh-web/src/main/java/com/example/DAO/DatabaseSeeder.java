@@ -63,7 +63,7 @@ public class DatabaseSeeder {
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, roleId);
             stmt.setString(2, roleName.name());
-            stmt.setString(3, RoleStatus.ACTIVE.name().toLowerCase());
+            stmt.setString(3, RoleStatus.ACTIVE.getRoleStatus());
             stmt.executeUpdate();
         }
     }
@@ -86,7 +86,7 @@ public class DatabaseSeeder {
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, imageId);
             stmt.setString(2, url);
-            stmt.setString(3, ImageStatus.ACTIVE.name().toLowerCase());
+            stmt.setString(3, ImageStatus.ACTIVE.getImageStatus());
             stmt.executeUpdate();
         }
     }

@@ -1,8 +1,8 @@
 package com.example.Service.User;
 
 import com.example.DAO.UserDAO;
-import com.example.DTO.User.UserChangePasswordResponseDTO;
-import com.example.DTO.User.UserProfileDTO;
+import com.example.DTO.Users.UserChangePasswordResponseDTO;
+import com.example.DTO.Users.UserProfileDTO;
 import com.example.Mappers.UserMapper;
 import com.example.Model.User;
 
