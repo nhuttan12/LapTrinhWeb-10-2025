@@ -16,7 +16,6 @@ public interface ProductMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "price", target = "price")
     @Mapping(source = "discount", target = "discount")
-    @Mapping(source = "productDetail.description", target = "description")
     @Mapping(source = "productImage.image.url", target = "thumbnail")
     GetProductsPagingResponseDTO toGetProductsPagingResponseDTO(Product product);
 

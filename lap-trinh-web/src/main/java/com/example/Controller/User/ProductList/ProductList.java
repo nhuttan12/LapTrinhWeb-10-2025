@@ -4,6 +4,7 @@ import com.example.DTO.Brands.GetBrandResponseDTO;
 import com.example.DTO.Common.PagingResponse;
 import com.example.DTO.Common.SortDirection;
 import com.example.DTO.Products.GetProductsPagingResponseDTO;
+import com.example.Model.FilterCriteria;
 import com.example.Service.Auth.AuthService;
 import com.example.Service.Brands.BrandService;
 import com.example.Service.Database.JDBCConnection;
@@ -31,13 +32,8 @@ public class ProductList extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        try {
-            Connection conn = JDBCConnection.getConnection();
-            productService = new ProductService(conn);
-            brandService = new BrandService(conn);
-        } catch (SQLException e) {
-            throw new ServletException("Failed to initialize DB connection", e);
-        }
+        productService = new ProductService();
+        brandService = new BrandService();
     }
 
     @Override
@@ -52,9 +48,31 @@ public class ProductList extends HttpServlet {
                     .map(Integer::parseInt)
                     .orElse(12);
 
+            String[] sortByParams = req.getParameterValues("sortBy");
+            String[] sortDirParams = req.getParameterValues("sortDir");
+
+            List<String> sortBy = sortByParams != null
+                    ? Arrays.asList(sortByParams)
+                    : List.of("name");
+
+            List<SortDirection> sortDirections = sortDirParams != null
+                    ? Arrays.stream(sortDirParams)
+                    .map(dir -> SortDirection.valueOf(dir.toUpperCase()))
+                    .collect(Collectors.toList())
+                    : List.of(SortDirection.ASC);
+
             boolean newProducts = Optional.ofNullable(req.getParameter("newProduct"))
                     .map(Boolean::parseBoolean)
                     .orElse(false);
+
+            int brandId = Optional.ofNullable(req.getParameter("brandId"))
+                    .map(Integer::parseInt)
+                    .orElse(0);
+
+            /**
+             * Get filter criteria from request product-filter
+             */
+            FilterCriteria criteria = (FilterCriteria) req.getAttribute("criteria");
 
             /**
              * Get brands with product count
@@ -63,25 +81,46 @@ public class ProductList extends HttpServlet {
 
             PagingResponse<GetProductsPagingResponseDTO> response;
 
-            if (newProducts) {
-                response = productService.getNewProductsPaging(page, pageSize);
+            if (brandId >= 1) {
+                /**
+                 * Get products paging with brand id
+                 */
+                response = productService.getProductsPagingByBrandId(
+                        brandId,
+                        page,
+                        pageSize,
+                        sortBy,
+                        sortDirections);
+
+            } else if (newProducts) {
+                /**
+                 * Get new products
+                 */
+                response = productService.getNewProductsPaging(page, pageSize, sortBy, sortDirections);
+
+            } else if (criteria != null) {
+                /**
+                 * Product filtering
+                 */
+                response = productService.getProductsByFilterCriteriaPaging(
+                        page,
+                        pageSize,
+                        sortBy,
+                        sortDirections,
+                        criteria.getOsList(),
+                        criteria.getRamList(),
+                        criteria.getStorageList(),
+                        criteria.getChargeList());
+
+                /**
+                 * Store the old attributes of filter box to request scope
+                 */
+                req.setAttribute("criteria", criteria);
 
             } else {
-                String[] sortByParams = req.getParameterValues("sortBy");
-                String[] sortDirParams = req.getParameterValues("sortDir");
-
-                List<String> sortBy = sortByParams != null
-                        ? Arrays.asList(sortByParams)
-                        : List.of("name");
-
-                List<SortDirection> sortDirections = sortDirParams != null
-                        ? Arrays.stream(sortDirParams)
-                        .map(dir -> SortDirection.valueOf(dir.toUpperCase()))
-                        .collect(Collectors.toList())
-                        : List.of(SortDirection.ASC);
-
-                System.out.println("sortBy=" + sortBy + ", sortDirections=" + sortDirections);
-
+                /**
+                 * Get product list paging
+                 */
                 response = productService.getProductsPaging(page, pageSize, sortBy, sortDirections);
             }
 

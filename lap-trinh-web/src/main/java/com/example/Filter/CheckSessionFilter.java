@@ -19,7 +19,8 @@ public class CheckSessionFilter implements Filter {
             "/about",
             "/contact",
             "/register",
-            "/home"
+            "/home",
+            "/product-filter"
     );
 
     @Override

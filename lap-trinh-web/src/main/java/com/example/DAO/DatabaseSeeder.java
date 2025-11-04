@@ -62,7 +62,7 @@ public class DatabaseSeeder {
         String sql = "INSERT INTO roles (id, name, status) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, roleId);
-            stmt.setString(2, roleName.name());
+            stmt.setString(2, roleName.getRoleName());
             stmt.setString(3, RoleStatus.ACTIVE.getRoleStatus());
             stmt.executeUpdate();
         }

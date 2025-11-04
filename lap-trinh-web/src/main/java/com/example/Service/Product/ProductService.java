@@ -16,8 +16,8 @@ public class ProductService {
     private final ProductDAO productDAO;
     private final ProductMapper productMapper;
 
-    public ProductService(Connection conn) {
-        this.productDAO = new ProductDAO(conn);
+    public ProductService() {
+        this.productDAO = new ProductDAO();
         this.productMapper = ProductMapper.INSTANCE;
     }
 
@@ -26,41 +26,113 @@ public class ProductService {
             int pageSize,
             List<String> sortBy,
             List<SortDirection> sortDirections
-    ) throws SQLException {
+    ) {
         int offset = (page - 1) * pageSize;
 
-        PagingMetaData meta = PagingMetaData.builder()
-                .currentPage(page)
-                .pageSize(pageSize)
-                .sortBy(sortBy)
-                .sortDirections(sortDirections)
-                .build();
+        PagingResponse<Product> products = null;
+        try {
+            products = productDAO.getProductsPaging(
+                    offset,
+                    page,
+                    pageSize,
+                    sortBy,
+                    sortDirections);
 
-        PagingResponse<Product> products = productDAO.getProductsPaging(meta, offset);
+            List<GetProductsPagingResponseDTO> responseDTO = productMapper
+                    .toGetProductsPagingResponseDTOList(products.getItems());
 
-        List<GetProductsPagingResponseDTO> responseDTO = productMapper
-                .toGetProductsPagingResponseDTOList(products.getItems());
-
-        return PagingResponse.<GetProductsPagingResponseDTO>builder()
-                .items(responseDTO)
-                .meta(products.getMeta())
-                .build();
+            return PagingResponse.<GetProductsPagingResponseDTO>builder()
+                    .items(responseDTO)
+                    .meta(products.getMeta())
+                    .build();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public PagingResponse<GetProductsPagingResponseDTO> getNewProductsPaging(
             int page,
-            int pageSize
-    ) throws SQLException {
+            int pageSize,
+            List<String> sortBy,
+            List<SortDirection> sortDirections
+    ) {
         int offset = (page - 1) * pageSize;
 
-        PagingMetaData meta = PagingMetaData.builder()
-                .currentPage(page)
-                .pageSize(pageSize)
-                .sortBy(List.of("created_at"))
-                .sortDirections(List.of(SortDirection.DESC))
-                .build();
+        PagingResponse<Product> products = null;
+        try {
+            products = productDAO.getNewProductsPaging(
+                    offset,
+                    page,
+                    pageSize,
+                    sortBy,
+                    sortDirections);
 
-        PagingResponse<Product> products = productDAO.getNewProductsPaging(meta, offset);
+            List<GetProductsPagingResponseDTO> responseDTO = productMapper
+                    .toGetProductsPagingResponseDTOList(products.getItems());
+
+            return PagingResponse.<GetProductsPagingResponseDTO>builder()
+                    .items(responseDTO)
+                    .meta(products.getMeta())
+                    .build();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public PagingResponse<GetProductsPagingResponseDTO> getProductsPagingByBrandId(
+            int brandId,
+            int page,
+            int pageSize,
+            List<String> sortBy,
+            List<SortDirection> sortDirections
+    ) {
+        int offset = (page - 1) * pageSize;
+
+        PagingResponse<Product> products = null;
+        try {
+            products = productDAO.getProductsPagingByBrandId(
+                    brandId,
+                    offset,
+                    page,
+                    pageSize,
+                    sortBy,
+                    sortDirections);
+
+            List<GetProductsPagingResponseDTO> responseDTO = productMapper
+                    .toGetProductsPagingResponseDTOList(products.getItems());
+
+            return PagingResponse.<GetProductsPagingResponseDTO>builder()
+                    .items(responseDTO)
+                    .meta(products.getMeta())
+                    .build();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Product getProductById(int id) {
+        try {
+            return productDAO.getProductByProductId(id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public PagingResponse<GetProductsPagingResponseDTO> getProductsByFilterCriteriaPaging(
+            int page,
+            int pageSize,
+            List<String> sortBy,
+            List<SortDirection> sortDirections,
+            String[] osList,
+            String[] ramList,
+            String[] storageList,
+            String[] chargeList
+    ) {
+        int offset = (page - 1) * pageSize;
+
+        PagingResponse<Product> products = productDAO.getProductsByFilterCriteriaPaging(
+                offset, page, pageSize, sortBy, sortDirections, osList, ramList, storageList, chargeList
+        );
 
         List<GetProductsPagingResponseDTO> responseDTO = productMapper
                 .toGetProductsPagingResponseDTOList(products.getItems());
