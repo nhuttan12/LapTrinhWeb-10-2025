@@ -8,13 +8,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OrderDetailDAO {
     public OrderDetailDAO() {
     }
 
     public List<OrderDetail> getOrderDetailsPaging(int orderId, int userId, int limit, int offset) throws SQLException {
+        Map<Integer, Product> productMap = new HashMap<>();
         List<OrderDetail> orderDetails = new ArrayList<>();
 
         String sql = """
@@ -64,41 +67,50 @@ public class OrderDetailDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Image image = null;
-                    if (rs.getString("i_url") != null) {
-                        image = Image.builder()
-                                .id(rs.getInt("i_id"))
-                                .url(rs.getString("i_url"))
-                                .status(rs.getString("i_status") != null
-                                        ? ImageStatus.fromString(rs.getString("i_status"))
-                                        : null)
-                                .createdAt(rs.getTimestamp("i_created_at"))
-                                .updatedAt(rs.getTimestamp("i_updated_at"))
+                    int productId = rs.getInt("p_id");
+
+                    Product product = productMap.get(productId);
+                    if (product == null) {
+                        product = Product.builder()
+                                .id(productId)
+                                .name(rs.getString("p_name"))
+                                .price(rs.getDouble("p_price"))
+                                .discount(rs.getDouble("p_discount"))
+                                .status(ProductStatus.fromString(rs.getString("p_status")))
+                                .category(rs.getString("p_category"))
+                                .createdAt(rs.getTimestamp("p_created_at"))
+                                .updatedAt(rs.getTimestamp("p_updated_at"))
+                                .productImages(new ArrayList<>()) // initialize list
                                 .build();
+                        productMap.put(productId, product);
                     }
 
-                    ProductImage productImage = null;
-                    if (rs.getString("pi_type") != null) {
-                        productImage = ProductImage.builder()
+                    // Add ProductImage if exists
+                    if (rs.getInt("pi_id") != 0) {
+                        Image image = null;
+                        if (rs.getString("i_url") != null) {
+                            image = Image.builder()
+                                    .id(rs.getInt("i_id"))
+                                    .url(rs.getString("i_url"))
+                                    .status(rs.getString("i_status") != null
+                                            ? ImageStatus.fromString(rs.getString("i_status"))
+                                            : null)
+                                    .createdAt(rs.getTimestamp("i_created_at"))
+                                    .updatedAt(rs.getTimestamp("i_updated_at"))
+                                    .build();
+                        }
+
+                        ProductImage productImage = ProductImage.builder()
                                 .id(rs.getInt("pi_id"))
                                 .productId(rs.getInt("pi_product_id"))
                                 .type(ImageType.fromString(rs.getString("pi_type")))
                                 .image(image)
                                 .build();
+
+                        product.getProductImages().add(productImage);
                     }
 
-                    Product product = Product.builder()
-                            .id(rs.getInt("p_id"))
-                            .name(rs.getString("p_name"))
-                            .price(rs.getDouble("p_price"))
-                            .discount(rs.getDouble("p_discount"))
-                            .status(ProductStatus.fromString(rs.getString("p_status")))
-                            .category(rs.getString("p_category"))
-                            .createdAt(rs.getTimestamp("p_created_at"))
-                            .updatedAt(rs.getTimestamp("p_updated_at"))
-                            .productImage(productImage)
-                            .build();
-
+                    // Build OrderDetail
                     OrderDetail orderDetail = OrderDetail.builder()
                             .id(rs.getInt("od_id"))
                             .orderId(orderId)

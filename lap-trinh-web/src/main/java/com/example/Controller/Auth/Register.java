@@ -42,8 +42,6 @@ public class Register extends HttpServlet {
         String password = req.getParameter("password");
         String retypePassword = req.getParameter("retypePassword");
 
-        System.out.println("Register attempt: " + username + ", " + email + ", " + password);
-
         /*
          * Validate
          */

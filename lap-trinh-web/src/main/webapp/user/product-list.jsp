@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,158 +43,16 @@
         <div class="container">
 
             <div class="row mb-5">
-                <div class="col-md-9 order-2">
-
-                    <div class="row">
-                        <div class="col-md-12 mb-5">
-                            <div class="float-md-left mb-4"><h2 class="text-black h5">Danh sách sản phẩm</h2></div>
-                            <div class="d-flex">
-                                <div class="dropdown mr-1 ml-md-auto">
-                                    <button type="button" class="btn btn-secondary btn-sm dropdown-toggle"
-                                            id="dropdownMenuOffset" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false">
-                                        Giá
-                                    </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuOffset">
-                                        <a class="dropdown-item"
-                                           href="${pageContext.request.contextPath}/product-list?page=1
-                                           &pageSize=${meta.pageSize}
-                                           &sortBy=price
-                                           &sortDirection=asc">Thấp
-                                            tới cao</a>
-                                        <a class="dropdown-item"
-                                           href="${pageContext.request.contextPath}/product-list?page=1
-                                           &pageSize=${meta.pageSize}
-                                           &sortBy=price
-                                           &sortDirection=desc">Cao
-                                            tới thấp</a>
-                                    </div>
-                                </div>
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-secondary btn-sm dropdown-toggle"
-                                            id="dropdownMenuReference" data-toggle="dropdown">Thứ tự
-                                    </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuReference">
-                                        <a class="dropdown-item"
-                                           href="${pageContext.request.contextPath}/product-list?page=1&pageSize=${meta.pageSize}&sortBy=name&sortDirection=asc">A
-                                            to Z</a>
-                                        <a class="dropdown-item"
-                                           href="${pageContext.request.contextPath}/product-list?page=1&pageSize=${meta.pageSize}&sortBy=name&sortDirection=desc">Z
-                                            to A</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mb-5">
-                        <c:forEach var="product" items="${products}">
-                            <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
-                                <div class="block-4 text-center border">
-                                    <figure class="block-4-image">
-                                        <a href="${pageContext.request.contextPath}/product-detail?id=${product.id}"><img
-                                                src="${product.thumbnail}"
-                                                alt="${product.name}"
-                                                class="img-fluid"></a>
-                                    </figure>
-                                    <div class="block-4-text p-4">
-                                        <h3>
-                                            <a href="${pageContext.request.contextPath}/product-detail?id=${product.id}"
-                                               class="fw-light">${product.name}</a>
-                                        </h3>
-                                        <p class="text-primary font-weight-bold pt-1">
-                                            <fmt:formatNumber value="${product.price}" type="number"
-                                                              groupingUsed="true"/> vnđ
-                                            <c:if test="${product.discount > 0}">
-                                                <span class="text-muted" style="text-decoration:line-through;">
-                                                    <fmt:formatNumber value="${product.price + product.discount}"
-                                                                      type="number" groupingUsed="true"/> vnđ
-                                                </span>
-                                            </c:if>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </c:forEach>
-
-
-                    </div>
-                    <div class="row" data-aos="fade-up">
-                        <div class="col-md-12 text-center">
-                            <div class="site-block-27">
-                                <ul>
-                                    <!-- Base URL with context path and pageSize -->
-                                    <c:set var="baseUrl"
-                                           value="${pageContext.request.contextPath}/product-list?pageSize=${meta.pageSize}"/>
-
-                                    <!-- Keep sortBy and sortDir in URL -->
-                                    <c:if test="${not empty meta.sortBy}">
-                                        <c:forEach var="i" begin="0" end="${fn:length(meta.sortBy) - 1}">
-                                            <c:set var="baseUrl"
-                                                   value="${baseUrl}&sortBy=${meta.sortBy[i]}&sortDir=${meta.sortDirections[i]}"/>
-                                        </c:forEach>
-                                    </c:if>
-
-                                    <!-- Previous Button -->
-                                    <c:choose>
-                                        <c:when test="${meta.currentPage > 1}">
-                                            <li>
-                                                <a href="${baseUrl}&page=${meta.currentPage - 1}">&lt;</a>
-                                            </li>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <li class="disabled"><span>&lt;</span></li>
-                                        </c:otherwise>
-                                    </c:choose>
-
-                                    <!-- Page Numbers -->
-                                    <c:set var="startPage" value="${meta.currentPage - 2}"/>
-                                    <c:set var="endPage" value="${meta.currentPage + 2}"/>
-                                    <c:if test="${startPage < 1}">
-                                        <c:set var="startPage" value="1"/>
-                                    </c:if>
-                                    <c:if test="${endPage > meta.totalPages}">
-                                        <c:set var="endPage" value="${meta.totalPages}"/>
-                                    </c:if>
-
-                                    <c:forEach var="i" begin="${startPage}" end="${endPage}">
-                                        <c:choose>
-                                            <c:when test="${i == meta.currentPage}">
-                                                <li class="active"><span>${i}</span></li>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <li><a href="${baseUrl}&page=${i}">${i}</a></li>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </c:forEach>
-
-                                    <!-- Next Button -->
-                                    <c:choose>
-                                        <c:when test="${meta.currentPage < meta.totalPages}">
-                                            <li>
-                                                <a href="${baseUrl}&page=${meta.currentPage + 1}">&gt;</a>
-                                            </li>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <li class="disabled"><span>&gt;</span></li>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="col-md-3 order-1 mb-5 mb-md-0">
                     <div class="border p-4 rounded mb-4">
                         <h3 class="mb-3 h6 text-uppercase text-black d-block">Thương hiệu</h3>
                         <ul class="list-unstyled mb-0">
                             <c:forEach var="brand" items="${brands}">
                                 <li class="mb-1">
-                                    <a href="${pageContext.request.contextPath}/product-list?brandId=${brand.id}&page=1&pageSize=12"
-                                       class="d-flex">
+                                    <a href="${pageContext.request.contextPath}/product-list?brandId=${brand.id}
+                                    &page=1&pageSize=12" class="d-flex">
                                         <span>${brand.name}</span>
-                                        <span
-                                                class="text-black ml-auto">(${brand.productCount})</span></a></li>
+                                        <span class="text-black ml-auto">(${brand.productCount})</span></a></li>
                             </c:forEach>
                         </ul>
                     </div>
@@ -206,8 +65,9 @@
                                 <div id="slider-range" class="border-primary"></div>
 
                                 <!-- Giá tiền -->
-                                <input type="text" name="text" id="amount" class="form-control border-0 pl-0 bg-white"
-                                       disabled=""/>
+                                <input type="text" name="priceRange" id="amount"
+                                       class="form-control border-0 pl-0 bg-white"
+                                       readonly/>
                             </div>
 
                             <!-- Hệ điều hành -->
@@ -288,6 +148,164 @@
                             <button type="submit" class="btn btn-sm btn-primary">Lọc</button>
                         </div>
                     </form>
+                </div>
+
+                <div class="col-md-9 order-2">
+
+                    <div class="row">
+                        <div class="col-md-12 mb-5">
+                            <div class="float-md-left mb-4"><h2 class="text-black h5">Danh sách sản phẩm</h2></div>
+                            <div class="d-flex">
+                                <div class="dropdown mr-1 ml-md-auto">
+                                    <button type="button" class="btn btn-secondary btn-sm dropdown-toggle"
+                                            id="dropdownMenuOffset" data-toggle="dropdown" aria-haspopup="true"
+                                            aria-expanded="false">
+                                        Giá
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuOffset">
+                                        <a class="dropdown-item"
+                                           href="${pageContext.request.contextPath}/product-list?page=1
+                                           &pageSize=${meta.pageSize}
+                                           &sortBy=price
+                                           &sortDirection=asc">Thấp
+                                            tới cao</a>
+                                        <a class="dropdown-item"
+                                           href="${pageContext.request.contextPath}/product-list?page=1
+                                           &pageSize=${meta.pageSize}
+                                           &sortBy=price
+                                           &sortDirection=desc">Cao
+                                            tới thấp</a>
+                                    </div>
+                                </div>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-secondary btn-sm dropdown-toggle"
+                                            id="dropdownMenuReference" data-toggle="dropdown">Thứ tự
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuReference">
+                                        <a class="dropdown-item"
+                                           href="${pageContext.request.contextPath}/product-list?page=1&pageSize=${meta.pageSize}&sortBy=name&sortDirection=asc">A
+                                            to Z</a>
+                                        <a class="dropdown-item"
+                                           href="${pageContext.request.contextPath}/product-list?page=1&pageSize=${meta.pageSize}&sortBy=name&sortDirection=desc">Z
+                                            to A</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-5">
+                        <!-- Product List -->
+                        <c:forEach var="product" items="${products}">
+                            <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
+                                <div class="block-4 text-center border">
+                                    <figure class="block-4-image">
+                                        <a href="${pageContext.request.contextPath}/product-detail?productId=${product.id}"><img
+                                                src="${product.thumbnail}"
+                                                alt="${product.name}"
+                                                class="img-fluid"></a>
+                                    </figure>
+                                    <div class="block-4-text p-4">
+                                        <h3>
+                                            <a href="${pageContext.request.contextPath}/product-detail?id=${product.id}"
+                                               class="fw-light">${product.name}</a>
+                                        </h3>
+                                        <p class="text-primary font-weight-bold pt-1">
+                                            <c:choose>
+                                                <c:when test="${product.discount > 0}">
+                                                    <span class="text-muted" style="text-decoration: line-through;">
+                                                        <fmt:formatNumber
+                                                                value="${product.price}"
+                                                                type="number"
+                                                                maxFractionDigits="2"
+                                                        /> vnđ
+                                                    </span>
+                                                    <span class="text-primary" style="margin-left: 8px;">
+                                                        <fmt:formatNumber
+                                                                value="${product.price - product.discount}"
+                                                                type="number"
+                                                                maxFractionDigits="2"
+                                                        /> vnđ
+                                                    </span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <fmt:formatNumber
+                                                            value="${product.price}"
+                                                            type="number"
+                                                            maxFractionDigits="2"
+                                                    /> vnđ
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
+                    <div class="row" data-aos="fade-up">
+                        <div class="col-md-12 text-center">
+                            <div class="site-block-27">
+                                <ul>
+                                    <!-- Base URL with context path and pageSize -->
+                                    <c:set var="baseUrl"
+                                           value="${pageContext.request.contextPath}/product-list?pageSize=${meta.pageSize}"/>
+
+                                    <!-- Keep sortBy and sortDir in URL -->
+                                    <c:if test="${not empty meta.sortBy}">
+                                        <c:forEach var="i" begin="0" end="${fn:length(meta.sortBy) - 1}">
+                                            <c:set var="baseUrl"
+                                                   value="${baseUrl}&sortBy=${meta.sortBy[i]}&sortDir=${meta.sortDirections[i]}"/>
+                                        </c:forEach>
+                                    </c:if>
+
+                                    <!-- Previous Button -->
+                                    <c:choose>
+                                        <c:when test="${meta.currentPage > 1}">
+                                            <li>
+                                                <a href="${baseUrl}&page=${meta.currentPage - 1}">&lt;</a>
+                                            </li>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <li class="disabled"><span>&lt;</span></li>
+                                        </c:otherwise>
+                                    </c:choose>
+
+                                    <!-- Page Numbers -->
+                                    <c:set var="startPage" value="${meta.currentPage - 2}"/>
+                                    <c:set var="endPage" value="${meta.currentPage + 2}"/>
+                                    <c:if test="${startPage < 1}">
+                                        <c:set var="startPage" value="1"/>
+                                    </c:if>
+                                    <c:if test="${endPage > meta.totalPages}">
+                                        <c:set var="endPage" value="${meta.totalPages}"/>
+                                    </c:if>
+
+                                    <c:forEach var="i" begin="${startPage}" end="${endPage}">
+                                        <c:choose>
+                                            <c:when test="${i == meta.currentPage}">
+                                                <li class="active"><span>${i}</span></li>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <li><a href="${baseUrl}&page=${i}">${i}</a></li>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:forEach>
+
+                                    <!-- Next Button -->
+                                    <c:choose>
+                                        <c:when test="${meta.currentPage < meta.totalPages}">
+                                            <li>
+                                                <a href="${baseUrl}&page=${meta.currentPage + 1}">&gt;</a>
+                                            </li>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <li class="disabled"><span>&gt;</span></li>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -37,7 +37,7 @@
             </div>
             <div class="row mt-5">
               <div class="col-12 text-center mt-xl-2">
-                <a class="text-white font-weight-medium" href="../../index.jsp">Về trang chủ</a>
+                <a class="text-white font-weight-medium" href="${pageContext.request.contextPath}/home">Về trang chủ</a>
               </div>
             </div>
           </div>

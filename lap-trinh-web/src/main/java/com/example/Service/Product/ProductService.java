@@ -1,23 +1,27 @@
 package com.example.Service.Product;
 
 import com.example.DAO.ProductDAO;
-import com.example.DTO.Common.PagingMetaData;
 import com.example.DTO.Common.PagingResponse;
 import com.example.DTO.Common.SortDirection;
+import com.example.DTO.Products.GetProductDetailResponseDTO;
+import com.example.DTO.Products.GetProductSameBrandDTO;
 import com.example.DTO.Products.GetProductsPagingResponseDTO;
+import com.example.Helper.AnalyzeDescription;
 import com.example.Mappers.ProductMapper;
 import com.example.Model.Product;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public class ProductService {
     private final ProductDAO productDAO;
     private final ProductMapper productMapper;
+    private final AnalyzeDescription analyzeDescription;
 
     public ProductService() {
         this.productDAO = new ProductDAO();
+        this.analyzeDescription = new AnalyzeDescription();
         this.productMapper = ProductMapper.INSTANCE;
     }
 
@@ -124,14 +128,29 @@ public class ProductService {
             List<String> sortBy,
             List<SortDirection> sortDirections,
             String[] osList,
-            String[] ramList,
-            String[] storageList,
-            String[] chargeList
+            int[] ramList,
+            int[] storageList,
+            int[] chargeList,
+            int minPrice,
+            int maxPrice
     ) {
+        /**
+         * Calculate offset and split price range into min price and max price
+         */
         int offset = (page - 1) * pageSize;
 
         PagingResponse<Product> products = productDAO.getProductsByFilterCriteriaPaging(
-                offset, page, pageSize, sortBy, sortDirections, osList, ramList, storageList, chargeList
+                offset,
+                page,
+                pageSize,
+                sortBy,
+                sortDirections,
+                osList,
+                ramList,
+                storageList,
+                chargeList,
+                minPrice,
+                maxPrice
         );
 
         List<GetProductsPagingResponseDTO> responseDTO = productMapper
@@ -141,5 +160,43 @@ public class ProductService {
                 .items(responseDTO)
                 .meta(products.getMeta())
                 .build();
+    }
+
+    public GetProductDetailResponseDTO getProductDetailByProductId(int productId) {
+        try {
+            /**
+             * Get product detail by product id
+             */
+            Product product = this.productDAO.getProductDetailByProductId(productId);
+//            System.out.println("Double check detail image");
+//            product.getProductImages().forEach(productImage -> System.out.println(productImage.getImage().getUrl()));
+
+            /**
+             * Analyzing description
+             */
+            Map<String, String> analyzeDescription = this.analyzeDescription.analyzeDescription(
+                    product.getProductDetail().getDescription()
+            );
+
+            /**
+             * Mapping product to product detail response dto
+             */
+            GetProductDetailResponseDTO productDetailResponseDTO = this.productMapper.toGetProductDetailResponseDTO(product);
+
+            /**
+             * Mapping to new description
+             */
+            productDetailResponseDTO.setDescription(analyzeDescription);
+
+            return productDetailResponseDTO;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<GetProductSameBrandDTO> getProductByBrandName(String brandName) {
+        List<Product> products = this.productDAO.getProductByBrandName(brandName);
+
+        return this.productMapper.toGetProductSameBrandDTOList(products);
     }
 }

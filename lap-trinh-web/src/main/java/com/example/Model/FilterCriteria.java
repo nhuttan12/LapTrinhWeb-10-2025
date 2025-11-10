@@ -9,7 +9,9 @@ import lombok.*;
 @ToString
 public class FilterCriteria {
     private String[] osList;
-    private String[] ramList;
-    private String[] storageList;
-    private String[] chargeList;
+    private int[] ramList;
+    private int[] storageList;
+    private int[] chargeList;
+    private int minPrice;
+    private int maxPrice;
 }

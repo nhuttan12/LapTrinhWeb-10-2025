@@ -7,13 +7,12 @@ import com.example.Helper.BuildOrderPaging;
 import com.example.Model.*;
 import com.example.Service.Database.JDBCConnection;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ProductDAO {
     private final BuildOrderPaging buildOrderPaging;
@@ -43,7 +42,7 @@ public class ProductDAO {
                     OFFSET ? LIMIT ?
                 """;
 
-        List<Product> products = new ArrayList<>();
+        Map<Integer, Product> productMap = new LinkedHashMap<>();
 
         try (Connection conn = JDBCConnection.getConnection()) {
 
@@ -59,25 +58,23 @@ public class ProductDAO {
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
-                        // Map Image
-                        Image image = null;
-                        if (rs.getInt("i_id") != 0) {
-                            image = Image.builder()
-                                    .id(rs.getInt("i_id"))
+                        int productId = rs.getInt("p_id");
+
+                        ProductImage productImage = null;
+                        int imageId = rs.getInt("i_id");
+                        if (!rs.wasNull() && imageId != 0) {
+                            Image image = Image.builder()
+                                    .id(imageId)
                                     .url(rs.getString("i_url"))
                                     .status(ImageStatus.fromString(rs.getString("i_status")))
                                     .createdAt(rs.getTimestamp("i_created_at"))
                                     .updatedAt(rs.getTimestamp("i_updated_at"))
                                     .build();
-                        }
 
-                        // Map ProductImage
-                        ProductImage productImage = null;
-                        if (rs.getInt("pi_id") != 0) {
                             productImage = ProductImage.builder()
                                     .id(rs.getInt("pi_id"))
                                     .imageId(rs.getInt("image_id"))
-                                    .productId(rs.getInt("p_id"))
+                                    .productId(productId)
                                     .type(ImageType.fromString(rs.getString("pi_type")))
                                     .createdAt(rs.getTimestamp("pi_created_at"))
                                     .updatedAt(rs.getTimestamp("pi_updated_at"))
@@ -85,20 +82,27 @@ public class ProductDAO {
                                     .build();
                         }
 
-                        // Map Product
-                        Product product = Product.builder()
-                                .id(rs.getInt("p_id"))
-                                .name(rs.getString("name"))
-                                .price(rs.getDouble("price"))
-                                .discount(rs.getDouble("discount"))
-                                .status(ProductStatus.fromString(rs.getString("p_status")))
-                                .category(rs.getString("category"))
-                                .createdAt(rs.getTimestamp("p_created_at"))
-                                .updatedAt(rs.getTimestamp("p_updated_at"))
-                                .productImage(productImage)
-                                .build();
+                        // --- Deduplicate product ---
+                        Product product = productMap.get(productId);
+                        if (product == null) {
+                            product = Product.builder()
+                                    .id(productId)
+                                    .name(rs.getString("name"))
+                                    .price(rs.getDouble("price"))
+                                    .discount(rs.getDouble("discount"))
+                                    .status(ProductStatus.fromString(rs.getString("p_status")))
+                                    .category(rs.getString("category"))
+                                    .createdAt(rs.getTimestamp("p_created_at"))
+                                    .updatedAt(rs.getTimestamp("p_updated_at"))
+                                    .productImages(new ArrayList<>()) // initialize list
+                                    .build();
 
-                        products.add(product);
+                            productMap.put(productId, product);
+                        }
+
+                        if (productImage != null) {
+                            product.getProductImages().add(productImage);
+                        }
                     }
                 }
             }
@@ -137,7 +141,7 @@ public class ProductDAO {
                         .build();
 
                 return PagingResponse.<Product>builder()
-                        .items(products)
+                        .items(new ArrayList<>(productMap.values()))
                         .meta(updatedMeta)
                         .build();
             }
@@ -154,8 +158,6 @@ public class ProductDAO {
             List<String> sortBy,
             List<SortDirection> sortDirections
     ) throws SQLException {
-        List<Product> products = new ArrayList<>();
-
         String sql = """
                     SELECT 
                         p.id as p_id, p.name, p.price, p.discount, p.status as p_status, p.category, 
@@ -170,6 +172,8 @@ public class ProductDAO {
                     OFFSET ? LIMIT ?
                 """;
 
+        Map<Integer, Product> productMap = new LinkedHashMap<>();
+
         try (Connection conn = JDBCConnection.getConnection()) {
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -181,25 +185,24 @@ public class ProductDAO {
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
-                        // Map Image
-                        Image image = null;
-                        if (rs.getInt("i_id") != 0) {
-                            image = Image.builder()
-                                    .id(rs.getInt("i_id"))
+                        int productId = rs.getInt("p_id");
+
+                        ProductImage productImage = null;
+                        int imageId = rs.getInt("i_id");
+
+                        if (!rs.wasNull() && imageId != 0) {
+                            Image image = Image.builder()
+                                    .id(imageId)
                                     .url(rs.getString("i_url"))
                                     .status(ImageStatus.fromString(rs.getString("i_status")))
                                     .createdAt(rs.getTimestamp("i_created_at"))
                                     .updatedAt(rs.getTimestamp("i_updated_at"))
                                     .build();
-                        }
 
-                        // Map ProductImage
-                        ProductImage productImage = null;
-                        if (rs.getInt("pi_id") != 0) {
                             productImage = ProductImage.builder()
                                     .id(rs.getInt("pi_id"))
                                     .imageId(rs.getInt("image_id"))
-                                    .productId(rs.getInt("p_id"))
+                                    .productId(productId)
                                     .type(ImageType.fromString(rs.getString("pi_type")))
                                     .createdAt(rs.getTimestamp("pi_created_at"))
                                     .updatedAt(rs.getTimestamp("pi_updated_at"))
@@ -207,20 +210,27 @@ public class ProductDAO {
                                     .build();
                         }
 
-                        // Map Product
-                        Product product = Product.builder()
-                                .id(rs.getInt("p_id"))
-                                .name(rs.getString("name"))
-                                .price(rs.getDouble("price"))
-                                .discount(rs.getDouble("discount"))
-                                .status(ProductStatus.fromString(rs.getString("p_status")))
-                                .category(rs.getString("category"))
-                                .createdAt(rs.getTimestamp("p_created_at"))
-                                .updatedAt(rs.getTimestamp("p_updated_at"))
-                                .productImage(productImage)
-                                .build();
+                        // --- Deduplicate product ---
+                        Product product = productMap.get(productId);
+                        if (product == null) {
+                            product = Product.builder()
+                                    .id(productId)
+                                    .name(rs.getString("name"))
+                                    .price(rs.getDouble("price"))
+                                    .discount(rs.getDouble("discount"))
+                                    .status(ProductStatus.fromString(rs.getString("p_status")))
+                                    .category(rs.getString("category"))
+                                    .createdAt(rs.getTimestamp("p_created_at"))
+                                    .updatedAt(rs.getTimestamp("p_updated_at"))
+                                    .productImages(new ArrayList<>()) // initialize list
+                                    .build();
 
-                        products.add(product);
+                            productMap.put(productId, product);
+                        }
+
+                        if (productImage != null) {
+                            product.getProductImages().add(productImage);
+                        }
                     }
                 }
 
@@ -257,7 +267,7 @@ public class ProductDAO {
                             .build();
 
                     return PagingResponse.<Product>builder()
-                            .items(products)
+                            .items(new ArrayList<>(productMap.values()))
                             .meta(updatedMeta)
                             .build();
 
@@ -314,24 +324,26 @@ public class ProductDAO {
                     FROM products p
                     JOIN product_details pd ON p.id = pd.product_id
                     JOIN brands b ON pd.brand_id = b.id
-                    LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.type = 'thumbnail'
+                    LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.type = ?
                     LEFT JOIN images i ON pi.image_id = i.id
                     WHERE pd.brand_id = ? 
                       AND p.status = ?
                 """;
+
         // Add dynamic ORDER BY
         String orderClause = buildOrderPaging.buildOrderByClause("p", sortBy, sortDirections);
         baseSql += " " + orderClause + " LIMIT ? OFFSET ?";
 
-        List<Product> products = new ArrayList<>();
+        Map<Integer, Product> productMap = new LinkedHashMap<>();
         PagingMetaData meta;
 
         try (Connection conn = JDBCConnection.getConnection()) {
 
             int totalItems = 0;
             try (PreparedStatement countStmt = conn.prepareStatement(countSql)) {
-                countStmt.setInt(1, brandId);
-                countStmt.setString(2, ProductStatus.ACTIVE.getProductStatus());
+                countStmt.setString(1, ImageType.THUMBNAIL.getImageType());
+                countStmt.setInt(2, brandId);
+                countStmt.setString(3, ProductStatus.ACTIVE.getProductStatus());
 
                 try (ResultSet rs = countStmt.executeQuery()) {
                     if (rs.next()) {
@@ -348,6 +360,9 @@ public class ProductDAO {
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
+                        int productId = rs.getInt("product_id");
+
+                        // --- Brand ---
                         Brand brand = Brand.builder()
                                 .id(rs.getInt("brand_id"))
                                 .name(rs.getString("brand_name"))
@@ -356,12 +371,13 @@ public class ProductDAO {
                                 .updatedAt(rs.getTimestamp("brand_updated_at"))
                                 .build();
 
+                        // --- ProductDetail ---
                         ProductDetail detail = ProductDetail.builder()
                                 .id(rs.getInt("detail_id"))
-                                .productId(rs.getInt("product_id"))
+                                .productId(productId)
                                 .os(rs.getString("os"))
-                                .ram(rs.getString("ram"))
-                                .storage(rs.getString("storage"))
+                                .ram(rs.getInt("ram"))
+                                .storage(rs.getInt("storage"))
                                 .batteryCapacity(rs.getInt("battery_capacity"))
                                 .screenSize(rs.getDouble("screen_size"))
                                 .screenResolution(rs.getString("screen_resolution"))
@@ -380,41 +396,52 @@ public class ProductDAO {
                                 .brand(brand)
                                 .build();
 
-                        Image image = null;
-                        if (rs.getInt("image_id") != 0) {
-                            image = Image.builder()
-                                    .id(rs.getInt("image_id"))
+                        // --- ProductImage ---
+                        ProductImage productImage = null;
+                        int imageId = rs.getInt("image_id");
+
+                        if (!rs.wasNull() && imageId != 0) {
+                            Image image = Image.builder()
+                                    .id(imageId)
                                     .url(rs.getString("image_url"))
                                     .status(ImageStatus.valueOf(rs.getString("image_status").toUpperCase()))
                                     .createdAt(rs.getTimestamp("image_created_at"))
                                     .updatedAt(rs.getTimestamp("image_updated_at"))
                                     .build();
+
+                            productImage = ProductImage.builder()
+                                    .id(rs.getInt("product_image_id"))
+                                    .imageId(rs.getInt("image_ref_id"))
+                                    .productId(productId)
+                                    .type(ImageType.valueOf(rs.getString("image_type").toUpperCase()))
+                                    .createdAt(rs.getTimestamp("product_created_at"))
+                                    .updatedAt(rs.getTimestamp("product_updated_at"))
+                                    .image(image)
+                                    .build();
                         }
 
-                        ProductImage productImage = ProductImage.builder()
-                                .id(rs.getInt("product_image_id"))
-                                .imageId(rs.getInt("image_ref_id"))
-                                .productId(rs.getInt("product_id"))
-                                .type(ImageType.valueOf(rs.getString("image_type").toUpperCase()))
-                                .createdAt(rs.getTimestamp("product_created_at"))
-                                .updatedAt(rs.getTimestamp("product_updated_at"))
-                                .image(image)
-                                .build();
+                        // --- Deduplicate product ---
+                        Product product = productMap.get(productId);
+                        if (product == null) {
+                            product = Product.builder()
+                                    .id(productId)
+                                    .name(rs.getString("product_name"))
+                                    .price(rs.getDouble("product_price"))
+                                    .discount(rs.getDouble("product_discount"))
+                                    .status(ProductStatus.valueOf(rs.getString("product_status").toUpperCase()))
+                                    .category(rs.getString("product_category"))
+                                    .createdAt(rs.getTimestamp("product_created_at"))
+                                    .updatedAt(rs.getTimestamp("product_updated_at"))
+                                    .productDetail(detail)
+                                    .productImages(new ArrayList<>()) // initialize list
+                                    .build();
+                            productMap.put(productId, product);
+                        }
 
-                        Product product = Product.builder()
-                                .id(rs.getInt("product_id"))
-                                .name(rs.getString("product_name"))
-                                .price(rs.getDouble("product_price"))
-                                .discount(rs.getDouble("product_discount"))
-                                .status(ProductStatus.valueOf(rs.getString("product_status").toUpperCase()))
-                                .category(rs.getString("product_category"))
-                                .createdAt(rs.getTimestamp("product_created_at"))
-                                .updatedAt(rs.getTimestamp("product_updated_at"))
-                                .productDetail(detail)
-                                .productImage(productImage)
-                                .build();
+                        if (productImage != null) {
+                            product.getProductImages().add(productImage);
+                        }
 
-                        products.add(product);
                     }
                 }
             }
@@ -438,7 +465,7 @@ public class ProductDAO {
 
 
             return PagingResponse.<Product>builder()
-                    .items(products)
+                    .items(new ArrayList<>(productMap.values()))
                     .meta(meta)
                     .build();
         } catch (SQLException e) {
@@ -535,7 +562,7 @@ public class ProductDAO {
                     FROM products p
                     LEFT JOIN product_details pd ON pd.product_id = p.id
                     LEFT JOIN brands b ON b.id = pd.brand_id
-                    LEFT JOIN product_images pi ON pi.product_id = p.id AND pi.type = 'thumbnail'
+                    LEFT JOIN product_images pi ON pi.product_id = p.id
                     LEFT JOIN images i ON i.id = pi.image_id
                     WHERE p.id = ?;
                 """;
@@ -546,88 +573,95 @@ public class ProductDAO {
             stmt.setInt(1, productId);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                if (!rs.next()) return null;
-
-                // --- Build Brand ---
-                Brand brand = null;
-                if (rs.getInt("brand_id") != 0) {
-                    brand = Brand.builder()
-                            .id(rs.getInt("brand_id"))
-                            .name(rs.getString("brand_name"))
-                            .status(BrandStatus.fromString(rs.getString("brand_status")))
-                            .createdAt(rs.getTimestamp("brand_created_at"))
-                            .updatedAt(rs.getTimestamp("brand_updated_at"))
-                            .build();
-                }
-
-                // --- Build Image ---
-                Image image = null;
-                if (rs.getInt("image_id") != 0 && rs.getString("image_url") != null) {
-                    image = Image.builder()
-                            .id(rs.getInt("image_id"))
-                            .url(rs.getString("image_url"))
-                            .status(ImageStatus.fromString(rs.getString("image_status")))
-                            .createdAt(rs.getTimestamp("image_created_at"))
-                            .updatedAt(rs.getTimestamp("image_updated_at"))
-                            .build();
-                }
-
-                // --- Build ProductImage ---
-                ProductImage productImage = null;
-                if (rs.getInt("product_image_id") != 0) {
-                    productImage = ProductImage.builder()
-                            .id(rs.getInt("product_image_id"))
-                            .imageId(rs.getInt("image_id"))
-                            .productId(rs.getInt("product_id"))
-                            .type(ImageType.fromString(rs.getString("image_type")))
-                            .createdAt(rs.getTimestamp("product_image_created_at"))
-                            .updatedAt(rs.getTimestamp("product_image_updated_at"))
-                            .image(image)
-                            .build();
-                }
-
-                // --- Build ProductDetail ---
+                Product product = null;
                 ProductDetail productDetail = null;
-                if (rs.getInt("product_detail_id") != 0) {
-                    productDetail = ProductDetail.builder()
-                            .id(rs.getInt("product_detail_id"))
-                            .productId(rs.getInt("product_id"))
-                            .os(rs.getString("os"))
-                            .ram(rs.getString("ram"))
-                            .storage(rs.getString("storage"))
-                            .batteryCapacity((Integer) rs.getObject("battery_capacity"))
-                            .screenSize((Double) rs.getObject("screen_size"))
-                            .screenResolution(rs.getString("screen_resolution"))
-                            .mobileNetwork(rs.getString("mobile_network"))
-                            .cpu(rs.getString("cpu"))
-                            .gpu(rs.getString("gpu"))
-                            .waterResistance(rs.getString("water_resistance"))
-                            .maxChargeWatt((Integer) rs.getObject("max_charge_watt"))
-                            .design(rs.getString("design"))
-                            .memoryCard(rs.getString("memory_card"))
-                            .cpuSpeed((Double) rs.getObject("cpu_speed"))
-                            .releaseDate(rs.getTimestamp("release_date"))
-                            .rating((Double) rs.getObject("rating"))
-                            .description(rs.getString("description"))
-                            .createdAt(rs.getTimestamp("product_detail_created_at"))
-                            .updatedAt(rs.getTimestamp("product_detail_updated_at"))
-                            .brand(brand)
-                            .build();
+                Brand brand = null;
+                List<ProductImage> productImages = new ArrayList<>();
+
+                while (rs.next()) {
+                    // Build Brand (only once)
+                    if (brand == null && rs.getInt("brand_id") != 0) {
+                        brand = Brand.builder()
+                                .id(rs.getInt("brand_id"))
+                                .name(rs.getString("brand_name"))
+                                .status(BrandStatus.fromString(rs.getString("brand_status")))
+                                .createdAt(rs.getTimestamp("brand_created_at"))
+                                .updatedAt(rs.getTimestamp("brand_updated_at"))
+                                .build();
+                    }
+
+                    // Build ProductDetail (only once)
+                    if (productDetail == null && rs.getInt("product_detail_id") != 0) {
+                        productDetail = ProductDetail.builder()
+                                .id(rs.getInt("product_detail_id"))
+                                .productId(rs.getInt("product_id"))
+                                .os(rs.getString("os"))
+                                .ram(rs.getInt("ram"))
+                                .storage(rs.getInt("storage"))
+                                .batteryCapacity((Integer) rs.getObject("battery_capacity"))
+                                .screenSize(rs.getObject("screen_size") != null ? ((BigDecimal) rs.getObject("screen_size")).doubleValue() : null)
+                                .screenResolution(rs.getString("screen_resolution"))
+                                .mobileNetwork(rs.getString("mobile_network"))
+                                .cpu(rs.getString("cpu"))
+                                .gpu(rs.getString("gpu"))
+                                .waterResistance(rs.getString("water_resistance"))
+                                .maxChargeWatt((Integer) rs.getObject("max_charge_watt"))
+                                .design(rs.getString("design"))
+                                .memoryCard(rs.getString("memory_card"))
+                                .cpuSpeed(rs.getObject("cpu_speed") != null ? ((BigDecimal) rs.getObject("cpu_speed")).doubleValue() : null)
+                                .releaseDate(rs.getTimestamp("release_date"))
+                                .rating((Double) rs.getObject("rating"))
+                                .description(rs.getString("description"))
+                                .createdAt(rs.getTimestamp("product_detail_created_at"))
+                                .updatedAt(rs.getTimestamp("product_detail_updated_at"))
+                                .brand(brand)
+                                .build();
+                    }
+
+                    // Collect all images
+                    if (rs.getInt("image_id") != 0 && rs.getString("image_url") != null) {
+                        Image image = Image.builder()
+                                .id(rs.getInt("image_id"))
+                                .url(rs.getString("image_url"))
+                                .status(ImageStatus.fromString(rs.getString("image_status")))
+                                .createdAt(rs.getTimestamp("image_created_at"))
+                                .updatedAt(rs.getTimestamp("image_updated_at"))
+                                .build();
+
+                        ProductImage productImage = ProductImage.builder()
+                                .id(rs.getInt("product_image_id"))
+                                .imageId(rs.getInt("image_id"))
+                                .productId(rs.getInt("product_id"))
+                                .type(ImageType.fromString(rs.getString("image_type")))
+                                .createdAt(rs.getTimestamp("product_image_created_at"))
+                                .updatedAt(rs.getTimestamp("product_image_updated_at"))
+                                .image(image)
+                                .build();
+
+                        productImages.add(productImage);
+                    }
+
+                    // Build Product (only once)
+                    if (product == null) {
+                        product = Product.builder()
+                                .id(rs.getInt("product_id"))
+                                .name(rs.getString("product_name"))
+                                .price(rs.getDouble("price"))
+                                .discount(rs.getDouble("discount"))
+                                .status(ProductStatus.fromString(rs.getString("product_status")))
+                                .category(rs.getString("category"))
+                                .createdAt(rs.getTimestamp("product_created_at"))
+                                .updatedAt(rs.getTimestamp("product_updated_at"))
+                                .productDetail(productDetail)
+                                .build();
+                    }
                 }
 
-                // --- Build Product ---
-                return Product.builder()
-                        .id(rs.getInt("product_id"))
-                        .name(rs.getString("product_name"))
-                        .price(rs.getDouble("price"))
-                        .discount(rs.getDouble("discount"))
-                        .status(ProductStatus.fromString(rs.getString("product_status")))
-                        .category(rs.getString("category"))
-                        .createdAt(rs.getTimestamp("product_created_at"))
-                        .updatedAt(rs.getTimestamp("product_updated_at"))
-                        .productDetail(productDetail)
-                        .productImage(productImage)
-                        .build();
+                if (product != null) {
+                    product.setProductImages(productImages);
+                }
+
+                return product;
             }
         }
     }
@@ -639,9 +673,11 @@ public class ProductDAO {
             List<String> sortBy,
             List<SortDirection> sortDirections,
             String[] osList,
-            String[] ramList,
-            String[] storageList,
-            String[] chargeList
+            int[] ramList,
+            int[] storageList,
+            int[] chargeList,
+            int minPrice,
+            int maxPrice
     ) {
         String countSql = """
                     SELECT COUNT(*) AS total
@@ -669,17 +705,41 @@ public class ProductDAO {
             }
             sql.append(")");
         }
+
         if (ramList.length > 0) {
-            sql.append(" AND pd.ram = ANY(?)");
-            params.add(ramList);
+            sql.append(" AND pd.ram IN (");
+            for (int i = 0; i < ramList.length; i++) {
+                sql.append("?");
+                if (i < ramList.length - 1) sql.append(", ");
+                params.add(ramList[i]);
+            }
+            sql.append(")");
         }
+
         if (storageList.length > 0) {
-            sql.append(" AND pd.storage = ANY(?)");
-            params.add(storageList);
+            sql.append(" AND pd.storage IN (");
+            for (int i = 0; i < storageList.length; i++) {
+                sql.append("?");
+                if (i < storageList.length - 1) sql.append(", ");
+                params.add(storageList[i]);
+            }
+            sql.append(")");
         }
+
         if (chargeList.length > 0) {
-            sql.append(" AND pd.max_charge_watt = ANY(?)");
-            params.add(chargeList);
+            sql.append(" AND pd.max_charge_watt IN (");
+            for (int i = 0; i < chargeList.length; i++) {
+                sql.append("?");
+                if (i < chargeList.length - 1) sql.append(", ");
+                params.add(chargeList[i]);
+            }
+            sql.append(")");
+        }
+
+        if (minPrice != -1 && maxPrice != -1) {
+            sql.append(" AND p.price BETWEEN ? AND ?");
+            params.add(minPrice);
+            params.add(maxPrice);
         }
 
         if (sortBy != null && !sortBy.isEmpty()) {
@@ -701,38 +761,60 @@ public class ProductDAO {
         params.add(pageSize);
         params.add(offset);
 
-        List<Product> products = new ArrayList<>();
+        Map<Integer, Product> productMap = new LinkedHashMap<>();
 
-        try (Connection conn = JDBCConnection.getConnection()) {
 
-            try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
-                for (int i = 0; i < params.size(); i++) {
-                    stmt.setObject(i + 1, params.get(i));
-                }
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
 
-                ResultSet rs = stmt.executeQuery();
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
                 while (rs.next()) {
-                    Product product = Product.builder()
-                            .id(rs.getInt("id"))
-                            .name(rs.getString("name"))
-                            .price(rs.getDouble("price"))
-                            .discount(rs.getDouble("discount"))
-                            .status(ProductStatus.valueOf(rs.getString("status").toUpperCase()))
-                            .category(rs.getString("category"))
-                            .createdAt(rs.getTimestamp("created_at"))
-                            .updatedAt(rs.getTimestamp("updated_at"))
-                            .productImage(ProductImage.builder()
-                                    .id(rs.getInt("pi_id"))
-                                    .imageId(rs.getInt("image_id"))
-                                    .type(ImageType.valueOf(rs.getString("type").toUpperCase()))
-                                    .image(Image.builder()
-                                            .id(rs.getInt("img_id"))
-                                            .url(rs.getString("url"))
-                                            .build())
+                    int productId = rs.getInt("id");
+
+                    int piId = rs.getInt("pi_id");
+                    int imgId = rs.getInt("img_id");
+                    String url = rs.getString("url");
+                    String typeStr = rs.getString("type");
+
+                    if (piId == 0 || imgId == 0 || url == null) return null;
+
+                    // Build the ProductImage
+                    ProductImage productImage = ProductImage.builder()
+                            .id(piId)
+                            .imageId(rs.getInt("image_id"))
+                            .type(ImageType.valueOf(typeStr.toUpperCase()))
+                            .image(Image.builder()
+                                    .id(imgId)
+                                    .url(url)
                                     .build())
                             .build();
 
-                    products.add(product);
+                    Product product = productMap.get(productId);
+                    if (product == null) {
+                        product = Product.builder()
+                                .id(rs.getInt("id"))
+                                .name(rs.getString("name"))
+                                .price(rs.getDouble("price"))
+                                .discount(rs.getDouble("discount"))
+                                .status(ProductStatus.valueOf(rs.getString("status").toUpperCase()))
+                                .category(rs.getString("category"))
+                                .createdAt(rs.getTimestamp("created_at"))
+                                .updatedAt(rs.getTimestamp("updated_at"))
+                                .productImages(new ArrayList<>())
+                                .build();
+
+                        productMap.put(productId, product);
+                    }
+
+                    // Add image if exists
+                    if (productImage != null) {
+                        product.getProductImages().add(productImage);
+                    }
                 }
             }
 
@@ -763,12 +845,143 @@ public class ProductDAO {
                     .build();
 
             return PagingResponse.<Product>builder()
-                    .items(products)
+                    .items(new ArrayList<>(productMap.values()))
                     .meta(meta)
                     .build();
 
         } catch (SQLException e) {
             throw new RuntimeException("Error fetching products by filter", e);
         }
+    }
+
+    public List<Product> getProductByBrandName(String brandName) {
+        Map<Integer, Product> productMap = new LinkedHashMap<>();
+
+        String sql = """
+                SELECT 
+                    p.id AS p_id, p.name AS p_name, p.price, p.discount, p.status AS p_status, 
+                    p.category, p.created_at AS p_created_at, p.updated_at AS p_updated_at,
+                
+                    pd.id AS pd_id, pd.os, pd.ram, pd.storage, pd.battery_capacity, pd.screen_size, 
+                    pd.screen_resolution, pd.mobile_network, pd.cpu, pd.gpu, pd.water_resistance, 
+                    pd.max_charge_watt, pd.design, pd.memory_card, pd.cpu_speed, pd.release_date, 
+                    pd.rating, pd.description, pd.created_at AS pd_created_at, pd.updated_at AS pd_updated_at,
+                
+                    b.id AS b_id, b.name AS b_name, b.status AS b_status, 
+                    b.created_at AS b_created_at, b.updated_at AS b_updated_at,
+                
+                    pi.id AS pi_id, pi.image_id, pi.product_id, pi.type AS pi_type, 
+                    pi.created_at AS pi_created_at, pi.updated_at AS pi_updated_at,
+                
+                    i.id AS i_id, i.url, i.status AS i_status, 
+                    i.created_at AS i_created_at, i.updated_at AS i_updated_at
+                FROM products p
+                JOIN product_details pd ON p.id = pd.product_id
+                JOIN brands b ON pd.brand_id = b.id
+                LEFT JOIN product_images pi ON p.id = pi.product_id
+                LEFT JOIN images i ON pi.image_id = i.id
+                WHERE b.name = ?
+                ORDER BY p.id
+                LIMIT 5;
+                """;
+
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, brandName);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int productId = rs.getInt("p_id");
+
+                    // Brand
+                    Brand brand = Brand.builder()
+                            .id(rs.getInt("b_id"))
+                            .name(rs.getString("b_name"))
+                            .status(BrandStatus.valueOf(rs.getString("b_status").toUpperCase()))
+                            .createdAt(rs.getTimestamp("b_created_at"))
+                            .updatedAt(rs.getTimestamp("b_updated_at"))
+                            .build();
+
+                    // --- ProductDetail ---
+                    ProductDetail productDetail = ProductDetail.builder()
+                            .id(rs.getInt("pd_id"))
+                            .productId(productId)
+                            .os(rs.getString("os"))
+                            .ram(rs.getInt("ram"))
+                            .storage(rs.getInt("storage"))
+                            .batteryCapacity(rs.getInt("battery_capacity"))
+                            .screenSize(rs.getDouble("screen_size"))
+                            .screenResolution(rs.getString("screen_resolution"))
+                            .mobileNetwork(rs.getString("mobile_network"))
+                            .cpu(rs.getString("cpu"))
+                            .gpu(rs.getString("gpu"))
+                            .waterResistance(rs.getString("water_resistance"))
+                            .maxChargeWatt(rs.getInt("max_charge_watt"))
+                            .design(rs.getString("design"))
+                            .memoryCard(rs.getString("memory_card"))
+                            .cpuSpeed(rs.getDouble("cpu_speed"))
+                            .releaseDate(rs.getTimestamp("release_date"))
+                            .rating(rs.getDouble("rating"))
+                            .description(rs.getString("description"))
+                            .createdAt(rs.getTimestamp("pd_created_at"))
+                            .updatedAt(rs.getTimestamp("pd_updated_at"))
+                            .brand(brand)
+                            .build();
+
+                    // --- ProductImage ---
+                    ProductImage productImage = null;
+                    int productImageId = rs.getInt("pi_id");
+                    int imageId = rs.getInt("i_id");
+                    if (!rs.wasNull() && imageId != 0) {
+                        Image image = Image.builder()
+                                .id(imageId)
+                                .url(rs.getString("url"))
+                                .status(ImageStatus.valueOf(rs.getString("i_status").toUpperCase()))
+                                .createdAt(rs.getTimestamp("i_created_at"))
+                                .updatedAt(rs.getTimestamp("i_updated_at"))
+                                .build();
+
+                        productImage = ProductImage.builder()
+                                .id(productImageId)
+                                .imageId(rs.getInt("image_id"))
+                                .productId(productId)
+                                .type(ImageType.valueOf(rs.getString("pi_type").toUpperCase()))
+                                .createdAt(rs.getTimestamp("pi_created_at"))
+                                .updatedAt(rs.getTimestamp("pi_updated_at"))
+                                .image(image)
+                                .build();
+                    }
+
+                    // --- Deduplicate products ---
+                    Product product = productMap.get(productId);
+                    if (product == null) {
+                        product = Product.builder()
+                                .id(productId)
+                                .name(rs.getString("p_name"))
+                                .price(rs.getDouble("price"))
+                                .discount(rs.getDouble("discount"))
+                                .status(ProductStatus.valueOf(rs.getString("p_status").toUpperCase()))
+                                .category(rs.getString("category"))
+                                .createdAt(rs.getTimestamp("p_created_at"))
+                                .updatedAt(rs.getTimestamp("p_updated_at"))
+                                .productDetail(productDetail)
+                                .productImages(new ArrayList<>())
+                                .build();
+                        productMap.put(productId, product);
+                    }
+
+                    // --- Add thumbnail image ---
+                    if (productImage != null) {
+                        product.getProductImages().add(productImage);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return new ArrayList<>(productMap.values());
     }
 }

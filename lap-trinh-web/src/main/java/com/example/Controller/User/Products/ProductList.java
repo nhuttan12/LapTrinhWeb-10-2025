@@ -1,15 +1,12 @@
-package com.example.Controller.User.ProductList;
+package com.example.Controller.User.Products;
 
 import com.example.DTO.Brands.GetBrandResponseDTO;
 import com.example.DTO.Common.PagingResponse;
 import com.example.DTO.Common.SortDirection;
 import com.example.DTO.Products.GetProductsPagingResponseDTO;
 import com.example.Model.FilterCriteria;
-import com.example.Service.Auth.AuthService;
 import com.example.Service.Brands.BrandService;
-import com.example.Service.Database.JDBCConnection;
 import com.example.Service.Product.ProductService;
-import com.example.Service.User.UserService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,10 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -110,7 +104,9 @@ public class ProductList extends HttpServlet {
                         criteria.getOsList(),
                         criteria.getRamList(),
                         criteria.getStorageList(),
-                        criteria.getChargeList());
+                        criteria.getChargeList(),
+                        criteria.getMinPrice(),
+                        criteria.getMaxPrice());
 
                 /**
                  * Store the old attributes of filter box to request scope
