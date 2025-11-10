@@ -195,8 +195,40 @@ public class ProductService {
     }
 
     public List<GetProductSameBrandDTO> getProductByBrandName(String brandName) {
-        List<Product> products = this.productDAO.getProductByBrandName(brandName);
+        List<Product> products = this.productDAO.getProductListByBrandName(brandName);
 
         return this.productMapper.toGetProductSameBrandDTOList(products);
+    }
+
+    public PagingResponse<GetProductsPagingResponseDTO> getProductListByProductName(
+            String productName,
+            int page,
+            int pageSize,
+            List<String> sortBy,
+            List<SortDirection> sortDirections
+    ) {
+        int offset = (page - 1) * pageSize;
+
+        PagingResponse<Product> products = null;
+        try {
+            products = productDAO.getProductListByProductName(
+                    productName,
+                    offset,
+                    page,
+                    pageSize,
+                    sortBy,
+                    sortDirections);
+//            System.out.println("Double check product: " + products.getItems().get(0));
+
+            List<GetProductsPagingResponseDTO> responseDTO = productMapper
+                    .toGetProductsPagingResponseDTOList(products.getItems());
+
+            return PagingResponse.<GetProductsPagingResponseDTO>builder()
+                    .items(responseDTO)
+                    .meta(products.getMeta())
+                    .build();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

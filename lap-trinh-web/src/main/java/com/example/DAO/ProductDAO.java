@@ -341,9 +341,8 @@ public class ProductDAO {
 
             int totalItems = 0;
             try (PreparedStatement countStmt = conn.prepareStatement(countSql)) {
-                countStmt.setString(1, ImageType.THUMBNAIL.getImageType());
-                countStmt.setInt(2, brandId);
-                countStmt.setString(3, ProductStatus.ACTIVE.getProductStatus());
+                countStmt.setInt(1, brandId);
+                countStmt.setString(2, ProductStatus.ACTIVE.getProductStatus());
 
                 try (ResultSet rs = countStmt.executeQuery()) {
                     if (rs.next()) {
@@ -353,10 +352,11 @@ public class ProductDAO {
             }
 
             try (PreparedStatement stmt = conn.prepareStatement(baseSql)) {
-                stmt.setInt(1, brandId);
-                stmt.setString(2, ProductStatus.ACTIVE.getProductStatus());
-                stmt.setInt(3, pageSize);
-                stmt.setInt(4, offset);
+                stmt.setString(1, ImageType.THUMBNAIL.getImageType());
+                stmt.setInt(2, brandId);
+                stmt.setString(3, ProductStatus.ACTIVE.getProductStatus());
+                stmt.setInt(4, pageSize);
+                stmt.setInt(5, offset);
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
@@ -854,7 +854,7 @@ public class ProductDAO {
         }
     }
 
-    public List<Product> getProductByBrandName(String brandName) {
+    public List<Product> getProductListByBrandName(String brandName) {
         Map<Integer, Product> productMap = new LinkedHashMap<>();
 
         String sql = """
@@ -983,5 +983,199 @@ public class ProductDAO {
         }
 
         return new ArrayList<>(productMap.values());
+    }
+
+    public PagingResponse<Product> getProductListByProductName(
+            String productName,
+            int offset,
+            int currentPage,
+            int pageSize,
+            List<String> sortBy,
+            List<SortDirection> sortDirections) throws SQLException {
+        String countSql = """
+                    SELECT COUNT(*) AS total
+                    FROM products p
+                    WHERE p.name ILIKE ?
+                      AND p.status = ?
+                """;
+
+        String baseSql = """
+                    SELECT 
+                        p.id AS product_id,
+                        p.name AS product_name,
+                        p.price AS product_price,
+                        p.discount AS product_discount,
+                        p.status AS product_status,
+                        p.category AS product_category,
+                        p.created_at AS product_created_at,
+                        p.updated_at AS product_updated_at,
+                
+                        pd.id AS detail_id,
+                        pd.os, pd.ram, pd.storage, pd.battery_capacity,
+                        pd.screen_size, pd.screen_resolution, pd.mobile_network,
+                        pd.cpu, pd.gpu, pd.water_resistance, pd.max_charge_watt,
+                        pd.design, pd.memory_card, pd.cpu_speed, pd.release_date,
+                        pd.rating,
+                        pd.created_at AS detail_created_at,
+                        pd.updated_at AS detail_updated_at,
+                
+                        b.id AS brand_id, b.name AS brand_name, b.status AS brand_status,
+                        b.created_at AS brand_created_at, b.updated_at AS brand_updated_at,
+                
+                        pi.id AS product_image_id, pi.image_id AS image_ref_id, pi.type AS image_type,
+                        i.id AS image_id, i.url AS image_url, i.status AS image_status,
+                        i.created_at AS image_created_at, i.updated_at AS image_updated_at
+                
+                    FROM products p
+                    JOIN product_details pd ON p.id = pd.product_id
+                    JOIN brands b ON pd.brand_id = b.id
+                    LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.type = ?
+                    LEFT JOIN images i ON pi.image_id = i.id
+                    WHERE p.name ILIKE ?
+                      AND p.status = ?
+                """;
+
+        // Add dynamic ORDER BY
+        String orderClause = buildOrderPaging.buildOrderByClause("p", sortBy, sortDirections);
+        baseSql += " " + orderClause + " LIMIT ? OFFSET ?";
+
+        Map<Integer, Product> productMap = new LinkedHashMap<>();
+        PagingMetaData meta;
+
+        try (Connection conn = JDBCConnection.getConnection()) {
+
+            int totalItems = 0;
+            try (PreparedStatement countStmt = conn.prepareStatement(countSql)) {
+                countStmt.setString(1, "%" + productName + "%");
+                countStmt.setString(2, ProductStatus.ACTIVE.getProductStatus());
+
+                try (ResultSet rs = countStmt.executeQuery()) {
+                    if (rs.next()) {
+                        totalItems = rs.getInt("total");
+                    }
+                }
+            }
+
+            try (PreparedStatement stmt = conn.prepareStatement(baseSql)) {
+                stmt.setString(1, ImageType.THUMBNAIL.getImageType());
+                stmt.setString(2, "%" + productName + "%");
+                stmt.setString(3, ProductStatus.ACTIVE.getProductStatus());
+                stmt.setInt(4, pageSize);
+                stmt.setInt(5, offset);
+
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        int productId = rs.getInt("product_id");
+
+                        // --- Brand ---
+                        Brand brand = Brand.builder()
+                                .id(rs.getInt("brand_id"))
+                                .name(rs.getString("brand_name"))
+                                .status(BrandStatus.valueOf(rs.getString("brand_status").toUpperCase()))
+                                .createdAt(rs.getTimestamp("brand_created_at"))
+                                .updatedAt(rs.getTimestamp("brand_updated_at"))
+                                .build();
+
+                        // --- ProductDetail ---
+                        ProductDetail detail = ProductDetail.builder()
+                                .id(rs.getInt("detail_id"))
+                                .productId(productId)
+                                .os(rs.getString("os"))
+                                .ram(rs.getInt("ram"))
+                                .storage(rs.getInt("storage"))
+                                .batteryCapacity(rs.getInt("battery_capacity"))
+                                .screenSize(rs.getDouble("screen_size"))
+                                .screenResolution(rs.getString("screen_resolution"))
+                                .mobileNetwork(rs.getString("mobile_network"))
+                                .cpu(rs.getString("cpu"))
+                                .gpu(rs.getString("gpu"))
+                                .waterResistance(rs.getString("water_resistance"))
+                                .maxChargeWatt(rs.getInt("max_charge_watt"))
+                                .design(rs.getString("design"))
+                                .memoryCard(rs.getString("memory_card"))
+                                .cpuSpeed(rs.getDouble("cpu_speed"))
+                                .releaseDate(rs.getTimestamp("release_date"))
+                                .rating(rs.getDouble("rating"))
+                                .createdAt(rs.getTimestamp("detail_created_at"))
+                                .updatedAt(rs.getTimestamp("detail_updated_at"))
+                                .brand(brand)
+                                .build();
+
+                        // --- ProductImage ---
+                        ProductImage productImage = null;
+                        int imageId = rs.getInt("image_id");
+
+                        if (!rs.wasNull() && imageId != 0) {
+                            Image image = Image.builder()
+                                    .id(imageId)
+                                    .url(rs.getString("image_url"))
+                                    .status(ImageStatus.valueOf(rs.getString("image_status").toUpperCase()))
+                                    .createdAt(rs.getTimestamp("image_created_at"))
+                                    .updatedAt(rs.getTimestamp("image_updated_at"))
+                                    .build();
+
+                            productImage = ProductImage.builder()
+                                    .id(rs.getInt("product_image_id"))
+                                    .imageId(rs.getInt("image_ref_id"))
+                                    .productId(productId)
+                                    .type(ImageType.valueOf(rs.getString("image_type").toUpperCase()))
+                                    .createdAt(rs.getTimestamp("product_created_at"))
+                                    .updatedAt(rs.getTimestamp("product_updated_at"))
+                                    .image(image)
+                                    .build();
+                        }
+
+                        // --- Deduplicate product ---
+                        Product product = productMap.get(productId);
+                        if (product == null) {
+                            product = Product.builder()
+                                    .id(productId)
+                                    .name(rs.getString("product_name"))
+                                    .price(rs.getDouble("product_price"))
+                                    .discount(rs.getDouble("product_discount"))
+                                    .status(ProductStatus.valueOf(rs.getString("product_status").toUpperCase()))
+                                    .category(rs.getString("product_category"))
+                                    .createdAt(rs.getTimestamp("product_created_at"))
+                                    .updatedAt(rs.getTimestamp("product_updated_at"))
+                                    .productDetail(detail)
+                                    .productImages(new ArrayList<>()) // initialize list
+                                    .build();
+                            productMap.put(productId, product);
+                        }
+
+                        if (productImage != null) {
+                            product.getProductImages().add(productImage);
+                        }
+
+                    }
+                }
+            }
+
+            // Calculate total pages and navigation flags
+            int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+            boolean hasNext = currentPage < totalPages;
+            boolean hasPrevious = currentPage > 1;
+
+            // Build pagination metadata
+            meta = PagingMetaData.builder()
+                    .currentPage(currentPage)
+                    .pageSize(pageSize)
+                    .totalItems(totalItems)
+                    .totalPages(totalPages)
+                    .hasNext(hasNext)
+                    .hasPrevious(hasPrevious)
+                    .sortBy(sortBy)
+                    .sortDirections(sortDirections)
+                    .build();
+
+
+            return PagingResponse.<Product>builder()
+                    .items(new ArrayList<>(productMap.values()))
+                    .meta(meta)
+                    .build();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

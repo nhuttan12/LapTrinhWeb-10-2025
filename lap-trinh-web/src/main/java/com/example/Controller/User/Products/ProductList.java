@@ -63,6 +63,9 @@ public class ProductList extends HttpServlet {
                     .map(Integer::parseInt)
                     .orElse(0);
 
+            String productName = Optional.ofNullable(req.getParameter("productName")).orElse("");
+//            System.out.println("Is product name empty: " + productName.isEmpty());
+
             /**
              * Get filter criteria from request product-filter
              */
@@ -112,6 +115,17 @@ public class ProductList extends HttpServlet {
                  * Store the old attributes of filter box to request scope
                  */
                 req.setAttribute("criteria", criteria);
+
+            } else if (!productName.isEmpty()) {
+                /**
+                 * Get product list paging by product name
+                 */
+                response = productService.getProductListByProductName(
+                        productName,
+                        page,
+                        pageSize,
+                        sortBy,
+                        sortDirections);
 
             } else {
                 /**
