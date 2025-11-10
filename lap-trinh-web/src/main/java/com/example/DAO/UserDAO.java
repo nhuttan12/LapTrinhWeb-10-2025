@@ -1,6 +1,7 @@
 package com.example.DAO;
 
 import com.example.Model.*;
+import com.example.Service.Database.JDBCConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,12 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDAO {
-    private final Connection conn;
     private static final int DEFAULT_IMAGE_ID = 1;
-
-    public UserDAO(Connection conn) {
-        this.conn = conn;
-    }
 
     public User getUserProfile(int userId) throws SQLException {
         String sql = """
@@ -42,60 +38,67 @@ public class UserDAO {
                     ) ui ON TRUE
                     LEFT JOIN images i ON ui.image_id = i.id
                     WHERE u.id = ?
+                      AND u.status = ?
                 """;
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
-            ResultSet rs = ps.executeQuery();
+            ps.setString(2, UserStatus.ACTIVE.getUserStatus());
 
-            if (rs.next()) {
-                UserDetail userDetail = UserDetail.builder()
-                        .id(rs.getInt("ud_id"))
-                        .userId(rs.getInt("ud_user_id"))
-                        .phone(rs.getString("ud_phone"))
-                        .address1(rs.getString("ud_address_1"))
-                        .address2(rs.getString("ud_address_2"))
-                        .address3(rs.getString("ud_address_3"))
-                        .createdAt(rs.getTimestamp("ud_created_at"))
-                        .updatedAt(rs.getTimestamp("ud_updated_at"))
-                        .build();
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    UserDetail userDetail = UserDetail.builder()
+                            .id(rs.getInt("ud_id"))
+                            .userId(rs.getInt("ud_user_id"))
+                            .phone(rs.getString("ud_phone"))
+                            .address1(rs.getString("ud_address_1"))
+                            .address2(rs.getString("ud_address_2"))
+                            .address3(rs.getString("ud_address_3"))
+                            .createdAt(rs.getTimestamp("ud_created_at"))
+                            .updatedAt(rs.getTimestamp("ud_updated_at"))
+                            .build();
 
-                Image image = Image.builder()
-                        .id(rs.getInt("i_id"))
-                        .url(rs.getString("i_url"))
-                        .status(rs.getString("i_status") != null
-                                ? ImageStatus.fromString(rs.getString("i_status"))
-                                : null)
-                        .createdAt(rs.getTimestamp("i_created_at"))
-                        .updatedAt(rs.getTimestamp("i_updated_at"))
-                        .build();
+                    Image image = Image.builder()
+                            .id(rs.getInt("i_id"))
+                            .url(rs.getString("i_url"))
+                            .status(rs.getString("i_status") != null
+                                    ? ImageStatus.fromString(rs.getString("i_status"))
+                                    : null)
+                            .createdAt(rs.getTimestamp("i_created_at"))
+                            .updatedAt(rs.getTimestamp("i_updated_at"))
+                            .build();
 
-                UserImage userImage = UserImage.builder()
-                        .id(rs.getInt("ui_id"))
-                        .userId(rs.getInt("ui_user_id"))
-                        .imageId(rs.getInt("ui_image_id"))
-                        .createdAt(rs.getTimestamp("ui_created_at"))
-                        .updatedAt(rs.getTimestamp("ui_updated_at"))
-                        .image(image)
-                        .build();
+                    UserImage userImage = UserImage.builder()
+                            .id(rs.getInt("ui_id"))
+                            .userId(rs.getInt("ui_user_id"))
+                            .imageId(rs.getInt("ui_image_id"))
+                            .createdAt(rs.getTimestamp("ui_created_at"))
+                            .updatedAt(rs.getTimestamp("ui_updated_at"))
+                            .image(image)
+                            .build();
 
-                return User.builder()
-                        .id(rs.getInt("u_id"))
-                        .username(rs.getString("u_username"))
-                        .password(rs.getString("u_password"))
-                        .fullName(rs.getString("u_full_name"))
-                        .email(rs.getString("u_email"))
-                        .status(rs.getString("u_status") != null
-                                ? UserStatus.fromString(rs.getString("u_status"))
-                                : null)
-                        .roleId(rs.getInt("u_role_id"))
-                        .createdAt(rs.getTimestamp("u_created_at"))
-                        .updatedAt(rs.getTimestamp("u_updated_at"))
-                        .userDetail(userDetail)
-                        .userImage(userImage)
-                        .build();
+                    User user = User.builder()
+                            .id(rs.getInt("u_id"))
+                            .username(rs.getString("u_username"))
+                            .password(rs.getString("u_password"))
+                            .fullName(rs.getString("u_full_name"))
+                            .email(rs.getString("u_email"))
+                            .status(rs.getString("u_status") != null
+                                    ? UserStatus.fromString(rs.getString("u_status"))
+                                    : null)
+                            .roleId(rs.getInt("u_role_id"))
+                            .createdAt(rs.getTimestamp("u_created_at"))
+                            .updatedAt(rs.getTimestamp("u_updated_at"))
+                            .userDetail(userDetail)
+                            .userImage(userImage)
+                            .build();
+
+                    return user;
+                }
             }
         }
+
         return null;
     }
 
@@ -103,11 +106,19 @@ public class UserDAO {
      * Check if a user exists by email.
      */
     public boolean existsByEmail(String email) {
-        String sql = "SELECT id FROM users WHERE email = ?";
+        String sql = """
+                SELECT id 
+                FROM users 
+                WHERE email = ?
+                  AND u.status = ?
+                """;
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, email);
+            stmt.setString(2, UserStatus.ACTIVE.getUserStatus());
 
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next();
@@ -122,11 +133,18 @@ public class UserDAO {
      * Check if a user exists by username.
      */
     public boolean existsByUsername(String username) {
-        String sql = "SELECT id FROM users WHERE username = ?";
+        String sql = """
+                SELECT id 
+                FROM users 
+                WHERE username = ?
+                  AND u.status = ?
+                """;
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, username);
+            stmt.setString(2, UserStatus.ACTIVE.getUserStatus());
 
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next();
@@ -138,10 +156,18 @@ public class UserDAO {
     }
 
     public User getUserByUsername(String username) {
-        String sql = "SELECT id, username, password, email FROM users WHERE username = ?";
+        String sql = """
+                SELECT 
+                    u.id, u.username, u.password, u.email 
+                FROM users u 
+                WHERE u.username = ? 
+                  AND u.status = ?
+                """;
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
+            ps.setString(2, UserStatus.ACTIVE.getUserStatus());
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -159,11 +185,15 @@ public class UserDAO {
         return null;
     }
 
-    public boolean insertNewUser(String username, String email, String password, int roleId) {
+    public boolean insertNewUser(String username, String email, String password) {
         String sql = """
-                WITH new_user AS (
+                WITH role_cte AS (
+                    SELECT id AS role_id FROM roles WHERE name = ?
+                ),
+                new_user AS (
                     INSERT INTO users (username, email, password, role_id, status)
-                    VALUES (?, ?, ?, ?, ?)
+                    SELECT ?, ?, ?, role_id, ?
+                    FROM role_cte
                     RETURNING id
                 ),
                 inserted_details AS (
@@ -176,41 +206,58 @@ public class UserDAO {
                 FROM new_user;
                 """;
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = null;
+        try {
+            conn = JDBCConnection.getConnection();
             conn.setAutoCommit(false);
 
-            stmt.setString(1, username);
-            stmt.setString(2, email);
-            stmt.setString(3, password);
-            stmt.setInt(4, roleId);
-            stmt.setString(5, UserStatus.ACTIVE.getUserStatus());
-            stmt.setInt(6, DEFAULT_IMAGE_ID);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, RoleName.CUSTOMER.getRoleName());
+                stmt.setString(2, username);
+                stmt.setString(3, email);
+                stmt.setString(4, password);
+                stmt.setString(5, UserStatus.ACTIVE.getUserStatus());
+                stmt.setInt(6, DEFAULT_IMAGE_ID);
 
-            int rowsAffected = stmt.executeUpdate();
-            conn.commit();
-
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            try {
-                conn.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
+                int rowsAffected = stmt.executeUpdate();
+                conn.commit();
+                return rowsAffected > 0;
             }
+
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    System.err.println("Transaction rolled back due to error in insertNewUser()");
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
             return false;
         } finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException ex) {
-                ex.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    public boolean getUserByUsernameAndPassword(String username, String password) {
-        String sql = "SELECT id FROM users WHERE username = ? AND password = ? AND status = ?";
+    public boolean getUserByUsernameAndPassword(String username, String password) throws SQLException {
+        String sql = """
+                SELECT id 
+                FROM users 
+                WHERE username = ? 
+                  AND password = ?
+                  AND status = ?
+                """;
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
             stmt.setString(3, UserStatus.ACTIVE.getUserStatus());
@@ -232,33 +279,35 @@ public class UserDAO {
             String address2,
             String address3,
             String imageUrl
-    ) {
+    ) throws SQLException {
         String updateSQL = """
-                    WITH updated_user AS (
-                        UPDATE users
-                        SET full_name = ?, updated_at = NOW()
-                        WHERE id = ?
-                        RETURNING id
-                    ),
-                    updated_details AS (
-                        UPDATE user_details
-                        SET phone = ?, address_1 = ?, address_2 = ?, address_3 = ?, updated_at = NOW()
-                        WHERE user_id = ?
-                        RETURNING user_id
-                    ),
-                    inserted_image AS (
-                        INSERT INTO images (url, status, created_at, updated_at)
-                        VALUES (?, ?, NOW(), NOW())
-                        RETURNING id
-                    )
-                    INSERT INTO user_images (user_id, image_id, created_at, updated_at)
-                    SELECT ?, ii.id, NOW(), NOW()
-                    FROM updated_details ud, inserted_image ii;
-                """;
+            WITH updated_user AS (
+                UPDATE users
+                SET full_name = ?, updated_at = NOW()
+                WHERE id = ?
+                RETURNING id
+            ),
+            updated_details AS (
+                UPDATE user_details
+                SET phone = ?, address_1 = ?, address_2 = ?, address_3 = ?, updated_at = NOW()
+                WHERE user_id = ?
+                RETURNING user_id
+            ),
+            inserted_image AS (
+                INSERT INTO images (url, status, created_at, updated_at)
+                VALUES (?, ?, NOW(), NOW())
+                RETURNING id
+            )
+            INSERT INTO user_images (user_id, image_id, created_at, updated_at)
+            SELECT ?, ii.id, NOW(), NOW()
+            FROM updated_details ud, inserted_image ii;
+            """;
 
+        Connection conn = null;
         boolean success = false;
 
         try {
+            conn = JDBCConnection.getConnection();
             conn.setAutoCommit(false);
 
             try (PreparedStatement stmt = conn.prepareStatement(updateSQL)) {
@@ -273,41 +322,59 @@ public class UserDAO {
                 stmt.setString(9, ImageStatus.ACTIVE.getImageStatus());
                 stmt.setInt(10, userId);
 
-                System.out.println("Query params: "
-                        + fullName + ", " + phone + ", " + address1 + ", " + address2 + ", " + address3 + ", " + userId + ", " + imageUrl);
+                System.out.println("Executing updateUserProfile() with params: "
+                        + fullName + ", " + phone + ", " + address1 + ", " + address2
+                        + ", " + address3 + ", " + userId + ", " + imageUrl);
 
-                stmt.executeUpdate();
+                int rows = stmt.executeUpdate();
+
+                // Optional sanity check
+                if (rows > 0) {
+                    conn.commit();
+                    success = true;
+                } else {
+                    conn.rollback();
+                    System.err.println("updateUserProfile(): No rows affected — rollback triggered.");
+                }
             }
 
-            conn.commit();
-            success = true;
         } catch (SQLException e) {
-            try {
-                conn.rollback();
-            } catch (SQLException rollbackEx) {
-                rollbackEx.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    System.err.println("Transaction rolled back due to SQL error in updateUserProfile()");
+                } catch (SQLException rollbackEx) {
+                    rollbackEx.printStackTrace();
+                }
             }
             e.printStackTrace();
+
         } finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
         return success;
     }
 
-    public User getUserById(int userId) {
+    public User getUserById(int userId) throws SQLException {
         String sql = """
                     SELECT *
                     FROM users
                     WHERE id = ?
+                      AND status = ?
                 """;
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
+            stmt.setString(2, UserStatus.ACTIVE.getUserStatus());
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -324,18 +391,21 @@ public class UserDAO {
                             .build();
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
+            throw e;
         }
-
         return null;
     }
 
-    public boolean changePassword(String username, String password) {
+    public boolean changePassword(String username, String password) throws SQLException {
         String sql = "UPDATE users SET password = ? WHERE username = ?";
 
+        Connection conn = null;
+
         try {
+            conn = JDBCConnection.getConnection();
+
             conn.setAutoCommit(false);
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -375,5 +445,4 @@ public class UserDAO {
             }
         }
     }
-
 }

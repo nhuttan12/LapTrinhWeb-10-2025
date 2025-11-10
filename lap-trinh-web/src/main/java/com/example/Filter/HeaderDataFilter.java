@@ -28,12 +28,7 @@ public class HeaderDataFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        try {
-            Connection conn = JDBCConnection.getConnection();
-            brandService = new BrandService(conn);
-        } catch (SQLException e) {
-            throw new ServletException("Failed to initialize DB connection", e);
-        }
+            brandService = new BrandService();
     }
 
     @Override

@@ -4,12 +4,13 @@ import com.example.Model.User;
 import com.example.Service.User.UserService;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class AuthService {
     private final UserService userService;
 
-    public AuthService(Connection conn) {
-        userService = new UserService(conn);
+    public AuthService() {
+        userService = new UserService();
     }
 
     /**
@@ -21,10 +22,10 @@ public class AuthService {
      * @return true if login success
      */
     public boolean login(String username, String password) {
-        // Example of extra logic: you could trim input, validate format, etc.
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             return false;
         }
+
         return userService.getUserByUsernameAndPassword(username, password);
     }
 
@@ -50,7 +51,7 @@ public class AuthService {
             return false;
         }
 
-        return userService.insertNewUser(username, email, password, 1);
+        return userService.insertNewUser(username, email, password);
     }
 
     /**

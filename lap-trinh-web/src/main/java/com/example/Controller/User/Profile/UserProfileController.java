@@ -30,7 +30,7 @@ public class UserProfileController extends HttpServlet {
     public void init() throws ServletException {
         try {
             Connection conn = JDBCConnection.getConnection();
-            userService = new UserService(conn);
+            userService = new UserService();
             imageService = new ImageService();
         } catch (SQLException e) {
             throw new ServletException("Failed to initialize DB connection", e);
@@ -69,12 +69,7 @@ public class UserProfileController extends HttpServlet {
         String imagePath = imageService.upload(req, "avatar");
 
         // 3. Update user profile
-        UserProfileDTO profile = null;
-        try {
-            profile = userService.updateUserProfile(userId, fullName, phone, address1, address2, address3, imagePath);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        UserProfileDTO profile = userService.updateUserProfile(userId, fullName, phone, address1, address2, address3, imagePath);
 
         // 4. Check user profile updated successfully
         if (profile != null) {

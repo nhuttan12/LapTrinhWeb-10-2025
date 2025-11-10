@@ -12,8 +12,8 @@ public class ProductDetail {
     private Integer id;
     private Integer productId;
     private String os;
-    private String ram;
-    private String storage;
+    private Integer ram;
+    private Integer storage;
     private Integer batteryCapacity;
     private Double screenSize;
     private String screenResolution;

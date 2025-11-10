@@ -22,13 +22,8 @@ public class ChangePasswordController extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        try {
-            Connection conn = JDBCConnection.getConnection();
-            userService = new UserService(conn);
-            authService = new AuthService(conn);
-        } catch (SQLException e) {
-            throw new ServletException("Failed to initialize DB connection", e);
-        }
+        userService = new UserService();
+        authService = new AuthService();
     }
 
     @Override

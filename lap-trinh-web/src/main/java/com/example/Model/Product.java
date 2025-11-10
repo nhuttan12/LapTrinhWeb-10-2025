@@ -1,6 +1,7 @@
 package com.example.Model;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,6 @@ public class Product {
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
-    private ProductImage productImage;
+    private List<ProductImage> productImages;
     private ProductDetail productDetail;
 }

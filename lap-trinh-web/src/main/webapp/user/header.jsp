@@ -6,9 +6,11 @@
             <div class="row align-items-center">
 
                 <div class="col-6 col-md-4 order-2 order-md-1 site-search-icon text-left">
-                    <form action="" class="site-block-top-search">
+                    <form class="site-block-top-search" method="get"
+                          action="${pageContext.request.contextPath}/product-list">
                         <span class="icon icon-search2"></span>
-                        <input type="text" class="form-control border-0" placeholder="Tìm kiếm sản phẩm">
+                        <input name="productName" type="text" class="form-control border-0"
+                               placeholder="Tìm kiếm sản phẩm">
                     </form>
                 </div>
 

@@ -7,6 +7,7 @@ import com.example.Mappers.OrderMapper;
 import com.example.Model.Order;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 public class OrderService {
@@ -18,11 +19,18 @@ public class OrderService {
         this.orderMapper = OrderMapper.INSTANCE;
     }
 
-    public List<OrderUserResponseDTO> findOrdersByUserId(int userId, int page, int pageSize) {
-        int offset = (page - 1) * pageSize;
+    public List<OrderUserResponseDTO> findOrdersByUserId(
+            int userId,
+            int page,
+            int pageSize) {
+            int offset = (page - 1) * pageSize;
+        List<Order> orders = null;
+        try {
+            orders = orderDAO.findOrdersByUserIdPaging(userId, offset, pageSize);
 
-        List<Order> orders = orderDAO.findOrdersByUserIdPaging(userId, offset, pageSize);
-
-        return orderMapper.toOrderUserResponseDTOList(orders);
+            return orderMapper.toOrderUserResponseDTOList(orders);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

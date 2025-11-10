@@ -8,6 +8,5 @@ public class GetProductsPagingResponseDTO {
     private String name;
     private double price;
     private double discount;
-    private String description;
     private String thumbnail;
 }
