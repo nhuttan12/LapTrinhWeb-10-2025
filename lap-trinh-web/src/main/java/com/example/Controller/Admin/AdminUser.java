@@ -1,6 +1,7 @@
 package com.example.Controller.Admin;
 
 import com.example.DAO.AdminUserDAO;
+import com.example.Model.RoleName;
 import com.example.Model.User;
 import com.example.Service.Database.JDBCConnection;
 
@@ -27,47 +28,92 @@ public class AdminUser extends HttpServlet {
         }
     }
 
-    /**
-     * GET: Hiển thị danh sách user trên giao diện JSP
-     */
+    // Hiển thị danh sách user
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        List<User> users = adminUserDAO.getAllUsers();
+        List<User> users = null;
+        try {
+            users = adminUserDAO.getAllUsers();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // --- Debug info ---
+        if (users != null) {
+            System.out.println("==== DEBUG: Số lượng user từ DB = " + users.size());
+            for (User u : users) {
+                System.out.println("ID=" + u.getId() +
+                        ", Username=" + u.getUsername() +
+                        ", Email=" + u.getEmail() +
+                        ", Status=" + u.getStatus() +
+                        ", RoleId=" + u.getRoleId());
+            }
+        } else {
+            System.out.println("==== DEBUG: users == null");
+        }
 
         req.setAttribute("users", users);
-        req.getRequestDispatcher("/admin/page/UserManagement/UserManagement.jsp")
+        req.getRequestDispatcher("/admin/pages/UserManagement/Usermanagement.jsp")
                 .forward(req, resp);
     }
 
-    /**
-     * POST: Xử lý hành động (soft delete / change role)
-     */
+
+    // Xử lý soft delete và change role
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         String action = req.getParameter("action");
-        int userId = Integer.parseInt(req.getParameter("userId"));
+        String userIdStr = req.getParameter("userId");
         String message = "Invalid action";
 
-        switch (action) {
-            case "softDelete" -> {
-                boolean success = adminUserDAO.softDeleteUser(userId);
-                message = success ? "User soft deleted" : "User not found";
-            }
-            case "changeRole" -> {
-                int newRoleId = Integer.parseInt(req.getParameter("newRoleId"));
-                boolean success = adminUserDAO.changeUserRole(userId, newRoleId);
-                message = success ? "User role updated" : "Failed to update role";
-            }
+        if (action == null || action.isBlank() || userIdStr == null || userIdStr.isBlank()) {
+            req.getSession().setAttribute("message", "Action and userId are required");
+            resp.sendRedirect(req.getContextPath() + "/admin/users");
+            return;
         }
 
-        // Lưu message hiển thị lại cho admin nếu cần
-        req.getSession().setAttribute("message", message);
+        int userId;
+        try {
+            userId = Integer.parseInt(userIdStr);
+        } catch (NumberFormatException e) {
+            req.getSession().setAttribute("message", "Invalid user ID");
+            resp.sendRedirect(req.getContextPath() + "/admin/users");
+            return;
+        }
 
-        // Quay lại danh sách user
+        try {
+            switch (action) {
+                case "softDelete" -> {
+                    boolean success = adminUserDAO.toggleUserStatus(userId);
+                    message = success ? "User soft deleted" : "User not found";
+                }
+                case "changeRole" -> {
+                    String newRoleNameStr = req.getParameter("newRoleName");
+                    if (newRoleNameStr == null || newRoleNameStr.isBlank()) {
+                        message = "newRoleName is required";
+                        break;
+                    }
+
+                    RoleName roleName;
+                    try {
+                        roleName = RoleName.fromString(newRoleNameStr);
+                        boolean success = adminUserDAO.changeUserRole(userId, roleName);
+                        message = success ? "User role updated" : "Failed to update role";
+                    } catch (IllegalArgumentException e) {
+                        message = "Invalid role name";
+                    }
+                }
+                default -> message = "Unknown action";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Server error: " + e.getMessage();
+        }
+
+        req.getSession().setAttribute("message", message);
         resp.sendRedirect(req.getContextPath() + "/admin/users");
     }
 }
