@@ -79,7 +79,6 @@ public class CSVSeeder {
 
             conn.setAutoCommit(false);
 
-            // ✅ Ensure images sequence continues after default image (id=1)
             try (PreparedStatement ps = conn.prepareStatement("ALTER SEQUENCE images_id_seq RESTART WITH 2")) {
                 ps.executeUpdate();
                 System.out.println("Sequence 'images_id_seq' restarted from 2 ✅");
@@ -91,28 +90,23 @@ public class CSVSeeder {
                 return;
             }
 
+            // 🧠 Lưu header set để kiểm tra nhanh
+            Set<String> headerSet = new HashSet<>();
+            for (String col : header) headerSet.add(col.trim());
+
             String[] row;
-            while (true) {
+            while ((row = reader.readNext()) != null) {
+                lineNumber++;
+
+                Map<String, String> data = new LinkedHashMap<>();
+                for (int i = 0; i < header.length && i < row.length; i++) {
+                    data.put(header[i].trim(), row[i].trim());
+                }
+
                 try {
-                    row = reader.readNext();
-                    if (row == null) break;
-                    lineNumber++;
-
-                    Map<String, String> data = new LinkedHashMap<>();
-                    for (int i = 0; i < header.length; i++) {
-                        String key = header[i].trim();
-                        data.put(key, row[i].trim());
-                    }
-
-                    insertProductWithDetails(conn, data);
-                } catch (com.opencsv.exceptions.CsvMalformedLineException malformed) {
-                    System.err.println("⚠️ Lỗi định dạng CSV tại dòng " + lineNumber);
-                    malformed.printStackTrace();
-                    conn.rollback();
-                    return;
+                    insertProductWithDetails(conn, data, headerSet);
                 } catch (Exception e) {
-                    System.err.println("❌ Lỗi tại dòng " + lineNumber);
-                    e.printStackTrace();
+                    System.err.println("❌ Lỗi tại dòng " + lineNumber + ": " + e.getMessage());
                     conn.rollback();
                     return;
                 }
@@ -125,7 +119,12 @@ public class CSVSeeder {
         }
     }
 
-    private static void insertProductWithDetails(Connection conn, Map<String, String> data) throws SQLException {
+    private static void insertProductWithDetails(Connection conn, Map<String, String> data, Set<String> headerSet) throws SQLException {
+        requireColumn(headerSet, "name");
+        requireColumn(headerSet, "price");
+        requireColumn(headerSet, "ram");
+        requireColumn(headerSet, "dung lượng lưu trữ");
+
         // --- Product ---
         String name = data.get("name");
         if (name == null || name.isEmpty()) {
@@ -328,6 +327,12 @@ public class CSVSeeder {
             return null;
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    private static void requireColumn(Set<String> headerSet, String columnName) throws SQLException {
+        if (!headerSet.contains(columnName)) {
+            throw new SQLException("Missing required column in CSV: \"" + columnName + "\"");
         }
     }
 

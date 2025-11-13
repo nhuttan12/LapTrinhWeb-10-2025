@@ -44,13 +44,14 @@
 
             <div class="row mb-5">
                 <div class="col-md-3 order-1 mb-5 mb-md-0">
+                    <!-- Hiển thị thương hiệu -->
                     <div class="border p-4 rounded mb-4">
                         <h3 class="mb-3 h6 text-uppercase text-black d-block">Thương hiệu</h3>
                         <ul class="list-unstyled mb-0">
                             <c:forEach var="brand" items="${brands}">
                                 <li class="mb-1">
-                                    <a href="${pageContext.request.contextPath}/product-list?brandId=${brand.id}
-                                    &page=1&pageSize=12" class="d-flex">
+                                    <a href="${pageContext.request.contextPath}/product-list?brandId=${brand.id}&page=1&pageSize=12"
+                                       class="d-flex">
                                         <span>${brand.name}</span>
                                         <span class="text-black ml-auto">(${brand.productCount})</span></a></li>
                             </c:forEach>
@@ -62,12 +63,21 @@
                         <div class="border p-4 rounded mb-4">
                             <div class="mb-4">
                                 <h3 class="mb-3 h6 text-uppercase text-black d-block">Lọc sản phẩm</h3>
-                                <div id="slider-range" class="border-primary"></div>
+                                <div
+                                        id="slider-range"
+                                        class="border-primary"
+                                        data-min="${criteria.minPrice != null && criteria.minPrice > 0 ? criteria.minPrice : 0}"
+                                        data-max="${criteria.maxPrice != null && criteria.maxPrice > 0 ? criteria.maxPrice : 30000000}">
+                                </div>
 
                                 <!-- Giá tiền -->
-                                <input type="text" name="priceRange" id="amount"
-                                       class="form-control border-0 pl-0 bg-white"
-                                       readonly/>
+                                <input
+                                        type="text"
+                                        name="priceRange"
+                                        id="amount"
+                                        class="form-control border-0 pl-0 bg-white"
+                                        readonly
+                                        value="<c:out value='${criteria.minPrice > 0 ? criteria.minPrice : 0} - ${criteria.maxPrice > 0 ? criteria.maxPrice : 30000000}'/>"/>
                             </div>
 
                             <!-- Hệ điều hành -->
@@ -151,7 +161,6 @@
                 </div>
 
                 <div class="col-md-9 order-2">
-
                     <div class="row">
                         <div class="col-md-12 mb-5">
                             <div class="float-md-left mb-4"><h2 class="text-black h5">Danh sách sản phẩm</h2></div>
@@ -256,6 +265,41 @@
                                             <c:set var="baseUrl"
                                                    value="${baseUrl}&sortBy=${meta.sortBy[i]}&sortDir=${meta.sortDirections[i]}"/>
                                         </c:forEach>
+                                    </c:if>
+
+                                    <!-- 🧩 Preserve filters (criteria) -->
+                                    <c:if test="${not empty criteria.osList}">
+                                        <c:forEach var="os" items="${criteria.osList}">
+                                            <c:set var="baseUrl" value="${baseUrl}&os=${os}"/>
+                                        </c:forEach>
+                                    </c:if>
+
+                                    <c:if test="${not empty criteria.ramList}">
+                                        <c:forEach var="ram" items="${criteria.ramList}">
+                                            <c:set var="baseUrl" value="${baseUrl}&ram=${ram}"/>
+                                        </c:forEach>
+                                    </c:if>
+
+                                    <c:if test="${not empty criteria.storageList}">
+                                        <c:forEach var="storage" items="${criteria.storageList}">
+                                            <c:set var="baseUrl" value="${baseUrl}&storage=${storage}"/>
+                                        </c:forEach>
+                                    </c:if>
+
+                                    <c:if test="${not empty criteria.chargeList}">
+                                        <c:forEach var="charge" items="${criteria.chargeList}">
+                                            <c:set var="baseUrl" value="${baseUrl}&charge=${charge}"/>
+                                        </c:forEach>
+                                    </c:if>
+
+                                    <c:if test="${not empty productName}">
+                                        <c:set var="baseUrl" value="${baseUrl}&productName=${productName}"/>
+                                    </c:if>
+
+                                    <!-- Preserve price range -->
+                                    <c:if test="${not empty param.priceRange}">
+                                        <c:set var="baseUrl"
+                                               value="${baseUrl}&priceRange=${fn:escapeXml(param.priceRange)}"/>
                                     </c:if>
 
                                     <!-- Previous Button -->

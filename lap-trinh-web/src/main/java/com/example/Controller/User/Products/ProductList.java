@@ -7,6 +7,7 @@ import com.example.DTO.Products.GetProductsPagingResponseDTO;
 import com.example.Model.FilterCriteria;
 import com.example.Service.Brands.BrandService;
 import com.example.Service.Product.ProductService;
+import com.example.Utils.FilterUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -43,11 +44,12 @@ public class ProductList extends HttpServlet {
                     .orElse(12);
 
             String[] sortByParams = req.getParameterValues("sortBy");
-            String[] sortDirParams = req.getParameterValues("sortDir");
 
             List<String> sortBy = sortByParams != null
                     ? Arrays.asList(sortByParams)
                     : List.of("name");
+
+            String[] sortDirParams = req.getParameterValues("sortDir");
 
             List<SortDirection> sortDirections = sortDirParams != null
                     ? Arrays.stream(sortDirParams)
@@ -62,14 +64,31 @@ public class ProductList extends HttpServlet {
             int brandId = Optional.ofNullable(req.getParameter("brandId"))
                     .map(Integer::parseInt)
                     .orElse(0);
+//            System.out.println("Brand id: " + brandId);
 
             String productName = Optional.ofNullable(req.getParameter("productName")).orElse("");
 //            System.out.println("Is product name empty: " + productName.isEmpty());
 
             /**
-             * Get filter criteria from request product-filter
+             * Get criteria from both possible sources
              */
-            FilterCriteria criteria = (FilterCriteria) req.getAttribute("criteria");
+            FilterCriteria criteriaFromAttribute = (FilterCriteria) req.getAttribute("criteria");
+//            System.out.println("Criteria from attribute: " + criteriaFromAttribute);
+            FilterCriteria criteriaFromParams = FilterUtils.extractFilterCriteria(req);
+//            System.out.println("Criteria from params: " + criteriaFromParams);
+
+            /**
+             * Decide which one to use
+             */
+            FilterCriteria effectiveCriteria;
+
+            if (!FilterUtils.isCriteriaEmpty(criteriaFromParams)) {
+                effectiveCriteria = criteriaFromParams; // URL has filters
+            } else if (criteriaFromAttribute != null) {
+                effectiveCriteria = criteriaFromAttribute; // forwarded from /product-filter
+            } else {
+                effectiveCriteria = new FilterCriteria(); // no filters
+            }
 
             /**
              * Get brands with product count
@@ -95,26 +114,24 @@ public class ProductList extends HttpServlet {
                  */
                 response = productService.getNewProductsPaging(page, pageSize, sortBy, sortDirections);
 
-            } else if (criteria != null) {
+            } else if (!FilterUtils.isCriteriaEmpty(effectiveCriteria)) {
                 /**
-                 * Product filtering
+                 * Use filter criteria when not empty
                  */
                 response = productService.getProductsByFilterCriteriaPaging(
                         page,
                         pageSize,
                         sortBy,
                         sortDirections,
-                        criteria.getOsList(),
-                        criteria.getRamList(),
-                        criteria.getStorageList(),
-                        criteria.getChargeList(),
-                        criteria.getMinPrice(),
-                        criteria.getMaxPrice());
+                        effectiveCriteria.getOsList(),
+                        effectiveCriteria.getRamList(),
+                        effectiveCriteria.getStorageList(),
+                        effectiveCriteria.getChargeList(),
+                        effectiveCriteria.getMinPrice(),
+                        effectiveCriteria.getMaxPrice()
+                );
 
-                /**
-                 * Store the old attributes of filter box to request scope
-                 */
-                req.setAttribute("criteria", criteria);
+                req.setAttribute("criteria", effectiveCriteria);
 
             } else if (!productName.isEmpty()) {
                 /**
@@ -126,6 +143,8 @@ public class ProductList extends HttpServlet {
                         pageSize,
                         sortBy,
                         sortDirections);
+
+                req.setAttribute("productName", productName);
 
             } else {
                 /**
