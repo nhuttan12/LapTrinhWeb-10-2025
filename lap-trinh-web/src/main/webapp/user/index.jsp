@@ -1,4 +1,8 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<fmt:setBundle basename="messages"/>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,6 +14,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/fonts/icomoon/style.css">
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/bootstrap.min.css">
+
+    <!-- bootstrap icon -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/bootstrap-icons.css">
+
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/magnific-popup.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/jquery-ui.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/owl.carousel.min.css">
@@ -20,22 +28,43 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/style.css">
 
 </head>
+<style>
+    .block-2-item .image {
+        width: 100%;
+        height: 400px;
+        overflow: hidden;
+    }
+
+    .block-2-item .image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+</style>
 <body>
 
 <div class="site-wrap">
     <jsp:include page="header.jsp"/>
 
     <div class="site-blocks-cover"
-         style="background-image: url('${pageContext.request.contextPath}/user/images/hero_1.jpg');" data-aos="fade">
+         style="background-image: url('https://www.bechtle.com/dam/jcr:3664adb4-bc64-46a5-b0f8-1a48852e1150/cw04_mainbanner_samsung-eu.jpg');"
+         data-aos="fade">
         <div class="container">
             <div class="row align-items-start align-items-md-center justify-content-end">
                 <div class="col-md-5 text-center text-md-left pt-5 pt-md-0">
-                    <h1 class="mb-2">Finding Your Perfect Shoes</h1>
+                    <h1 class="mb-2 text-white">
+                        <fmt:message key="hero.title"/>
+                    </h1>
                     <div class="intro-text text-center text-md-left">
-                        <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus at iaculis
-                            quam. Integer accumsan tincidunt fringilla. </p>
+                        <p class="mb-4 text-white">
+                            <fmt:message key="hero.description"/>
+                        </p>
                         <p>
-                            <a href="#" class="btn btn-sm btn-primary">Shop Now</a>
+                            <a href="${pageContext.request.contextPath}/product-list"
+                               class="btn btn-sm btn-primary">
+                                <fmt:message key="hero.button"/>
+                            </a>
                         </p>
                     </div>
                 </div>
@@ -51,9 +80,8 @@
                         <span class="icon-truck"></span>
                     </div>
                     <div class="text">
-                        <h2 class="text-uppercase">Free Shipping</h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus at iaculis quam. Integer
-                            accumsan tincidunt fringilla.</p>
+                        <h2 class="text-uppercase"><fmt:message key="shipping.title"/></h2>
+                        <p><fmt:message key="shipping.content"/></p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 d-lg-flex mb-4 mb-lg-0 pl-4" data-aos="fade-up" data-aos-delay="100">
@@ -61,9 +89,8 @@
                         <span class="icon-refresh2"></span>
                     </div>
                     <div class="text">
-                        <h2 class="text-uppercase">Free Returns</h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus at iaculis quam. Integer
-                            accumsan tincidunt fringilla.</p>
+                        <h2 class="text-uppercase"><fmt:message key="refund.title"/></h2>
+                        <p><fmt:message key="refund.content"/></p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 d-lg-flex mb-4 mb-lg-0 pl-4" data-aos="fade-up" data-aos-delay="200">
@@ -71,9 +98,10 @@
                         <span class="icon-help"></span>
                     </div>
                     <div class="text">
-                        <h2 class="text-uppercase">Customer Support</h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus at iaculis quam. Integer
-                            accumsan tincidunt fringilla.</p>
+                        <h2 class="text-uppercase"><fmt:message key="support.title"/></h2>
+                        <p>
+                            <fmt:message key="support.content"/>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -83,41 +111,24 @@
     <div class="site-section site-blocks-2">
         <div class="container">
             <div class="row">
-                <div class="col-sm-6 col-md-6 col-lg-4 mb-4 mb-lg-0" data-aos="fade" data-aos-delay="">
-                    <a class="block-2-item" href="#">
-                        <figure class="image">
-                            <img src="${pageContext.request.contextPath}/user/images/women.jpg" alt=""
-                                 class="img-fluid">
-                        </figure>
-                        <div class="text">
-                            <span class="text-uppercase">Collections</span>
-                            <h3>Women</h3>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-6 col-lg-4 mb-5 mb-lg-0" data-aos="fade" data-aos-delay="100">
-                    <a class="block-2-item" href="#">
-                        <figure class="image">
-                            <img src="${pageContext.request.contextPath}/user/images/children.jpg" alt=""
-                                 class="img-fluid">
-                        </figure>
-                        <div class="text">
-                            <span class="text-uppercase">Collections</span>
-                            <h3>Children</h3>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-6 col-lg-4 mb-5 mb-lg-0" data-aos="fade" data-aos-delay="200">
-                    <a class="block-2-item" href="#">
-                        <figure class="image">
-                            <img src="${pageContext.request.contextPath}/user/images/men.jpg" alt="" class="img-fluid">
-                        </figure>
-                        <div class="text">
-                            <span class="text-uppercase">Collections</span>
-                            <h3>Men</h3>
-                        </div>
-                    </a>
-                </div>
+                <c:forEach var="b" items="${brands}" varStatus="loop">
+                    <div class="col-sm-6 col-md-6 col-lg-4 mb-4 mb-lg-0"
+                         data-aos="fade"
+                         data-aos-delay="${loop.index * 100}">
+                        <a class="block-2-item"
+                           href="${pageContext.request.contextPath}/product-list?brandId=${b.id}&page=1&pageSize=12">
+                            <figure class="image">
+                                <img src="${b.image}" alt="${b.name}" class="img-fluid">
+                            </figure>
+                            <div class="text">
+                                <span class="text-uppercase">
+                                    <fmt:message key="brand.label"/>
+                                </span>
+                                <h3>${b.name}</h3>
+                            </div>
+                        </a>
+                    </div>
+                </c:forEach>
             </div>
         </div>
     </div>
@@ -126,102 +137,60 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-7 site-section-heading text-center pt-4">
-                    <h2>Featured Products</h2>
+                    <h2>
+                        <fmt:message key="featured.title"/>
+                    </h2>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <div class="nonloop-block-3 owl-carousel">
-                        <div class="item">
-                            <div class="block-4 text-center">
-                                <figure class="block-4-image">
-                                    <img src="${pageContext.request.contextPath}/user/images/cloth_1.jpg"
-                                         alt="Image placeholder" class="img-fluid">
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="#">Tank Top</a></h3>
-                                    <p class="mb-0">Finding perfect t-shirt</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="block-4 text-center">
-                                <figure class="block-4-image">
-                                    <img src="${pageContext.request.contextPath}/user/images/shoe_1.jpg"
-                                         alt="Image placeholder" class="img-fluid">
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="#">Corater</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="block-4 text-center">
-                                <figure class="block-4-image">
-                                    <img src="${pageContext.request.contextPath}/user/images/cloth_2.jpg"
-                                         alt="Image placeholder" class="img-fluid">
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="#">Polo Shirt</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="block-4 text-center">
-                                <figure class="block-4-image">
-                                    <img src="${pageContext.request.contextPath}/user/images/cloth_3.jpg"
-                                         alt="Image placeholder" class="img-fluid">
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="#">T-Shirt Mockup</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="block-4 text-center">
-                                <figure class="block-4-image">
-                                    <img src="${pageContext.request.contextPath}/user/images/shoe_1.jpg"
-                                         alt="Image placeholder" class="img-fluid">
-                                </figure>
-                                <div class="block-4-text p-4">
-                                    <h3><a href="#">Corater</a></h3>
-                                    <p class="mb-0">Finding perfect products</p>
-                                    <p class="text-primary font-weight-bold">$50</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                        <c:forEach var="product" items="${randomProducts}">
+                            <a href="${pageContext.request.contextPath}/product-detail?id=${product.id}">
+                                <div class="item">
+                                    <div class="block-4 text-center">
+                                        <figure class="block-4-image">
+                                            <img src="${product.imageUrl}"
+                                                 alt="${product.name}" class="img-fluid">
+                                        </figure>
+                                        <div class="block-4-text p-4">
+                                            <h3>
+                                                    ${product.name}
+                                            </h3>
 
-    <div class="site-section block-8">
-        <div class="container">
-            <div class="row justify-content-center  mb-5">
-                <div class="col-md-7 site-section-heading text-center pt-4">
-                    <h2>Big Sale!</h2>
-                </div>
-            </div>
-            <div class="row align-items-center">
-                <div class="col-md-12 col-lg-7 mb-5">
-                    <a href="#"><img src="${pageContext.request.contextPath}/user/images/blog_1.jpg"
-                                     alt="Image placeholder" class="img-fluid rounded"></a>
-                </div>
-                <div class="col-md-12 col-lg-5 text-center pl-md-5">
-                    <h2><a href="#">50% less in all items</a></h2>
-                    <p class="post-meta mb-4">By <a href="#">Carl Smith</a> <span class="block-8-sep">&bullet;</span>
-                        September 3, 2018</p>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam iste dolor accusantium facere
-                        corporis ipsum animi deleniti fugiat. Ex, veniam?</p>
-                    <p><a href="#" class="btn btn-primary btn-sm">Shop Now</a></p>
+                                            <p class="text-primary font-weight-bold">
+                                                <c:choose>
+                                                    <c:when test="${product.discount > 0}">
+                                                    <span class="text-muted" style="text-decoration: line-through;">
+                                                        <fmt:formatNumber
+                                                                value="${product.price}"
+                                                                type="number"
+                                                                maxFractionDigits="2"
+                                                        /> vnđ
+                                                    </span>
+                                                        <span class="text-primary" style="margin-left: 8px;">
+                                                        <fmt:formatNumber
+                                                                value="${product.price - product.discount}"
+                                                                type="number"
+                                                                maxFractionDigits="2"
+                                                        /> vnđ
+                                                    </span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <fmt:formatNumber
+                                                                value="${product.price}"
+                                                                type="number"
+                                                                maxFractionDigits="2"
+                                                        /> vnđ
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </c:forEach>
+                    </div>
                 </div>
             </div>
         </div>

@@ -13,7 +13,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/fonts/icomoon/style.css">
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/bootstrap.min.css">
+
+    <!-- bootstrap icon -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/bootstrap-icons.css">
+
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/magnific-popup.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/jquery-ui.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/owl.carousel.min.css">
@@ -211,10 +214,12 @@
                                 <div class="item">
                                     <div class="block-4 text-center">
                                         <figure class="block-4-image">
+                                                <%--                                            <img src="${product.imageUrl}"--%>
+                                                <%--                                                 alt="${product.name}"--%>
+                                                <%--                                                 class="img-fluid object-fit-contain p-3"--%>
+                                                <%--                                                 style="width: 100%; height: 300px"/>--%>
                                             <img src="${product.imageUrl}"
-                                                 alt="${product.name}"
-                                                 class="img-fluid object-fit-contain p-3"
-                                                 style="width: 100%; height: 300px"/>
+                                                 alt="${product.name}" class="img-fluid">
                                         </figure>
                                         <div class="block-4-text p-4">
                                             <h3>

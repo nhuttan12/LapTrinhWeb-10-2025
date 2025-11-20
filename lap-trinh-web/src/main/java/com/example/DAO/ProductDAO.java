@@ -793,7 +793,8 @@ public class ProductDAO {
 
                     if (piId == 0 || imgId == 0 || url == null) {
                         continue;
-                    };
+                    }
+                    ;
 
                     // Build the ProductImage
                     ProductImage productImage = ProductImage.builder()
@@ -893,6 +894,7 @@ public class ProductDAO {
                 JOIN product_details pd ON p.id = pd.product_id
                 JOIN brands b ON pd.brand_id = b.id
                 LEFT JOIN product_images pi ON p.id = pi.product_id
+                    AND pi."type" = ?
                 LEFT JOIN images i ON pi.image_id = i.id
                 WHERE b.name = ?
                 ORDER BY p.id
@@ -902,7 +904,8 @@ public class ProductDAO {
         try (Connection conn = JDBCConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, brandName);
+            ps.setString(1, ImageType.THUMBNAIL.getImageType());
+            ps.setString(2, brandName);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -1194,4 +1197,121 @@ public class ProductDAO {
             throw e;
         }
     }
+
+    public List<Product> getRandomProducts(int limit) {
+        String sql = """
+                SELECT 
+                    p.id AS product_id, p.name, p.price, p.discount, p.status, p.category,
+                    p.created_at AS p_created_at, p.updated_at AS p_updated_at,
+                
+                    pd.id AS detail_id, pd.os, pd.ram, pd.storage, pd.battery_capacity,
+                    pd.screen_size, pd.screen_resolution, pd.mobile_network, pd.cpu, pd.gpu,
+                    pd.water_resistance, pd.max_charge_watt, pd.design, pd.memory_card,
+                    pd.cpu_speed, pd.release_date, pd.rating, pd.description,
+                    pd.created_at AS pd_created_at, pd.updated_at AS pd_updated_at,
+                
+                    pi.id AS product_image_id, pi.type, pi.created_at AS pi_created_at, pi.updated_at AS pi_updated_at,
+                
+                    i.id AS image_id, i.url, i.status AS image_status,
+                    i.created_at AS i_created_at, i.updated_at AS i_updated_at
+                FROM products p
+                LEFT JOIN product_details pd ON p.id = pd.product_id
+                LEFT JOIN product_images pi ON p.id = pi.product_id
+                    AND pi."type" = ?
+                LEFT JOIN images i ON pi.image_id = i.id
+                ORDER BY RANDOM()
+                LIMIT ?
+                """;
+
+        Map<Integer, Product> productMap = new HashMap<>();
+
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, ImageType.THUMBNAIL.getImageType());
+            ps.setInt(2, limit);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int productId = rs.getInt("product_id");
+
+                /**
+                 * If product not exist, create new one
+                 */
+                Product product = productMap.get(productId);
+                if (product == null) {
+                    product = Product.builder()
+                            .id(productId)
+                            .name(rs.getString("name"))
+                            .price(rs.getDouble("price"))
+                            .discount(rs.getDouble("discount"))
+                            .status(ProductStatus.fromString(rs.getString("status")))
+                            .category(rs.getString("category"))
+                            .createdAt(rs.getTimestamp("p_created_at"))
+                            .updatedAt(rs.getTimestamp("p_updated_at"))
+                            .productImages(new ArrayList<>())
+                            .build();
+
+                    /**
+                     * Map ProductDetail
+                     */
+                    int detailId = rs.getInt("detail_id");
+                    if (detailId != 0) {
+                        ProductDetail detail = ProductDetail.builder()
+                                .id(detailId)
+                                .productId(productId)
+                                .os(rs.getString("os"))
+                                .ram(rs.getInt("ram"))
+                                .storage(rs.getInt("storage"))
+                                .batteryCapacity(rs.getInt("battery_capacity"))
+                                .screenSize(rs.getDouble("screen_size"))
+                                .screenResolution(rs.getString("screen_resolution"))
+                                .mobileNetwork(rs.getString("mobile_network"))
+                                .cpu(rs.getString("cpu"))
+                                .gpu(rs.getString("gpu"))
+                                .rating(rs.getDouble("rating"))
+                                .description(rs.getString("description"))
+                                .createdAt(rs.getTimestamp("pd_created_at"))
+                                .updatedAt(rs.getTimestamp("pd_updated_at"))
+                                .build();
+
+                        product.setProductDetail(detail);
+                    }
+
+                    productMap.put(productId, product);
+                }
+
+                /**
+                 * Map ProductImage and Image
+                 */
+                int productImageId = rs.getInt("product_image_id");
+                if (productImageId != 0) {
+                    Image img = Image.builder()
+                            .id(rs.getInt("image_id"))
+                            .url(rs.getString("url"))
+                            .status(ImageStatus.fromString(rs.getString("image_status")))
+                            .createdAt(rs.getTimestamp("i_created_at"))
+                            .updatedAt(rs.getTimestamp("i_updated_at"))
+                            .build();
+
+                    ProductImage pi = ProductImage.builder()
+                            .id(productImageId)
+                            .productId(productId)
+                            .image(img)
+                            .type(ImageType.fromString(rs.getString("type")))
+                            .createdAt(rs.getTimestamp("pi_created_at"))
+                            .updatedAt(rs.getTimestamp("pi_updated_at"))
+                            .build();
+
+                    product.getProductImages().add(pi);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new ArrayList<>(productMap.values());
+    }
+
 }

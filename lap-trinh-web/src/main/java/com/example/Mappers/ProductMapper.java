@@ -3,6 +3,7 @@ package com.example.Mappers;
 import com.example.DTO.Products.GetProductDetailResponseDTO;
 import com.example.DTO.Products.GetProductSameBrandDTO;
 import com.example.DTO.Products.GetProductsPagingResponseDTO;
+import com.example.DTO.Products.GetRandomProductResponseDTO;
 import com.example.Model.ImageType;
 import com.example.Model.Product;
 import com.example.Model.ProductImage;
@@ -96,4 +97,12 @@ public interface ProductMapper {
     GetProductSameBrandDTO toGetProductSameBrand(Product product);
 
     List<GetProductSameBrandDTO> toGetProductSameBrandDTOList(List<Product> products);
+
+    /**
+     * Random product mapping
+     */
+    @Mapping(target = "imageUrl", expression = "java(getFirstThumbnail(product.getProductImages()))")
+    GetRandomProductResponseDTO toGetRandomProductResponseDTO(Product product);
+
+    List<GetRandomProductResponseDTO> toGetRandomProductResponseDTOList(List<Product> products);
 }

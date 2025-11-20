@@ -21,7 +21,8 @@ public class CheckSessionFilter implements Filter {
             "/register",
             "/home",
             "/product-filter",
-            "/product-detail"
+            "/product-detail",
+            "/change-language"
     );
 
     @Override
