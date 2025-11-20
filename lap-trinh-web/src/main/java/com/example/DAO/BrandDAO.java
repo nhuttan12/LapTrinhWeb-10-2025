@@ -2,6 +2,7 @@ package com.example.DAO;
 
 import com.example.DTO.Brands.GetBrandResponseDTO;
 import com.example.DTO.Products.GetProductsPagingResponseDTO;
+import com.example.Service.Database.JDBCConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,13 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BrandDAO {
-    private final Connection conn;
-
-    public BrandDAO(Connection conn) {
-        this.conn = conn;
+    public BrandDAO() {
     }
 
-    public List<GetBrandResponseDTO> getBrandsWithProductCount() {
+    public List<GetBrandResponseDTO> getBrandsWithProductCount() throws SQLException {
         String sql = """
                     SELECT b.id, b.name, COUNT(pd.product_id) AS product_count
                     FROM brands b
@@ -28,9 +26,10 @@ public class BrandDAO {
 
         List<GetBrandResponseDTO> results = new ArrayList<>();
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
 
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 results.add(GetBrandResponseDTO.builder()
                         .id(rs.getInt("id"))
@@ -38,11 +37,10 @@ public class BrandDAO {
                         .productCount(rs.getInt("product_count"))
                         .build());
             }
-
+            return results;
         } catch (SQLException e) {
             e.printStackTrace();
+            throw e;
         }
-
-        return results;
     }
 }

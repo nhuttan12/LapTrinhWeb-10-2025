@@ -13,9 +13,9 @@ public class UserService {
     private final UserDAO userDAO;
     private final UserMapper userMapper;
 
-    public UserService(Connection conn) {
-        this.userDAO = new UserDAO(conn);
+    public UserService() {
         this.userMapper = UserMapper.INSTANCE;
+        userDAO = new UserDAO();
     }
 
     public UserProfileDTO getUserProfile(int userId) {
@@ -63,12 +63,16 @@ public class UserService {
         return userExist;
     }
 
-    public boolean insertNewUser(String username, String email, String password, int roleId) {
-        return userDAO.insertNewUser(username, email, password, roleId);
+    public boolean insertNewUser(String username, String email, String password) {
+        return userDAO.insertNewUser(username, email, password);
     }
 
     public boolean getUserByUsernameAndPassword(String username, String password) {
-        return userDAO.getUserByUsernameAndPassword(username, password);
+        try {
+            return userDAO.getUserByUsernameAndPassword(username, password);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public UserProfileDTO updateUserProfile(
@@ -78,7 +82,7 @@ public class UserService {
             String address1,
             String address2,
             String address3,
-            String imageUrl) throws SQLException {
+            String imageUrl) {
 
         // 1. Get user profile for double check
         UserProfileDTO profile = this.getUserProfile(userId);
@@ -90,11 +94,20 @@ public class UserService {
         }
 
         // 3. Update user profile
-        boolean updateUserProfile = userDAO.updateUserProfile(profile.getId(), fullName, phone, address1, address2, address3, imageUrl);
+        boolean updateUserProfile = false;
+        try {
+            updateUserProfile = userDAO.updateUserProfile(profile.getId(), fullName, phone, address1, address2, address3, imageUrl);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         // 4. Checking update result
         if (!updateUserProfile) {
-            throw new SQLException("Update user profile failed");
+            try {
+                throw new SQLException("Update user profile failed");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         // 5. Get user profile for return
@@ -118,19 +131,24 @@ public class UserService {
         }
     }
 
-    public User getUserById(int userId) {
+    public User getUserById(int userId) throws SQLException {
         return userDAO.getUserById(userId);
     }
 
     public boolean changePassword(String username, String password, String newPassword) {
 //        System.out.println("Info username: " + username + " password: " + password);
-        boolean userExist = userDAO.getUserByUsernameAndPassword(username, password);
-        System.out.println("Check user exist in user service: " + userExist);
+        boolean userExist = false;
+        try {
+            userExist = userDAO.getUserByUsernameAndPassword(username, password);
+            System.out.println("Check user exist in user service: " + userExist);
 
-        if (!userExist) {
-            return false;
+            if (!userExist) {
+                return false;
+            }
+
+            return userDAO.changePassword(username, newPassword);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-
-        return userDAO.changePassword(username, newPassword);
     }
 }

@@ -1,13 +1,10 @@
 package com.example.DAO;
 
+import com.example.DTO.Products.GetProductsPagingResponseDTO;
 import com.example.Model.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
 
 public class AdminProductDAO {
     private final Connection conn;
@@ -16,242 +13,311 @@ public class AdminProductDAO {
         this.conn = conn;
     }
 
-    // ✅ 1. Lấy danh sách sản phẩm với phân trang
-    public List<Product> getAllProductsPaginated(int offset, int limit) throws SQLException {
-        List<Product> products = new ArrayList<>();
+    // expose connection để transaction ở service
+    public Connection getConnection() {
+        return this.conn;
+    }
+
+    //  Lấy danh sách sản phẩm kèm brand + thumbnail
+    public List<GetProductsPagingResponseDTO> getProductsPaging(int offset, int limit) throws SQLException {
+        List<GetProductsPagingResponseDTO> products = new ArrayList<>();
+
         String sql = """
-            SELECT p.id AS product_id, p.name, p.price, p.discount, p.status, p.category,
-                   p.created_at AS product_created_at, p.updated_at AS product_updated_at,
-                   pd.id AS detail_id, pd.description,
-                   pi.id AS image_id, i.url AS image_url
-            FROM products p
-            LEFT JOIN product_details pd ON p.id = pd.product_id
-            LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.type = 'THUMBNAIL'
-            LEFT JOIN images i ON pi.image_id = i.id
-            ORDER BY p.id ASC
-            LIMIT ? OFFSET ?
-        """;
+    SELECT 
+        p.id AS product_id,
+        p.name AS product_name,
+        p.price,
+        p.discount,
+        b.name AS brand_name,
+        i.url AS thumbnail_url
+    FROM products p
+    LEFT JOIN product_details pd ON p.id = pd.product_id
+    LEFT JOIN brands b ON pd.brand_id = b.id
+    LEFT JOIN product_images pi 
+           ON pi.product_id = p.id AND UPPER(pi.type) = 'THUMBNAIL'
+    LEFT JOIN images i ON pi.image_id = i.id
+    WHERE p.status = 'active'
+    ORDER BY p.id DESC
+    LIMIT ? OFFSET ?
+""";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, limit);
             ps.setInt(2, offset);
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Product product = Product.builder()
-                            .id(rs.getInt("product_id"))
-                            .name(rs.getString("name"))
-                            .price(rs.getDouble("price"))
-                            .discount(rs.getDouble("discount"))
-                            .status(ProductStatus.fromString(rs.getString("status")))
-                            .category(rs.getString("category"))
-                            .createdAt(rs.getTimestamp("product_created_at"))
-                            .updatedAt(rs.getTimestamp("product_updated_at"))
-                            .productDetail(ProductDetail.builder()
-                                    .id(rs.getInt("detail_id"))
-                                    .description(rs.getString("description"))
-                                    .build())
-                            .productImage(ProductImage.builder()
-                                    .id(rs.getInt("image_id"))
-                                    .image(Image.builder()
-                                            .url(rs.getString("image_url"))
-                                            .build())
-                                    .build())
-                            .build();
-                    products.add(product);
+                    GetProductsPagingResponseDTO dto = new GetProductsPagingResponseDTO();
+                    dto.setId(rs.getInt("product_id"));
+                    dto.setName(rs.getString("product_name"));
+                    dto.setPrice(rs.getDouble("price"));
+                    dto.setDiscount(rs.getDouble("discount"));
+                    dto.setBrand(rs.getString("brand_name") != null ? rs.getString("brand_name") : "Không rõ");
+
+                    String thumbnail = rs.getString("thumbnail_url");
+                    dto.setThumbnail(thumbnail != null ? thumbnail : ""); // tránh null gây lỗi JSP
+
+                    products.add(dto);
                 }
             }
         }
         return products;
     }
 
-    // ✅ 2. Lấy sản phẩm theo ID đầy đủ
-    public Product getProductById(int id) throws SQLException {
+    public int countAllProducts() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM products WHERE status = 'active'";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        }
+        return 0;
+    }
+
+    // Create Product
+    public int insertProduct(Product product) throws SQLException {
         String sql = """
-            SELECT p.id AS product_id, p.name, p.price, p.discount, p.status, p.category,
-                   p.created_at AS product_created_at, p.updated_at AS product_updated_at,
-                   pd.id AS detail_id, pd.description,
-                   pi.id AS image_id, i.url AS image_url
-            FROM products p
-            LEFT JOIN product_details pd ON p.id = pd.product_id
-            LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.type = 'THUMBNAIL'
-            LEFT JOIN images i ON pi.image_id = i.id
-            WHERE p.id = ?
+            INSERT INTO products (name, price, discount, status, created_at)
+            VALUES (?, ?, ?, ?, NOW())
         """;
 
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, product.getName());
+            ps.setDouble(2, product.getPrice());
+            ps.setDouble(3, product.getDiscount());
+            ps.setString(4, product.getStatus().name());
+            ps.executeUpdate();
+
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) return rs.getInt(1);
+            throw new SQLException("Cannot get generated product id");
+        }
+    }
+
+    public void insertProductDetail(ProductDetail detail) throws SQLException {
+        String sql = """
+            INSERT INTO product_details (
+                product_id, brand_id, os, ram, storage, battery_capacity,
+                screen_size, screen_resolution, mobile_network, cpu, gpu,
+                water_resistance, max_charge_watt, design, memory_card,
+                cpu_speed, release_date, rating, description, created_at
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())
+        """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            int k = 1;
+            ps.setInt(k++, detail.getProductId());
+
+            // brand may be null
+            if (detail.getBrand() != null) ps.setInt(k++, detail.getBrand().getId());
+            else ps.setNull(k++, Types.INTEGER);
+
+            ps.setString(k++, detail.getOs());
+            if (detail.getRam() != null) ps.setInt(k++, detail.getRam()); else ps.setNull(k++, Types.INTEGER);
+            if (detail.getStorage() != null) ps.setInt(k++, detail.getStorage()); else ps.setNull(k++, Types.INTEGER);
+            if (detail.getBatteryCapacity() != null) ps.setInt(k++, detail.getBatteryCapacity()); else ps.setNull(k++, Types.INTEGER);
+            if (detail.getScreenSize() != null) ps.setDouble(k++, detail.getScreenSize()); else ps.setNull(k++, Types.DOUBLE);
+            ps.setString(k++, detail.getScreenResolution());
+            ps.setString(k++, detail.getMobileNetwork());
+            ps.setString(k++, detail.getCpu());
+            ps.setString(k++, detail.getGpu());
+            ps.setString(k++, detail.getWaterResistance());
+            if (detail.getMaxChargeWatt() != null) ps.setInt(k++, detail.getMaxChargeWatt()); else ps.setNull(k++, Types.INTEGER);
+            ps.setString(k++, detail.getDesign());
+            ps.setString(k++, detail.getMemoryCard());
+            if (detail.getCpuSpeed() != null) ps.setDouble(k++, detail.getCpuSpeed()); else ps.setNull(k++, Types.DOUBLE);
+            ps.setTimestamp(k++, detail.getReleaseDate());
+            if (detail.getRating() != null) ps.setDouble(k++, detail.getRating()); else ps.setNull(k++, Types.DOUBLE);
+            ps.setString(k++, detail.getDescription());
+            ps.executeUpdate();
+        }
+    }
+
+    public int insertImage(String url) throws SQLException {
+        String sql = "INSERT INTO images (url, created_at) VALUES (?, NOW())";
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, url);
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) return rs.getInt(1);
+            throw new SQLException("Cannot get generated image id");
+        }
+    }
+
+    public void insertProductImage(int productId, int imageId, String type) throws SQLException {
+        String sql = """
+        INSERT INTO product_images (product_id, image_id, type, created_at)
+        VALUES (?, ?, ?, NOW())
+    """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            ps.setInt(2, imageId);
+            ps.setString(3, type != null ? type.toUpperCase() : null);
+            ps.executeUpdate();
+        }
+    }
+
+    // delete product_images by product and type (useful when replacing thumbnail)
+    public void deleteProductImagesByType(int productId, String type) throws SQLException {
+        String sql = "DELETE FROM product_images WHERE product_id = ? AND UPPER(type) = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            ps.setString(2, type.toUpperCase());
+            ps.executeUpdate();
+        }
+    }
+
+    // Update Products
+    public void updateProduct(Product product) throws SQLException {
+        String sql = """
+            UPDATE products
+            SET name=?, price=?, discount=?, status=?, updated_at=NOW()
+            WHERE id=?
+        """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, product.getName());
+            ps.setDouble(2, product.getPrice());
+            ps.setDouble(3, product.getDiscount());
+            ps.setString(4, product.getStatus().name());
+            ps.setInt(5, product.getId());
+            ps.executeUpdate();
+        }
+    }
+
+    public void updateProductDetail(ProductDetail detail) throws SQLException {
+        String sql = """
+            UPDATE product_details
+            SET brand_id=?, os=?, ram=?, storage=?, battery_capacity=?,
+                screen_size=?, screen_resolution=?, mobile_network=?, cpu=?, gpu=?,
+                water_resistance=?, max_charge_watt=?, design=?, memory_card=?,
+                cpu_speed=?, release_date=?, rating=?, description=?, updated_at=NOW()
+            WHERE product_id=?
+        """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            int k = 1;
+            if (detail.getBrand() != null) ps.setInt(k++, detail.getBrand().getId()); else ps.setNull(k++, Types.INTEGER);
+            ps.setString(k++, detail.getOs());
+            if (detail.getRam() != null) ps.setInt(k++, detail.getRam()); else ps.setNull(k++, Types.INTEGER);
+            if (detail.getStorage() != null) ps.setInt(k++, detail.getStorage()); else ps.setNull(k++, Types.INTEGER);
+            if (detail.getBatteryCapacity() != null) ps.setInt(k++, detail.getBatteryCapacity()); else ps.setNull(k++, Types.INTEGER);
+            if (detail.getScreenSize() != null) ps.setDouble(k++, detail.getScreenSize()); else ps.setNull(k++, Types.DOUBLE);
+            ps.setString(k++, detail.getScreenResolution());
+            ps.setString(k++, detail.getMobileNetwork());
+            ps.setString(k++, detail.getCpu());
+            ps.setString(k++, detail.getGpu());
+            ps.setString(k++, detail.getWaterResistance());
+            if (detail.getMaxChargeWatt() != null) ps.setInt(k++, detail.getMaxChargeWatt()); else ps.setNull(k++, Types.INTEGER);
+            ps.setString(k++, detail.getDesign());
+            ps.setString(k++, detail.getMemoryCard());
+            if (detail.getCpuSpeed() != null) ps.setDouble(k++, detail.getCpuSpeed()); else ps.setNull(k++, Types.DOUBLE);
+            ps.setTimestamp(k++, detail.getReleaseDate());
+            if (detail.getRating() != null) ps.setDouble(k++, detail.getRating()); else ps.setNull(k++, Types.DOUBLE);
+            ps.setString(k++, detail.getDescription());
+            ps.setInt(k++, detail.getProductId());
+            ps.executeUpdate();
+        }
+    }
+
+    // Delete all product_images by productId (existing method renamed for clarity)
+    public void deleteImagesByProductId(int productId) throws SQLException {
+        String sql = "DELETE FROM product_images WHERE product_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            ps.executeUpdate();
+        }
+    }
+
+    /* SOFT DELETE */
+    public void softDelete(int id) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "UPDATE products SET status='inactive', updated_at=NOW() WHERE id=?"
+        )) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
+
+    // ========== New: get product by id ==========
+    public Product getProductById(int id) throws SQLException {
+//        String sql = "SELECT id, name, price, discount, status FROM products WHERE id = ?";
+        String sql = """
+        SELECT
+            p.id,
+            p.name,
+            p.price,
+            p.discount,
+            p.status,
+            i.url AS thumbnail
+        FROM products p
+        LEFT JOIN product_images pi 
+            ON pi.product_id = p.id AND UPPER(pi.type) = 'THUMBNAIL'
+        LEFT JOIN images i 
+            ON pi.image_id = i.id
+        WHERE p.id = ?
+    """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return Product.builder()
-                            .id(rs.getInt("product_id"))
-                            .name(rs.getString("name"))
-                            .price(rs.getDouble("price"))
-                            .discount(rs.getDouble("discount"))
-                            .status(ProductStatus.fromString(rs.getString("status")))
-                            .category(rs.getString("category"))
-                            .createdAt(rs.getTimestamp("product_created_at"))
-                            .updatedAt(rs.getTimestamp("product_updated_at"))
-                            .productDetail(ProductDetail.builder()
-                                    .id(rs.getInt("detail_id"))
-                                    .description(rs.getString("description"))
-                                    .build())
-                            .productImage(ProductImage.builder()
-                                    .id(rs.getInt("image_id"))
-                                    .image(Image.builder()
-                                            .url(rs.getString("image_url"))
-                                            .build())
-                                    .build())
-                            .build();
+                    Product p = new Product();
+                    p.setId(rs.getInt("id"));
+                    p.setName(rs.getString("name"));
+                    p.setPrice(rs.getDouble("price"));
+                    p.setDiscount(rs.getDouble("discount"));
+                    p.setStatus(ProductStatus.fromString(rs.getString("status")));
+                    p.setThumbnail(rs.getString("thumbnail"));
+                    return p;
                 }
             }
         }
         return null;
     }
 
-    // ✅ 3. Tạo mới sản phẩm + detail + thumbnail
-    public boolean createProduct(Product product) throws SQLException {
-        conn.setAutoCommit(false);
-        try {
-            // 3.1 Insert vào bảng products
-            String sqlProduct = "INSERT INTO products (name, price, discount, status, category, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
-            int productId;
-            try (PreparedStatement ps = conn.prepareStatement(sqlProduct, PreparedStatement.RETURN_GENERATED_KEYS)) {
-                ps.setString(1, product.getName());
-                ps.setDouble(2, product.getPrice());
-                ps.setDouble(3, product.getDiscount());
-                ps.setString(4, product.getStatus().getProductStatus());
-                ps.setString(5, product.getCategory());
-                ps.executeUpdate();
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) productId = rs.getInt(1);
-                    else throw new SQLException("Failed to get generated product ID");
-                }
-            }
-
-            // 3.2 Insert vào bảng product_details
-            if (product.getProductDetail() != null) {
-                String sqlDetail = "INSERT INTO product_details (product_id, description) VALUES (?, ?)";
-                try (PreparedStatement ps = conn.prepareStatement(sqlDetail)) {
-                    ps.setInt(1, productId);
-                    ps.setString(2, product.getProductDetail().getDescription());
-                    ps.executeUpdate();
-                }
-            }
-
-            // 3.3 Insert vào bảng product_images + images nếu cần
-            if (product.getProductImage() != null && product.getProductImage().getImage() != null) {
-                String sqlImage = "INSERT INTO images (url, created_at) VALUES (?, NOW())";
-                int imageId;
-                try (PreparedStatement ps = conn.prepareStatement(sqlImage, PreparedStatement.RETURN_GENERATED_KEYS)) {
-                    ps.setString(1, product.getProductImage().getImage().getUrl());
-                    ps.executeUpdate();
-                    try (ResultSet rs = ps.getGeneratedKeys()) {
-                        if (rs.next()) imageId = rs.getInt(1);
-                        else throw new SQLException("Failed to get generated image ID");
-                    }
-                }
-
-                String sqlProductImage = "INSERT INTO product_images (product_id, image_id, type, created_at) VALUES (?, ?, 'THUMBNAIL', NOW())";
-                try (PreparedStatement ps = conn.prepareStatement(sqlProductImage)) {
-                    ps.setInt(1, productId);
-                    ps.setInt(2, imageId);
-                    ps.executeUpdate();
-                }
-            }
-
-            conn.commit();
-            return true;
-        } catch (SQLException e) {
-            conn.rollback();
-            throw e;
-        } finally {
-            conn.setAutoCommit(true);
-        }
-    }
-
-    // ✅ 4. Cập nhật sản phẩm + detail + thumbnail
-    public boolean updateProduct(Product product) throws SQLException {
-        conn.setAutoCommit(false);
-        try {
-            // 4.1 Update bảng products
-            String sqlProduct = "UPDATE products SET name = ?, price = ?, discount = ?, status = ?, category = ?, updated_at = NOW() WHERE id = ?";
-            try (PreparedStatement ps = conn.prepareStatement(sqlProduct)) {
-                ps.setString(1, product.getName());
-                ps.setDouble(2, product.getPrice());
-                ps.setDouble(3, product.getDiscount());
-                ps.setString(4, product.getStatus().getProductStatus());
-                ps.setString(5, product.getCategory());
-                ps.setInt(6, product.getId());
-                ps.executeUpdate();
-            }
-
-            // 4.2 Update product_details
-            if (product.getProductDetail() != null) {
-                String sqlDetail = "UPDATE product_details SET description = ? WHERE product_id = ?";
-                try (PreparedStatement ps = conn.prepareStatement(sqlDetail)) {
-                    ps.setString(1, product.getProductDetail().getDescription());
-                    ps.setInt(2, product.getId());
-                    ps.executeUpdate();
-                }
-            }
-
-            // 4.3 Update product_images + images (thumbnail)
-            if (product.getProductImage() != null && product.getProductImage().getImage() != null) {
-                // 4.3.1 Lấy image_id cũ
-                Integer imageId = null;
-                String sqlSelect = "SELECT image_id FROM product_images WHERE product_id = ? AND type = 'THUMBNAIL'";
-                try (PreparedStatement ps = conn.prepareStatement(sqlSelect)) {
-                    ps.setInt(1, product.getId());
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) imageId = rs.getInt("image_id");
-                    }
-                }
-
-                if (imageId != null) {
-                    // Update url
-                    String sqlUpdate = "UPDATE images SET url = ? WHERE id = ?";
-                    try (PreparedStatement ps = conn.prepareStatement(sqlUpdate)) {
-                        ps.setString(1, product.getProductImage().getImage().getUrl());
-                        ps.setInt(2, imageId);
-                        ps.executeUpdate();
-                    }
-                } else {
-                    // Chưa có thumbnail → insert mới
-                    String sqlInsertImage = "INSERT INTO images (url, created_at) VALUES (?, NOW())";
-                    int newImageId;
-                    try (PreparedStatement ps = conn.prepareStatement(sqlInsertImage, PreparedStatement.RETURN_GENERATED_KEYS)) {
-                        ps.setString(1, product.getProductImage().getImage().getUrl());
-                        ps.executeUpdate();
-                        try (ResultSet rs = ps.getGeneratedKeys()) {
-                            if (rs.next()) newImageId = rs.getInt(1);
-                            else throw new SQLException("Failed to get generated image ID");
-                        }
-                    }
-                    String sqlInsertProductImage = "INSERT INTO product_images (product_id, image_id, type, created_at) VALUES (?, ?, 'THUMBNAIL', NOW())";
-                    try (PreparedStatement ps = conn.prepareStatement(sqlInsertProductImage)) {
-                        ps.setInt(1, product.getId());
-                        ps.setInt(2, newImageId);
-                        ps.executeUpdate();
-                    }
-                }
-            }
-
-            conn.commit();
-            return true;
-        } catch (SQLException e) {
-            conn.rollback();
-            throw e;
-        } finally {
-            conn.setAutoCommit(true);
-        }
-    }
-
-    // ✅ 5. Soft delete
-    public boolean softRemoveProduct(int id) throws SQLException {
-        String sql = "UPDATE products SET status = 'inactive', updated_at = NOW() WHERE id = ?";
+    // ========== New: get product detail by product id ==========
+    public ProductDetail getProductDetailByProductId(int productId) throws SQLException {
+        String sql = "SELECT * FROM product_details WHERE product_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
+            ps.setInt(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    ProductDetail d = new ProductDetail();
+                    d.setProductId(rs.getInt("product_id"));
+
+                    int brandId = rs.getInt("brand_id");
+                    if (!rs.wasNull()) d.setBrand(new Brand(brandId, null));
+
+                    d.setOs(rs.getString("os"));
+                    d.setRam(rs.getInt("ram"));
+                    if (rs.wasNull()) d.setRam(null);
+                    d.setStorage(rs.getInt("storage"));
+                    if (rs.wasNull()) d.setStorage(null);
+                    d.setBatteryCapacity(rs.getInt("battery_capacity"));
+                    if (rs.wasNull()) d.setBatteryCapacity(null);
+                    d.setScreenSize(rs.getDouble("screen_size"));
+                    if (rs.wasNull()) d.setScreenSize(null);
+                    d.setScreenResolution(rs.getString("screen_resolution"));
+                    d.setMobileNetwork(rs.getString("mobile_network"));
+                    d.setCpu(rs.getString("cpu"));
+                    d.setGpu(rs.getString("gpu"));
+                    d.setWaterResistance(rs.getString("water_resistance"));
+                    d.setMaxChargeWatt(rs.getInt("max_charge_watt"));
+                    if (rs.wasNull()) d.setMaxChargeWatt(null);
+                    d.setDesign(rs.getString("design"));
+                    d.setMemoryCard(rs.getString("memory_card"));
+                    d.setCpuSpeed(rs.getDouble("cpu_speed"));
+                    if (rs.wasNull()) d.setCpuSpeed(null);
+                    d.setReleaseDate(rs.getTimestamp("release_date"));
+                    d.setRating(rs.getDouble("rating"));
+                    if (rs.wasNull()) d.setRating(null);
+                    d.setDescription(rs.getString("description"));
+                    return d;
+                }
+            }
         }
+        return null;
     }
+
+
 }

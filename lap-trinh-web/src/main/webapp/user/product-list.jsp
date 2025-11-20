@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,6 +43,113 @@
         <div class="container">
 
             <div class="row mb-5">
+                <div class="col-md-3 order-1 mb-5 mb-md-0">
+                    <div class="border p-4 rounded mb-4">
+                        <h3 class="mb-3 h6 text-uppercase text-black d-block">Thương hiệu</h3>
+                        <ul class="list-unstyled mb-0">
+                            <c:forEach var="brand" items="${brands}">
+                                <li class="mb-1">
+                                    <a href="${pageContext.request.contextPath}/product-list?brandId=${brand.id}
+                                    &page=1&pageSize=12" class="d-flex">
+                                        <span>${brand.name}</span>
+                                        <span class="text-black ml-auto">(${brand.productCount})</span></a></li>
+                            </c:forEach>
+                        </ul>
+                    </div>
+
+                    <!-- Lọc sản phẩm -->
+                    <form action="${pageContext.request.contextPath}/product-filter" method="get">
+                        <div class="border p-4 rounded mb-4">
+                            <div class="mb-4">
+                                <h3 class="mb-3 h6 text-uppercase text-black d-block">Lọc sản phẩm</h3>
+                                <div id="slider-range" class="border-primary"></div>
+
+                                <!-- Giá tiền -->
+                                <input type="text" name="priceRange" id="amount"
+                                       class="form-control border-0 pl-0 bg-white"
+                                       readonly/>
+                            </div>
+
+                            <!-- Hệ điều hành -->
+                            <div class="mb-4">
+                                <h3 class="mb-3 h6 text-uppercase text-black d-block">Hệ điều hành</h3>
+
+                                <c:set var="osOptions" value="${['Android', 'iOS']}"/>
+                                <c:set var="selectedOs" value="${fn:join(criteria.osList, ',')}"/>
+
+                                <c:forEach var="os" items="${osOptions}">
+                                    <label class="d-flex">
+                                        <input type="checkbox" name="os" value="${os}" class="mr-2 mt-1"
+                                                <c:if test="${fn:contains(selectedOs, os)}">
+                                                    checked
+                                                </c:if>
+                                        />
+                                        <span class="text-black">${os}</span>
+                                    </label>
+                                </c:forEach>
+                            </div>
+
+                            <!-- RAM -->
+                            <div class="mb-4">
+                                <h3 class="mb-3 h6 text-uppercase text-black d-block">RAM</h3>
+
+                                <c:set var="ramOptions" value="${['4', '6', '8', '12', '16']}"/>
+                                <c:set var="selectedRam" value="${fn:join(criteria.ramList, ',')}"/>
+
+                                <c:forEach var="ram" items="${ramOptions}">
+                                    <label class="d-flex">
+                                        <input type="checkbox" name="ram" value="${ram}" class="mr-2 mt-1"
+                                                <c:if test="${fn:contains(selectedRam, ram)}">
+                                                    checked
+                                                </c:if>
+                                        />
+                                        <span class="text-black">${ram} GB</span>
+                                    </label>
+                                </c:forEach>
+                            </div>
+
+                            <!-- Bộ nhớ trong (Storage) -->
+                            <div class="mb-4">
+                                <h3 class="mb-3 h6 text-uppercase text-black d-block">Bộ nhớ trong</h3>
+
+                                <c:set var="storageOptions" value="${['64', '128', '256', '512']}"/>
+                                <c:set var="selectedStorage" value="${fn:join(criteria.storageList, ',')}"/>
+
+                                <c:forEach var="storage" items="${storageOptions}">
+                                    <label class="d-flex">
+                                        <input type="checkbox" name="storage" value="${storage}" class="mr-2 mt-1"
+                                                <c:if test="${fn:contains(selectedStorage, storage)}">
+                                                    checked
+                                                </c:if>
+                                        />
+                                        <span class="text-black">${storage} GB</span>
+                                    </label></c:forEach>
+                            </div>
+
+                            <!-- Công suất sạc tối đa -->
+                            <div class="mb-4">
+                                <h3 class="mb-3 h6 text-uppercase text-black d-block">Công suất sạc tối đa</h3>
+
+                                <c:set var="chargeOptions" value="${['20', '25', '40', '45', '80']}"/>
+                                <c:set var="selectedCharge" value="${fn:join(criteria.chargeList, ',')}"/>
+
+                                <c:forEach items="${chargeOptions}" var="charge">
+                                    <label class="d-flex">
+                                        <input type="checkbox" name="charge" value="${charge}" class="mr-2 mt-1"
+                                                <c:if test="${fn:contains(selectedCharge, charge)}">
+                                                    checked
+                                                </c:if>
+                                        />
+                                        <span class="text-black">${charge} W</span>
+                                    </label>
+                                </c:forEach>
+                            </div>
+
+                            <button type="submit" class="btn btn-sm btn-primary">Lọc</button>
+                        </div>
+                    </form>
+                </div>
+
                 <div class="col-md-9 order-2">
 
                     <div class="row">
@@ -85,12 +193,14 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="row mb-5">
+                        <!-- Product List -->
                         <c:forEach var="product" items="${products}">
                             <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
                                 <div class="block-4 text-center border">
                                     <figure class="block-4-image">
-                                        <a href="${pageContext.request.contextPath}/product-detail?id=${product.id}"><img
+                                        <a href="${pageContext.request.contextPath}/product-detail?productId=${product.id}"><img
                                                 src="${product.thumbnail}"
                                                 alt="${product.name}"
                                                 class="img-fluid"></a>
@@ -100,21 +210,37 @@
                                             <a href="${pageContext.request.contextPath}/product-detail?id=${product.id}"
                                                class="fw-light">${product.name}</a>
                                         </h3>
-                                        <p class="mb-0">${product.description}</p>
                                         <p class="text-primary font-weight-bold pt-1">
-                                                ${product.price} vnđ
-                                            <c:if test="${product.discount > 0}">
-                                                <span class="text-muted" style="text-decoration:line-through;">
-                                                    ${product.price + product.discount} vnđ
-                                                </span>
-                                            </c:if>
+                                            <c:choose>
+                                                <c:when test="${product.discount > 0}">
+                                                    <span class="text-muted" style="text-decoration: line-through;">
+                                                        <fmt:formatNumber
+                                                                value="${product.price}"
+                                                                type="number"
+                                                                maxFractionDigits="2"
+                                                        /> vnđ
+                                                    </span>
+                                                    <span class="text-primary" style="margin-left: 8px;">
+                                                        <fmt:formatNumber
+                                                                value="${product.price - product.discount}"
+                                                                type="number"
+                                                                maxFractionDigits="2"
+                                                        /> vnđ
+                                                    </span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <fmt:formatNumber
+                                                            value="${product.price}"
+                                                            type="number"
+                                                            maxFractionDigits="2"
+                                                    /> vnđ
+                                                </c:otherwise>
+                                            </c:choose>
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         </c:forEach>
-
-
                     </div>
                     <div class="row" data-aos="fade-up">
                         <div class="col-md-12 text-center">
@@ -179,65 +305,6 @@
                                 </ul>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="col-md-3 order-1 mb-5 mb-md-0">
-                    <div class="border p-4 rounded mb-4">
-                        <h3 class="mb-3 h6 text-uppercase text-black d-block">Thương hiệu</h3>
-                        <ul class="list-unstyled mb-0">
-                            <c:forEach var="brand" items="${brands}">
-                                <li class="mb-1">
-                                    <a href="${pageContext.request.contextPath}/product-list?brandId=${brand.id}&page=1&pageSize=12"
-                                       class="d-flex">
-                                        <span>${brand.name}</span>
-                                        <span
-                                                class="text-black ml-auto">(${brand.productCount})</span></a></li>
-                            </c:forEach>
-                        </ul>
-                    </div>
-
-                    <div class="border p-4 rounded mb-4">
-                        <div class="mb-4">
-                            <h3 class="mb-3 h6 text-uppercase text-black d-block">Lọc sản phẩm</h3>
-                            <div id="slider-range" class="border-primary"></div>
-                            <input type="text" name="text" id="amount" class="form-control border-0 pl-0 bg-white"
-                                   disabled=""/>
-                        </div>
-
-                        <div class="mb-4">
-                            <h3 class="mb-3 h6 text-uppercase text-black d-block">Size</h3>
-                            <label for="s_sm" class="d-flex">
-                                <input type="checkbox" id="s_sm" class="mr-2 mt-1"> <span class="text-black">Small (2,319)</span>
-                            </label>
-                            <label for="s_md" class="d-flex">
-                                <input type="checkbox" id="s_md" class="mr-2 mt-1"> <span class="text-black">Medium (1,282)</span>
-                            </label>
-                            <label for="s_lg" class="d-flex">
-                                <input type="checkbox" id="s_lg" class="mr-2 mt-1"> <span class="text-black">Large (1,392)</span>
-                            </label>
-                        </div>
-
-                        <div class="mb-4">
-                            <h3 class="mb-3 h6 text-uppercase text-black d-block">Color</h3>
-                            <a href="#" class="d-flex color-item align-items-center">
-                                <span class="bg-danger color d-inline-block rounded-circle mr-2"></span> <span
-                                    class="text-black">Red (2,429)</span>
-                            </a>
-                            <a href="#" class="d-flex color-item align-items-center">
-                                <span class="bg-success color d-inline-block rounded-circle mr-2"></span> <span
-                                    class="text-black">Green (2,298)</span>
-                            </a>
-                            <a href="#" class="d-flex color-item align-items-center">
-                                <span class="bg-info color d-inline-block rounded-circle mr-2"></span> <span
-                                    class="text-black">Blue (1,075)</span>
-                            </a>
-                            <a href="#" class="d-flex color-item align-items-center">
-                                <span class="bg-primary color d-inline-block rounded-circle mr-2"></span> <span
-                                    class="text-black">Purple (1,075)</span>
-                            </a>
-                        </div>
-
                     </div>
                 </div>
             </div>

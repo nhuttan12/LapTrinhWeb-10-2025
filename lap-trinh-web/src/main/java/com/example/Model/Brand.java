@@ -17,4 +17,9 @@ public class Brand {
     private BrandStatus status;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    public Brand(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
 }

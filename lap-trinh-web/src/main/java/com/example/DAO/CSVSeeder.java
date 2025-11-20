@@ -2,10 +2,17 @@ package com.example.DAO;
 
 
 import com.example.Model.BrandStatus;
+import com.example.Model.ImageStatus;
+import com.example.Model.ProductStatus;
 import com.example.Service.Database.JDBCConnection;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.FileReader;
+import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
@@ -14,6 +21,39 @@ public class CSVSeeder {
         String csvPath = "D:\\LapTrinhWeb-10-2025\\lap-trinh-web\\tgdd_products_full.csv";
         CSVSeeder.importProducts(csvPath);
     }
+
+//    public static void main(String[] args) {
+//        String csvFile = "D:\\LapTrinhWeb-10-2025\\lap-trinh-web\\tgdd_products_full.csv";
+//
+//        try (CSVReader reader = new CSVReader(new FileReader(csvFile))) {
+//            String[] header = reader.readNext(); // đọc header
+//            String[] firstRow = reader.readNext(); // đọc hàng 1
+//
+//            if (firstRow != null) {
+//                int imageMainIndex = -1;
+//                int imagesDetailIndex = -1;
+//
+//                // tìm index của cột
+//                for (int i = 0; i < header.length; i++) {
+//                    if (header[i].equalsIgnoreCase("image_main")) {
+//                        imageMainIndex = i;
+//                    } else if (header[i].equalsIgnoreCase("images_detail")) {
+//                        imagesDetailIndex = i;
+//                    }
+//                }
+//
+//                // lấy giá trị cột
+//                String imageMain = imageMainIndex != -1 ? firstRow[imageMainIndex] : null;
+//                String imagesDetail = imagesDetailIndex != -1 ? firstRow[imagesDetailIndex] : null;
+//
+//                System.out.println("image_main: " + imageMain);
+//                System.out.println("images_detail: " + imagesDetail);
+//            }
+//
+//        } catch (IOException | CsvValidationException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      * Fields that will be appended into "description" instead of separate DB columns.
@@ -25,14 +65,17 @@ public class CSVSeeder {
             "nghe nhạc", "quay phim camera sau", "radio", "sim", "sạc kèm theo máy",
             "tính năng camera sau", "tính năng camera trước", "tính năng đặc biệt",
             "wifi", "xem phim", "đèn flash camera sau", "độ phân giải camera sau",
-            "độ phân giải camera trước", "độ sáng tối đa"
+            "độ phân giải camera trước", "độ sáng tối đa", "bluetooth"
     );
 
     private static final Map<String, Integer> BRAND_CACHE = new HashMap<>();
 
     public static void importProducts(String csvPath) {
+        int lineNumber = 1;
         try (Connection conn = JDBCConnection.getConnection();
-             CSVReader reader = new CSVReader(new FileReader(csvPath))) {
+             CSVReader reader = new CSVReaderBuilder(new FileReader(csvPath))
+                     .withCSVParser(new CSVParserBuilder().withSeparator(',').build())
+                     .build()) {
 
             conn.setAutoCommit(false);
 
@@ -49,13 +92,30 @@ public class CSVSeeder {
             }
 
             String[] row;
-            while ((row = reader.readNext()) != null) {
-                Map<String, String> data = new LinkedHashMap<>();
-                for (int i = 0; i < header.length; i++) {
-                    data.put(header[i].trim().toLowerCase(), row[i].trim());
-                }
+            while (true) {
+                try {
+                    row = reader.readNext();
+                    if (row == null) break;
+                    lineNumber++;
 
-                insertProductWithDetails(conn, data);
+                    Map<String, String> data = new LinkedHashMap<>();
+                    for (int i = 0; i < header.length; i++) {
+                        String key = header[i].trim();
+                        data.put(key, row[i].trim());
+                    }
+
+                    insertProductWithDetails(conn, data);
+                } catch (com.opencsv.exceptions.CsvMalformedLineException malformed) {
+                    System.err.println("⚠️ Lỗi định dạng CSV tại dòng " + lineNumber);
+                    malformed.printStackTrace();
+                    conn.rollback();
+                    return;
+                } catch (Exception e) {
+                    System.err.println("❌ Lỗi tại dòng " + lineNumber);
+                    e.printStackTrace();
+                    conn.rollback();
+                    return;
+                }
             }
 
             conn.commit();
@@ -68,10 +128,17 @@ public class CSVSeeder {
     private static void insertProductWithDetails(Connection conn, Map<String, String> data) throws SQLException {
         // --- Product ---
         String name = data.get("name");
+        if (name == null || name.isEmpty()) {
+            throw new SQLException("Tên sản phẩm không được để trống! Dữ liệu row: " + data);
+        }
         double price = parseDouble(data.get("price"));
         double discount = parseDouble(data.get("discount"));
-        String status = data.getOrDefault("status", "active");
         String category = data.getOrDefault("category", "");
+
+        String imagesDetail = data.get("images_detail");
+        String status = (imagesDetail == null || imagesDetail.isEmpty())
+                ? ProductStatus.INACTIVE.getProductStatus()
+                : data.getOrDefault("status", ProductStatus.ACTIVE.getProductStatus());
 
         int productId;
         String insertProductSQL = """
@@ -117,12 +184,13 @@ public class CSVSeeder {
                 """;
 
         try (PreparedStatement ps = conn.prepareStatement(insertDetailSQL)) {
+
             ps.setInt(1, productId);
             if (brandId != null) ps.setInt(2, brandId);
             else ps.setNull(2, Types.INTEGER);
             ps.setString(3, data.getOrDefault("hệ điều hành", ""));
-            ps.setString(4, data.getOrDefault("ram", ""));
-            ps.setString(5, data.getOrDefault("dung lượng lưu trữ", ""));
+            ps.setInt(4, parseInt(data.get("ram")));
+            ps.setInt(5, parseInt(data.get("dung lượng lưu trữ")));
             ps.setInt(6, parseInt(data.get("dung lượng pin")));
             ps.setDouble(7, parseDouble(data.get("màn hình rộng")));
             ps.setString(8, data.getOrDefault("độ phân giải màn hình", ""));
@@ -139,20 +207,24 @@ public class CSVSeeder {
             ps.executeUpdate();
         }
 
+        System.out.println("DEBUG: image_main=" + data.get("image_main") + ", images_detail=" + data.get("images_detail"));
+
         // --- Insert image_main (thumbnail) ---
         String imageMainUrl = data.get("image_main");
         if (imageMainUrl != null && !imageMainUrl.isEmpty()) {
-            int imageId = insertImage(conn, imageMainUrl, "active");
+            int imageId = insertImage(conn, imageMainUrl, ImageStatus.ACTIVE.getImageStatus());
             insertProductImage(conn, imageId, productId, "thumbnail");
+            System.out.println("🖼️ Inserted main image: URL=" + imageMainUrl + ", imageId=" + imageId + ", productId=" + productId + ", type=thumbnail");
         }
 
         // --- Insert images_detail (gallery) ---
-        String imagesDetail = data.get("images_detail");
         if (imagesDetail != null && !imagesDetail.isEmpty()) {
             String[] urls = imagesDetail.split("\\|");
+            int count = 0;
             for (String url : urls) {
-                int imageId = insertImage(conn, url, "active");
+                int imageId = insertImage(conn, url, ImageStatus.ACTIVE.getImageStatus());
                 insertProductImage(conn, imageId, productId, "gallery");
+                System.out.println("🖼️ Inserted gallery image #" + count + ": URL=" + url + ", imageId=" + imageId + ", productId=" + productId + ", type=gallery");
             }
         }
 

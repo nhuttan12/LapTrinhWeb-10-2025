@@ -23,16 +23,8 @@ public class Login extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        /*
-         * init service
-         */
-        try {
-            Connection conn = JDBCConnection.getConnection();
-            authService = new AuthService(conn);
-            userService = new UserService(conn);
-        } catch (SQLException e) {
-            throw new ServletException("Failed to initialize DB connection", e);
-        }
+        authService = new AuthService();
+        userService = new UserService();
     }
 
 
