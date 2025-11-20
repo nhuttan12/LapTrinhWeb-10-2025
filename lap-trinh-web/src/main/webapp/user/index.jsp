@@ -146,7 +146,7 @@
                 <div class="col-md-12">
                     <div class="nonloop-block-3 owl-carousel">
                         <c:forEach var="product" items="${randomProducts}">
-                            <a href="${pageContext.request.contextPath}/product-detail?id=${product.id}">
+                            <a href="${pageContext.request.contextPath}/product-detail?productId=${product.id}">
                                 <div class="item">
                                     <div class="block-4 text-center">
                                         <figure class="block-4-image">

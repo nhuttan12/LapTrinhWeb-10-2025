@@ -6,10 +6,14 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<fmt:setBundle basename="messages" />
+
 <html>
 <head>
-    <title>Hoá đơn người dùng</title>
+    <title><fmt:message key="orders.title" /></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -43,11 +47,11 @@
                     <table class="table table-striped table-bordered">
                         <thead class="thead-dark">
                         <tr>
-                            <th scope="col">Mã hoá đơn</th>
-                            <th scope="col">Tổng tiền</th>
-                            <th scope="col">Trạng thái</th>
-                            <th scope="col">Ngày xuất hoá đơn</th>
-                            <th scope="col" class="text-center">Thao tác</th>
+                            <th><fmt:message key="orders.id"/></th>
+                            <th><fmt:message key="orders.total"/></th>
+                            <th><fmt:message key="orders.status"/></th>
+                            <th><fmt:message key="orders.date"/></th>
+                            <th class="text-center"><fmt:message key="orders.actions"/></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -64,7 +68,8 @@
                                                   method="get" style="display:inline;">
                                                 <input type="hidden" name="orderId" value="${order.id}">
                                                 <button class="btn btn-primary btn-sm" type="submit">
-                                                    <i class="bi bi-arrow-bar-right"></i> Xem hoá đơn
+                                                    <i class="bi bi-arrow-bar-right"></i>
+                                                    <fmt:message key="orders.viewDetail"/>
                                                 </button>
                                             </form>
                                         </td>
@@ -74,7 +79,7 @@
                             <c:otherwise>
                                 <tr>
                                     <td colspan="5" class="text-center text-muted">
-                                        Không có hoá đơn nào được tìm thấy.
+                                        <fmt:message key="orders.empty"/>
                                     </td>
                                 </tr>
                             </c:otherwise>

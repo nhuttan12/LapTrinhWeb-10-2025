@@ -2,10 +2,11 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+<fmt:setBundle basename="messages" />
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Shoppers &mdash; Colorlib e-Commerce Template</title>
+    <title><fmt:message key="product.detail.title"/></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -74,7 +75,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12 mb-0">
-                    <a href="${pageContext.request.contextPath}/home">Home</a>
+                    <a href="${pageContext.request.contextPath}/home">
+                        <fmt:message key="nav.home"/>
+                    </a>
                     <span class="mx-2 mb-0">/</span>
                     <strong class="text-black">${detail.name}</strong>
                 </div>
@@ -85,6 +88,8 @@
     <div class="site-section">
         <div class="container">
             <div class="row">
+
+                <!-- Images -->
                 <div class="col col-md-6">
                     <div>
                         <img src="${detail.thumbnailImages}" alt="${detail.name}" class="img-fluid">
@@ -102,7 +107,9 @@
                 <div class="col-md-6">
                     <h2 class="text-black">${detail.name}</h2>
 
-                    <h4 class="mt-4 mb-3">Thông số kỹ thuật</h4>
+                    <h4 class="mt-4 mb-3">
+                        <fmt:message key="product.specs"/>
+                    </h4>
                     <table class="table table-bordered">
                         <tbody>
                         <c:forEach var="entry" items="${detail.description}" varStatus="loop">
@@ -122,7 +129,7 @@
 
                     <div class="text-center mt-3">
                         <button class="btn btn-outline-primary" type="button" id="toggleSpecsBtn">
-                            Hiển thị thêm
+                            <fmt:message key="product.showMore"/>
                         </button>
                     </div>
 
@@ -191,7 +198,7 @@
                     <p>
                         <a href="${pageContext.request.contextPath}/cart"
                            class="buy-now btn btn-sm btn-primary">
-                            Add To Cart
+                            <fmt:message key="product.addToCart"/>
                         </a>
                     </p>
                 </div>
@@ -202,8 +209,10 @@
     <div class="site-section block-3 site-blocks-2 bg-light">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-md-7 site-section-heading text-center pt-4">
-                    <h2>Sản phẩm tương tự</h2>
+                <div class="col-md-7 text-center pt-4">
+                    <h2>
+                        <fmt:message key="product.similar"/>
+                    </h2>
                 </div>
             </div>
             <div class="row">
@@ -214,10 +223,6 @@
                                 <div class="item">
                                     <div class="block-4 text-center">
                                         <figure class="block-4-image">
-                                                <%--                                            <img src="${product.imageUrl}"--%>
-                                                <%--                                                 alt="${product.name}"--%>
-                                                <%--                                                 class="img-fluid object-fit-contain p-3"--%>
-                                                <%--                                                 style="width: 100%; height: 300px"/>--%>
                                             <img src="${product.imageUrl}"
                                                  alt="${product.name}" class="img-fluid">
                                         </figure>
