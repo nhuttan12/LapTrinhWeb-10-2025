@@ -2,8 +2,7 @@ package com.example.Controller.User.Products;
 
 import com.example.DTO.Products.GetProductDetailResponseDTO;
 import com.example.DTO.Products.GetProductSameBrandDTO;
-import com.example.Helper.AnalyzeSpecs;
-import com.example.Model.Product;
+import com.example.Utils.AnalyzeSpecs;
 import com.example.Service.Product.ProductService;
 
 import javax.servlet.ServletException;

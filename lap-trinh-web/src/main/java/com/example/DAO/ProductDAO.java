@@ -3,7 +3,7 @@ package com.example.DAO;
 import com.example.DTO.Common.PagingMetaData;
 import com.example.DTO.Common.PagingResponse;
 import com.example.DTO.Common.SortDirection;
-import com.example.Helper.BuildOrderPaging;
+import com.example.Utils.BuildOrderPaging;
 import com.example.Model.*;
 import com.example.Service.Database.JDBCConnection;
 
@@ -286,13 +286,14 @@ public class ProductDAO {
             List<String> sortBy,
             List<SortDirection> sortDirections
     ) throws SQLException {
+        String filterClause = " WHERE pd.brand_id = ? AND p.status = ? ";
+
         String countSql = """
-                    SELECT COUNT(*) AS total
+                    SELECT COUNT(DISTINCT p.id) AS total
                     FROM products p
                     JOIN product_details pd ON p.id = pd.product_id
-                    WHERE pd.brand_id = ?
-                      AND p.status = ?
-                """;
+                    JOIN brands b ON pd.brand_id = b.id
+                """ + filterClause;
 
         String baseSql = """
                     SELECT 
@@ -326,9 +327,7 @@ public class ProductDAO {
                     JOIN brands b ON pd.brand_id = b.id
                     LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.type = ?
                     LEFT JOIN images i ON pi.image_id = i.id
-                    WHERE pd.brand_id = ? 
-                      AND p.status = ?
-                """;
+                """ + filterClause;
 
         // Add dynamic ORDER BY
         String orderClause = buildOrderPaging.buildOrderByClause("p", sortBy, sortDirections);
@@ -441,7 +440,6 @@ public class ProductDAO {
                         if (productImage != null) {
                             product.getProductImages().add(productImage);
                         }
-
                     }
                 }
             }
@@ -679,68 +677,71 @@ public class ProductDAO {
             int minPrice,
             int maxPrice
     ) {
-        String countSql = """
-                    SELECT COUNT(*) AS total
+        List<Object> params = new ArrayList<>();
+        StringBuilder filter = new StringBuilder();
+        params.add(ProductStatus.ACTIVE.getProductStatus());
+
+        if (osList.length > 0) {
+            filter.append(" AND (");
+            for (int i = 0; i < osList.length; i++) {
+                filter.append(" pd.os ILIKE ? ");
+                params.add("%" + osList[i] + "%");
+                if (i < osList.length - 1) filter.append(" OR ");
+            }
+            filter.append(")");
+        }
+
+        if (ramList.length > 0) {
+            filter.append(" AND pd.ram IN (");
+            for (int i = 0; i < ramList.length; i++) {
+                filter.append("?");
+                if (i < ramList.length - 1) filter.append(", ");
+                params.add(ramList[i]);
+            }
+            filter.append(")");
+        }
+
+        if (storageList.length > 0) {
+            filter.append(" AND pd.storage IN (");
+            for (int i = 0; i < storageList.length; i++) {
+                filter.append("?");
+                if (i < storageList.length - 1) filter.append(", ");
+                params.add(storageList[i]);
+            }
+            filter.append(")");
+        }
+
+        if (chargeList.length > 0) {
+            filter.append(" AND pd.max_charge_watt IN (");
+            for (int i = 0; i < chargeList.length; i++) {
+                filter.append("?");
+                if (i < chargeList.length - 1) filter.append(", ");
+                params.add(chargeList[i]);
+            }
+            filter.append(")");
+        }
+
+        if (minPrice != -1 && maxPrice != -1) {
+            filter.append(" AND p.price BETWEEN ? AND ?");
+            params.add(minPrice);
+            params.add(maxPrice);
+        }
+
+        StringBuilder countSql = new StringBuilder("""
+                    SELECT COUNT(DISTINCT p.id) AS total
                     FROM products p
+                    LEFT JOIN product_details pd ON p.id = pd.product_id
                     WHERE p.status = ?
-                """;
+                """).append(filter);
 
         StringBuilder sql = new StringBuilder("""
                     SELECT p.*, pi.id AS pi_id, pi.image_id, pi.type, i.id AS img_id, i.url
                     FROM products p
-                    LEFT JOIN product_images pi ON p.id = pi.product_id
+                    LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.type = ?
                     LEFT JOIN images i ON pi.image_id = i.id
                     LEFT JOIN product_details pd ON p.id = pd.product_id
-                    WHERE 1=1
-                """);
-
-        List<Object> params = new ArrayList<>();
-
-        if (osList.length > 0) {
-            sql.append(" AND (");
-            for (int i = 0; i < osList.length; i++) {
-                sql.append(" pd.os ILIKE ? ");
-                params.add("%" + osList[i] + "%");
-                if (i < osList.length - 1) sql.append(" OR ");
-            }
-            sql.append(")");
-        }
-
-        if (ramList.length > 0) {
-            sql.append(" AND pd.ram IN (");
-            for (int i = 0; i < ramList.length; i++) {
-                sql.append("?");
-                if (i < ramList.length - 1) sql.append(", ");
-                params.add(ramList[i]);
-            }
-            sql.append(")");
-        }
-
-        if (storageList.length > 0) {
-            sql.append(" AND pd.storage IN (");
-            for (int i = 0; i < storageList.length; i++) {
-                sql.append("?");
-                if (i < storageList.length - 1) sql.append(", ");
-                params.add(storageList[i]);
-            }
-            sql.append(")");
-        }
-
-        if (chargeList.length > 0) {
-            sql.append(" AND pd.max_charge_watt IN (");
-            for (int i = 0; i < chargeList.length; i++) {
-                sql.append("?");
-                if (i < chargeList.length - 1) sql.append(", ");
-                params.add(chargeList[i]);
-            }
-            sql.append(")");
-        }
-
-        if (minPrice != -1 && maxPrice != -1) {
-            sql.append(" AND p.price BETWEEN ? AND ?");
-            params.add(minPrice);
-            params.add(maxPrice);
-        }
+                    WHERE p.status = ?
+                """).append(filter);
 
         if (sortBy != null && !sortBy.isEmpty()) {
             sql.append(" ORDER BY ");
@@ -763,12 +764,21 @@ public class ProductDAO {
 
         Map<Integer, Product> productMap = new LinkedHashMap<>();
 
+//        System.out.println("SQL => " + sql);
+//        System.out.println("Count SQL => " + countSql);
+//        System.out.println("Params => " + params);
 
         try (Connection conn = JDBCConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
 
-            for (int i = 0; i < params.size(); i++) {
-                stmt.setObject(i + 1, params.get(i));
+            int paramIndex = 1;
+
+            stmt.setString(paramIndex++, ImageType.THUMBNAIL.getImageType());
+
+            stmt.setString(paramIndex++, ProductStatus.ACTIVE.getProductStatus());
+
+            for (int i = 1; i < params.size(); i++) {
+                stmt.setObject(paramIndex++, params.get(i));
             }
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -781,7 +791,9 @@ public class ProductDAO {
                     String url = rs.getString("url");
                     String typeStr = rs.getString("type");
 
-                    if (piId == 0 || imgId == 0 || url == null) return null;
+                    if (piId == 0 || imgId == 0 || url == null) {
+                        continue;
+                    };
 
                     // Build the ProductImage
                     ProductImage productImage = ProductImage.builder()
@@ -819,8 +831,10 @@ public class ProductDAO {
             }
 
             int totalItems = 0;
-            try (PreparedStatement countStmt = conn.prepareStatement(countSql)) {
-                countStmt.setString(1, ProductStatus.ACTIVE.getProductStatus());
+            try (PreparedStatement countStmt = conn.prepareStatement(countSql.toString())) {
+                for (int i = 0; i < params.size() - 2; i++) {
+                    countStmt.setObject(i + 1, params.get(i));
+                }
 
                 try (ResultSet rs = countStmt.executeQuery()) {
                     if (rs.next()) {
@@ -992,12 +1006,13 @@ public class ProductDAO {
             int pageSize,
             List<String> sortBy,
             List<SortDirection> sortDirections) throws SQLException {
+        String filterClause = " WHERE p.name ILIKE ? AND p.status = ? ";
         String countSql = """
-                    SELECT COUNT(*) AS total
+                    SELECT COUNT(DISTINCT p.id) AS total
                     FROM products p
-                    WHERE p.name ILIKE ?
-                      AND p.status = ?
-                """;
+                    JOIN product_details pd ON p.id = pd.product_id
+                    JOIN brands b ON pd.brand_id = b.id
+                """ + filterClause;
 
         String baseSql = """
                     SELECT 
@@ -1031,9 +1046,8 @@ public class ProductDAO {
                     JOIN brands b ON pd.brand_id = b.id
                     LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.type = ?
                     LEFT JOIN images i ON pi.image_id = i.id
-                    WHERE p.name ILIKE ?
-                      AND p.status = ?
-                """;
+                """ + filterClause;
+
 
         // Add dynamic ORDER BY
         String orderClause = buildOrderPaging.buildOrderByClause("p", sortBy, sortDirections);
@@ -1044,6 +1058,7 @@ public class ProductDAO {
 
         try (Connection conn = JDBCConnection.getConnection()) {
 
+            // --- COUNT ---
             int totalItems = 0;
             try (PreparedStatement countStmt = conn.prepareStatement(countSql)) {
                 countStmt.setString(1, "%" + productName + "%");
@@ -1056,6 +1071,7 @@ public class ProductDAO {
                 }
             }
 
+            // --- MAIN QUERY ---
             try (PreparedStatement stmt = conn.prepareStatement(baseSql)) {
                 stmt.setString(1, ImageType.THUMBNAIL.getImageType());
                 stmt.setString(2, "%" + productName + "%");

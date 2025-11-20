@@ -6,7 +6,7 @@ import com.example.DTO.Common.SortDirection;
 import com.example.DTO.Products.GetProductDetailResponseDTO;
 import com.example.DTO.Products.GetProductSameBrandDTO;
 import com.example.DTO.Products.GetProductsPagingResponseDTO;
-import com.example.Helper.AnalyzeDescription;
+import com.example.Utils.AnalyzeDescription;
 import com.example.Mappers.ProductMapper;
 import com.example.Model.Product;
 
@@ -104,6 +104,7 @@ public class ProductService {
 
             List<GetProductsPagingResponseDTO> responseDTO = productMapper
                     .toGetProductsPagingResponseDTOList(products.getItems());
+//            System.out.println("Double check get product list by brand id: " + responseDTO.get(0).toString());
 
             return PagingResponse.<GetProductsPagingResponseDTO>builder()
                     .items(responseDTO)
@@ -152,6 +153,7 @@ public class ProductService {
                 minPrice,
                 maxPrice
         );
+//        System.out.println("Double check product filter by criteria paging: " + products.toString());
 
         List<GetProductsPagingResponseDTO> responseDTO = productMapper
                 .toGetProductsPagingResponseDTOList(products.getItems());

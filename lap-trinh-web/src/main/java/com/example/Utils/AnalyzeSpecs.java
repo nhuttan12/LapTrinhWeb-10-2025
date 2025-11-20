@@ -1,4 +1,4 @@
-package com.example.Helper;
+package com.example.Utils;
 
 import com.example.DTO.Products.GetProductDetailResponseDTO;
 
