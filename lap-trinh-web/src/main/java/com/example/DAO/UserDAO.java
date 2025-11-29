@@ -271,6 +271,29 @@ public class UserDAO {
         }
     }
 
+    public String getHashedPasswordByUsername(String username) throws SQLException {
+        String sql = """
+            SELECT password 
+            FROM users 
+            WHERE username = ? 
+              AND status = ?
+            """;
+
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            stmt.setString(2, UserStatus.ACTIVE.getUserStatus());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("password");
+                }
+            }
+        }
+        return null;
+    }
+
     public boolean updateUserProfile(
             int userId,
             String fullName,

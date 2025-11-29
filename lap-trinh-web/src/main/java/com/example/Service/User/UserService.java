@@ -5,6 +5,7 @@ import com.example.DTO.Users.UserChangePasswordResponseDTO;
 import com.example.DTO.Users.UserProfileDTO;
 import com.example.Mappers.UserMapper;
 import com.example.Model.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -64,12 +65,17 @@ public class UserService {
     }
 
     public boolean insertNewUser(String username, String email, String password) {
-        return userDAO.insertNewUser(username, email, password);
+        /**
+         * Create hashed password
+         */
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
+        return userDAO.insertNewUser(username, email, hashedPassword);
     }
 
-    public boolean getUserByUsernameAndPassword(String username, String password) {
+    public String getHashedPasswordByUsername(String username) {
         try {
-            return userDAO.getUserByUsernameAndPassword(username, password);
+            return userDAO.getHashedPasswordByUsername(username);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
