@@ -16,4 +16,5 @@ public class CartDetail {
     private CartDetailStatus status;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private Product product;
 }

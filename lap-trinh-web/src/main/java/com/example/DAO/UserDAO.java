@@ -9,7 +9,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDAO {
+    private final Connection conn;
     private static final int DEFAULT_IMAGE_ID = 1;
+    public UserDAO() {
+        this.conn = null;  // code cũ vẫn chạy, sẽ tự tạo connection khi null
+    }
+    public UserDAO(Connection conn) {
+        this.conn = conn;
+    }
 
     public User getUserProfile(int userId) throws SQLException {
         String sql = """
@@ -17,14 +24,14 @@ public class UserDAO {
                         u.id AS u_id, u.username AS u_username, u.password AS u_password,
                         u.full_name AS u_full_name, u.email AS u_email, u.status AS u_status,
                         u.role_id AS u_role_id, u.created_at AS u_created_at, u.updated_at AS u_updated_at,
-                
+                                
                         ud.id AS ud_id, ud.phone AS ud_phone, ud.user_id AS ud_user_id,
                         ud.address_1 AS ud_address_1, ud.address_2 AS ud_address_2, ud.address_3 AS ud_address_3,
                         ud.created_at AS ud_created_at, ud.updated_at AS ud_updated_at,
-                
+                                
                         ui.id AS ui_id, ui.user_id AS ui_user_id, ui.image_id AS ui_image_id,
                         ui.created_at AS ui_created_at, ui.updated_at AS ui_updated_at,
-                
+                                
                         i.id AS i_id, i.url AS i_url, i.status AS i_status,
                         i.created_at AS i_created_at, i.updated_at AS i_updated_at
                     FROM users u
@@ -445,4 +452,21 @@ public class UserDAO {
             }
         }
     }
+
+    public boolean updateFullName(int userId, String fullName) throws SQLException {
+        String sql = "UPDATE users SET full_name = ?, updated_at = NOW() WHERE id = ?";
+
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, fullName);
+            stmt.setInt(2, userId);
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
 }

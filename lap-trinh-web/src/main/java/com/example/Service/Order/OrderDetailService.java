@@ -10,25 +10,19 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class OrderDetailService {
+
     private final OrderDetailDAO orderDetailDAO;
     private final OrderDetailMapper orderDetailMapper;
 
     public OrderDetailService(Connection conn) {
-        this.orderDetailDAO = new OrderDetailDAO();
+        this.orderDetailDAO = new OrderDetailDAO(conn);
         this.orderDetailMapper = OrderDetailMapper.INSTANCE;
     }
 
-    public List<OrderDetailUserResponseDTO> getOrderDetailByOrderId(
-            int orderId,
-            int userId,
-            int page,
-            int pageSize) {
-        int offset = (page - 1) * pageSize;
-
-        List<OrderDetail> orderDetails = null;
+    public List<OrderDetailUserResponseDTO> getOrderDetailByOrderId(int orderId, int userId) {
         try {
-            orderDetails = orderDetailDAO.getOrderDetailsPaging(orderId, userId, pageSize, offset);
-            return orderDetailMapper.toOrderDetailUserResponseDTOList(orderDetails);
+            List<OrderDetail> list = orderDetailDAO.getOrderDetails(orderId, userId);
+            return orderDetailMapper.toOrderDetailUserResponseDTOList(list);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

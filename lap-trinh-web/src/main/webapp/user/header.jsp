@@ -26,10 +26,18 @@
                             <li><a href="${pageContext.request.contextPath}/profile"><span
                                     class="icon icon-person"></span></a></li>
                             <li><a href="#"><span class="icon icon-heart-o"></span></a></li>
+                            <!-- Tính tổng số lượng sản phẩm trong giỏ -->
+                            <c:set var="cartQuantity" value="0"/>
+                            <c:if test="${not empty cart}">
+                                <c:forEach var="detail" items="${cart.cartDetails}">
+                                    <c:set var="cartQuantity" value="${cartQuantity + detail.quantity}"/>
+                                </c:forEach>
+                            </c:if>
                             <li>
                                 <a href="${pageContext.request.contextPath}/cart" class="site-cart">
                                     <span class="icon icon-shopping_cart"></span>
-                                    <span class="count">2</span>
+                                    <span class="count">${cartQuantity}</span>
+                                <%--                                    <span class="count">${sessionScope.cartQuantity != null ? sessionScope.cartQuantity : 0}</span>--%>
                                 </a>
                             </li>
                             <li class="d-inline-block d-md-none ml-md-0"><a href="#"

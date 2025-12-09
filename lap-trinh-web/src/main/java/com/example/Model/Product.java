@@ -24,4 +24,5 @@ public class Product {
 
     private List<ProductImage> productImages;
     private ProductDetail productDetail;
+    private String thumbnail;
 }

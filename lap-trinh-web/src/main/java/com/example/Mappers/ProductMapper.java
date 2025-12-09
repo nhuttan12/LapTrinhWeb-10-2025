@@ -1,13 +1,8 @@
 package com.example.Mappers;
 
-import com.example.DTO.Products.GetProductDetailResponseDTO;
-import com.example.DTO.Products.GetProductSameBrandDTO;
-import com.example.DTO.Products.GetProductsPagingResponseDTO;
-import com.example.Model.ImageType;
-import com.example.Model.Product;
-import com.example.Model.ProductImage;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import com.example.DTO.Products.*;
+import com.example.Model.*;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Collections;
@@ -45,6 +40,7 @@ public interface ProductMapper {
     @Mapping(source = "price", target = "price")
     @Mapping(source = "discount", target = "discount")
     @Mapping(expression = "java(getFirstThumbnail(product.getProductImages()))", target = "thumbnail")
+    @Mapping(source = "productDetail.brand.name", target = "brand")
     GetProductsPagingResponseDTO toGetProductsPagingResponseDTO(Product product);
 
     List<GetProductsPagingResponseDTO> toGetProductsPagingResponseDTOList(List<Product> products);
@@ -96,4 +92,28 @@ public interface ProductMapper {
     GetProductSameBrandDTO toGetProductSameBrand(Product product);
 
     List<GetProductSameBrandDTO> toGetProductSameBrandDTOList(List<Product> products);
+
+
+    // create product mapper
+    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "status", target = "status")
+    Product toProductEntity(CreateProductRequestDTO dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "productId", ignore = true)
+    @Mapping(target = "brand", expression = "java(createBrand(dto.getBrandId()))")
+    ProductDetail toProductDetailEntity(CreateProductRequestDTO dto);
+
+    //upload product mapper
+
+    void updateProductFromDto(UpdateProductRequestDTO dto, @MappingTarget Product product);
+
+    @Mapping(target = "brand", expression = "java(createBrand(dto.getBrandId()))")
+    void updateProductDetailFromDto(UpdateProductRequestDTO dto, @MappingTarget ProductDetail detail);
+
+    /* BRAND HELPER */
+    default Brand createBrand(Integer id) {
+        if (id == null) return null;
+        return Brand.builder().id(id).build();
+    }
 }
