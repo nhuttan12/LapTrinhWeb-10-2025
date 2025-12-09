@@ -138,7 +138,14 @@
                 <span class="menu-title">ProductManagement</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="${pageContext.request.contextPath}/admin/orders">
+                <i class="icon-paper menu-icon"></i>
+                <span class="menu-title">Order Management</span>
+            </a>
+        </li>
     </ul>
+
 </nav>
 <script>
   // Xóa active mặc định

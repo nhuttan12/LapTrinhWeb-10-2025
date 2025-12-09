@@ -21,7 +21,14 @@ public class CheckSessionFilter implements Filter {
             "/register",
             "/home",
             "/product-filter",
-            "/product-detail"
+            "/product-detail",
+            "/payment/vnpay-return",  // ngoại lệ để VNPAY trả về
+            "/payment/vnpay-ipn"
+    );
+    // Thêm các endpoint VNPAY không cần login
+    private static final List<String> VNPAY_PATHS = Arrays.asList(
+            "/payment/vnpay-return",
+            "/payment/vnpay-ipn"
     );
 
     @Override
@@ -42,7 +49,9 @@ public class CheckSessionFilter implements Filter {
         /*
          * Check if path is public or user is logged in
          */
+        String token = req.getParameter("token");
         boolean isPublic = PUBLIC_PATHS.contains(path);
+        boolean isVnPay = VNPAY_PATHS.contains(path);
         boolean loggedIn = (
                 session != null &&
                         session.getAttribute("username") != null &&
@@ -69,7 +78,7 @@ public class CheckSessionFilter implements Filter {
                         path.endsWith(".woff2") ||
                         path.endsWith(".ttf");
 
-        if (isPublic || loggedIn || isStaticResource) {
+        if (isPublic || loggedIn || isStaticResource ||token != null) {
             /*
              * Allow request to continue
              */

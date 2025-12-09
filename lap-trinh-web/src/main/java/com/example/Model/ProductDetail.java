@@ -1,6 +1,7 @@
 package com.example.Model;
 
 import java.sql.Timestamp;
+import java.util.Map;
 
 import lombok.*;
 
@@ -33,5 +34,6 @@ public class ProductDetail {
     private Timestamp updatedAt;
 
     private Brand brand;
+
 }
 

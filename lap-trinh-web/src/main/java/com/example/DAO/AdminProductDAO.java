@@ -277,7 +277,12 @@ public class AdminProductDAO {
 
     // ========== New: get product detail by product id ==========
     public ProductDetail getProductDetailByProductId(int productId) throws SQLException {
-        String sql = "SELECT * FROM product_details WHERE product_id = ?";
+        String sql = """
+        SELECT pd.*, b.name AS brand_name
+        FROM product_details pd
+        LEFT JOIN brands b ON pd.brand_id = b.id
+        WHERE pd.product_id = ?
+    """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -286,7 +291,8 @@ public class AdminProductDAO {
                     d.setProductId(rs.getInt("product_id"));
 
                     int brandId = rs.getInt("brand_id");
-                    if (!rs.wasNull()) d.setBrand(new Brand(brandId, null));
+                    String brandName = rs.getString("brand_name");
+                    if (!rs.wasNull()) d.setBrand(new Brand(brandId, brandName));
 
                     d.setOs(rs.getString("os"));
                     d.setRam(rs.getInt("ram"));
@@ -319,5 +325,24 @@ public class AdminProductDAO {
         return null;
     }
 
+    public List<String> getProductDetailImages(int productId) throws SQLException {
+        List<String> urls = new ArrayList<>();
+        String sql = """
+        SELECT i.url
+        FROM product_images pi
+        JOIN images i ON pi.image_id = i.id
+        WHERE pi.product_id = ? AND UPPER(pi.type) = 'DETAIL'
+        ORDER BY pi.id ASC
+    """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    urls.add(rs.getString("url"));
+                }
+            }
+        }
+        return urls;
+    }
 
 }

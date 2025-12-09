@@ -1,6 +1,7 @@
 package com.example.Controller.User.Cart;
 
 import com.example.Model.Cart;
+import com.example.Model.CartDetail;
 import com.example.Service.Cart.CartService;
 import com.example.Service.Database.JDBCConnection;
 
@@ -12,10 +13,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-
+import java.util.List;
 
 @WebServlet("/cart")
 public class CartController extends HttpServlet {
+
     private CartService cartService;
 
     @Override
@@ -28,58 +30,138 @@ public class CartController extends HttpServlet {
         }
     }
 
-//    @Override
-//    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-//            throws ServletException, IOException {
-//
-//        // forward sang file JSP
-//        req.getRequestDispatcher("/user/cart.jsp").forward(req, resp);
-//    }
-
-    // ===============================
-
-    /**
-     * Hiển thị giỏ hàng của user
-     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        try {
-            // Lấy userId từ session hoặc request
-            int userId = Integer.parseInt(req.getParameter("userId"));
 
-           Cart cart= cartService.getCartByUserId(userId);
-            req.setAttribute("cart", cart);
-
-            // Hiển thị trang giỏ hàng
-            req.getRequestDispatcher("/user/cart.jsp").forward(req, resp);
-        } catch (Exception e) {
-            throw new ServletException("Error loading cart", e);
+        Integer userId = (Integer) req.getSession().getAttribute("userId");
+        if (userId == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
         }
+
+        String action = req.getParameter("action");
+        String productIdParam = req.getParameter("productId");
+
+        // ========================
+        //   XÓA SẢN PHẨM (GET)
+        // ========================
+        if ("remove".equalsIgnoreCase(action) && productIdParam != null) {
+            int productId = Integer.parseInt(productIdParam);
+
+            Cart cart = cartService.getCartByUserId(userId);
+            if (cart != null) {
+                try {
+                    cartService.removeProductFromCart(cart.getId(), productId);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            resp.sendRedirect(req.getContextPath() + "/cart");
+            return;
+        }
+
+        // ========================
+        //   LOAD CART PAGE
+        // ========================
+        Cart cart = cartService.getCartByUserId(userId);
+        req.setAttribute("cart", cart);
+
+        int cartQuantity = 0;
+
+        if (cart != null) {
+            List<CartDetail> details = cartService.getCartDetails(cart.getId());
+            req.setAttribute("cartDetails", details);
+
+            for (CartDetail d : details) {
+                cartQuantity += d.getQuantity();
+            }
+        }
+
+        req.getSession().setAttribute("cartQuantity", cartQuantity);
+
+        req.getRequestDispatcher("/user/cart.jsp").forward(req, resp);
     }
 
-    /**
-     * Xử lý thêm / xóa sản phẩm khỏi giỏ hàng
-     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         String action = req.getParameter("action");
+        Integer userId = (Integer) req.getSession().getAttribute("userId");
+
+        if (userId == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
 
         try {
-            int userId = Integer.parseInt(req.getParameter("userId"));
-            int productId = Integer.parseInt(req.getParameter("productId"));
 
+            // =====================================
+            //  ADD TO CART
+            // =====================================
             if ("add".equalsIgnoreCase(action)) {
+                int productId = Integer.parseInt(req.getParameter("productId"));
                 int quantity = Integer.parseInt(req.getParameter("quantity"));
+
                 cartService.addProductToCart(userId, productId, quantity);
-            } else if ("remove".equalsIgnoreCase(action)) {
-                cartService.removeProductFromCart(userId, productId);
             }
 
-            // Sau khi xử lý, redirect về lại giỏ hàng
-            resp.sendRedirect(req.getContextPath() + "/cart?userId=" + userId);
+            // =====================================
+            //  REMOVE (POST)
+            // =====================================
+            else if ("remove".equalsIgnoreCase(action)) {
+                int productId = Integer.parseInt(req.getParameter("productId"));
+
+                Cart cart = cartService.getCartByUserId(userId);
+                if (cart != null) {
+                    cartService.removeProductFromCart(cart.getId(), productId);
+                }
+            }
+
+            // =====================================
+            //  UPDATE QUANTITY
+            // =====================================
+            else if ("update".equalsIgnoreCase(action)) {
+
+                Cart cart = cartService.getCartByUserId(userId);
+                if (cart == null) {
+                    cart = cartService.createCartForUser(userId);
+                }
+
+                List<CartDetail> details = cartService.getCartDetails(cart.getId());
+
+                for (CartDetail d : details) {
+                    String param = "quantity_" + d.getProductId();
+                    String value = req.getParameter(param);
+
+                    if (value != null && !value.isEmpty()) {
+                        int quantity = Integer.parseInt(value);
+
+                        if (quantity <= 0) {
+                            cartService.removeProductFromCart(cart.getId(), d.getProductId());
+                        } else {
+                            cartService.updateQuantity(cart.getId(), d.getProductId(), quantity);
+                        }
+                    }
+                }
+            }
+
+            // ========================
+            // UPDATE cartQuantity
+            // ========================
+            Cart updated = cartService.getCartByUserId(userId);
+            int cartQuantity = 0;
+
+            if (updated != null) {
+                for (CartDetail d : cartService.getCartDetails(updated.getId())) {
+                    cartQuantity += d.getQuantity();
+                }
+            }
+
+            req.getSession().setAttribute("cartQuantity", cartQuantity);
+            resp.sendRedirect(req.getContextPath() + "/cart");
 
         } catch (Exception e) {
             throw new ServletException("Error updating cart", e);

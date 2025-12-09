@@ -47,15 +47,8 @@
             <div class="col-md-3 mb-3">
                 <label>Status</label>
                 <select name="status" class="form-control">
-                    <option value="active"
-                    ${product != null && product.status.name().toLowerCase() == 'active' ? 'selected' : ''}>
-                        Active
-                    </option>
-
-                    <option value="inactive"
-                    ${product != null && product.status.name().toLowerCase() == 'inactive' ? 'selected' : ''}>
-                        Inactive
-                    </option>
+                    <option value="active" ${product.status.productStatus == 'active' ? 'selected' : ''}>Active</option>
+                    <option value="inactive" ${product.status.productStatus == 'inactive' ? 'selected' : ''}>Inactive</option>
 
                 </select>
             </div>

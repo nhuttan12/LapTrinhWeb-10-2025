@@ -9,7 +9,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDAO {
+    private final Connection conn;
     private static final int DEFAULT_IMAGE_ID = 1;
+    public UserDAO() {
+        this.conn = null;  // code cũ vẫn chạy, sẽ tự tạo connection khi null
+    }
+    public UserDAO(Connection conn) {
+        this.conn = conn;
+    }
 
     public User getUserProfile(int userId) throws SQLException {
         String sql = """
@@ -445,4 +452,21 @@ public class UserDAO {
             }
         }
     }
+
+    public boolean updateFullName(int userId, String fullName) throws SQLException {
+        String sql = "UPDATE users SET full_name = ?, updated_at = NOW() WHERE id = ?";
+
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, fullName);
+            stmt.setInt(2, userId);
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
 }

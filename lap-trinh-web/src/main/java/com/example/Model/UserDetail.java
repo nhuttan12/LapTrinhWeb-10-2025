@@ -17,4 +17,10 @@ public class UserDetail {
     private String address3;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    public String getAddress() {
+        return (address1 == null ? "" : address1) +
+                (address2 == null ? "" : ", " + address2) +
+                (address3 == null ? "" : ", " + address3);
+    }
+
 }

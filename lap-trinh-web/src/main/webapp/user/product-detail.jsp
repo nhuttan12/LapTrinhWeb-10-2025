@@ -186,10 +186,13 @@
                     </div>
 
                     <p>
-                        <a href="${pageContext.request.contextPath}/cart"
-                           class="buy-now btn btn-sm btn-primary">
-                            Add To Cart
-                        </a>
+                    <form method="post" action="${pageContext.request.contextPath}/cart">
+                        <input type="hidden" name="action" value="add">
+                        <input type="hidden" name="productId" value="${detail.id}">
+                        <input type="hidden" name="quantity" id="quantityInput" value="1">
+                        <button type="submit" class="buy-now btn btn-sm btn-primary">Add To Cart</button>
+                    </form>
+
                     </p>
                 </div>
             </div>
