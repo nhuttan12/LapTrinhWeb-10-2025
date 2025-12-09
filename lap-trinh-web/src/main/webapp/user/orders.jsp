@@ -18,6 +18,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mukta:300,400,700">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/fonts/icomoon/style.css">
+
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/bootstrap.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/bootstrap-icons.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/magnific-popup.css">
@@ -47,11 +49,21 @@
                     <table class="table table-striped table-bordered">
                         <thead class="thead-dark">
                         <tr>
-                            <th><fmt:message key="orders.id"/></th>
-                            <th><fmt:message key="orders.total"/></th>
-                            <th><fmt:message key="orders.status"/></th>
-                            <th><fmt:message key="orders.date"/></th>
-                            <th class="text-center"><fmt:message key="orders.actions"/></th>
+                            <th>
+                                <fmt:message key="orders.id"/>
+                            </th>
+                            <th>
+                                <fmt:message key="orders.total"/>
+                            </th>
+                            <th>
+                                <fmt:message key="orders.status"/>
+                            </th>
+                            <th>
+                                <fmt:message key="orders.date"/>
+                            </th>
+                            <th class="text-center">
+                                <fmt:message key="orders.actions"/>
+                            </th>
                         </tr>
                         </thead>
                         <tbody>
@@ -59,30 +71,63 @@
                             <c:when test="${not empty orders}">
                                 <c:forEach var="order" items="${orders}">
                                     <tr>
-                                        <th scope="row">${order.id}</th>
-                                        <td>$${order.totalPrice}</td>
-                                        <td>${order.status}</td>
-                                        <td>${order.createdAt}</td>
-                                        <td class="text-center">
-                                            <form action="${pageContext.request.contextPath}/user/order-detail"
-                                                  method="get" style="display:inline;">
-                                                <input type="hidden" name="orderId" value="${order.id}">
-                                                <button class="btn btn-primary btn-sm" type="submit">
-                                                    <i class="bi bi-arrow-bar-right"></i>
-                                                    <fmt:message key="orders.viewDetail"/>
-                                                </button>
-                                            </form>
+                                        <td class="fw-bold text-primary">#${order.id}</td>
+
+                                        <td>
+                                            <fmt:formatNumber value="${order.totalPrice}" type="number" groupingUsed="true"/> đ
                                         </td>
+
+                                        <td>
+                                    <span class="badge
+                                        <c:choose>
+                                            <c:when test="${order.status == 'PENDING'}">bg-warning text-dark</c:when>
+                                            <c:when test="${order.status == 'PAID'}">bg-info text-dark</c:when>
+                                            <c:when test="${order.status == 'SHIPPED'}">bg-primary</c:when>
+                                            <c:when test="${order.status == 'COMPLETED'}">bg-success</c:when>
+                                            <c:when test="${order.status == 'CANCELLED'}">bg-danger</c:when>
+                                            <c:otherwise>bg-secondary</c:otherwise>
+                                        </c:choose>
+                                    ">
+                                            ${order.status}
+                                    </span>
+                                        </td>
+
+                                        <td>
+                                            <fmt:formatDate value="${order.createdAt}"/>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <form action="${pageContext.request.contextPath}/order-detail" method="get">
+                                                    <input type="hidden" name="orderId" value="${order.id}">
+                                                    <button class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-file-text"></i> Xem
+                                                    </button>
+                                                </form>
+
+                                                <c:if test="${order.status == 'PENDING'}">
+                                                    <form action="${pageContext.request.contextPath}/cancel-order" method="post">
+                                                        <input type="hidden" name="orderId" value="${order.id}">
+                                                        <button class="btn btn-sm btn-outline-danger">
+                                                            <i class="bi bi-x-circle"></i> Hủy
+                                                        </button>
+                                                    </form>
+                                                </c:if>
+                                            </div>
+                                        </td>
+
                                     </tr>
                                 </c:forEach>
                             </c:when>
+
                             <c:otherwise>
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted">
+                                    <td colspan="5" class="text-center text-muted fst-italic py-4">
                                         <fmt:message key="orders.empty"/>
                                     </td>
                                 </tr>
                             </c:otherwise>
+
                         </c:choose>
                         </tbody>
                     </table>

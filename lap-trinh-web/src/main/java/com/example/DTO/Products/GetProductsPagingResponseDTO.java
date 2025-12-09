@@ -9,4 +9,5 @@ public class GetProductsPagingResponseDTO {
     private double price;
     private double discount;
     private String thumbnail;
+    private String brand;
 }

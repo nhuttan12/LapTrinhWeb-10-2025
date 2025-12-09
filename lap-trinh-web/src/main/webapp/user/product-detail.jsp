@@ -196,10 +196,14 @@
                     </div>
 
                     <p>
-                        <a href="${pageContext.request.contextPath}/cart"
-                           class="buy-now btn btn-sm btn-primary">
-                            <fmt:message key="product.addToCart"/>
-                        </a>
+                        <form method="post" action="${pageContext.request.contextPath}/cart">
+                            <input type="hidden" name="action" value="add">
+                            <input type="hidden" name="productId" value="${detail.id}">
+                            <input type="hidden" name="quantity" id="quantityInput" value="1">
+                            <button type="submit" class="buy-now btn btn-sm btn-primary">
+                                <fmt:message key="product.addToCart"/>
+                            </button>
+                        </form>
                     </p>
                 </div>
             </div>
@@ -209,7 +213,7 @@
     <div class="site-section block-3 site-blocks-2 bg-light">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-md-7 text-center pt-4">
+                <div class="col-md-7 site-section-heading text-center pt-4">
                     <h2>
                         <fmt:message key="product.similar"/>
                     </h2>
@@ -224,7 +228,8 @@
                                     <div class="block-4 text-center">
                                         <figure class="block-4-image">
                                             <img src="${product.imageUrl}"
-                                                 alt="${product.name}" class="img-fluid">
+                                                 alt="${product.name}"
+                                                 class="img-fluid" />
                                         </figure>
                                         <div class="block-4-text p-4">
                                             <h3>

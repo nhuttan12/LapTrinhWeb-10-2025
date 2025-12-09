@@ -1,14 +1,10 @@
 package com.example.Mappers;
 
-import com.example.DTO.Products.GetProductDetailResponseDTO;
-import com.example.DTO.Products.GetProductSameBrandDTO;
-import com.example.DTO.Products.GetProductsPagingResponseDTO;
-import com.example.DTO.Products.GetRandomProductResponseDTO;
-import com.example.Model.ImageType;
-import com.example.Model.Product;
-import com.example.Model.ProductImage;
+import com.example.DTO.Products.*;
+import com.example.Model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Collections;
@@ -45,6 +41,7 @@ public interface ProductMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "price", target = "price")
     @Mapping(source = "discount", target = "discount")
+    @Mapping(source = "productDetail.brand.name", target = "brand")
     @Mapping(expression = "java(getFirstThumbnail(product.getProductImages()))", target = "thumbnail")
     GetProductsPagingResponseDTO toGetProductsPagingResponseDTO(Product product);
 
@@ -105,4 +102,26 @@ public interface ProductMapper {
     GetRandomProductResponseDTO toGetRandomProductResponseDTO(Product product);
 
     List<GetRandomProductResponseDTO> toGetRandomProductResponseDTOList(List<Product> products);
+
+    // Create product mapper
+    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "status", target = "status")
+    Product toProductEntity(CreateProductRequestDTO dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "productId", ignore = true)
+    @Mapping(target = "brand", expression = "java(createBrand(dto.getBrandId()))")
+    ProductDetail toProductDetailEntity(CreateProductRequestDTO dto);
+
+    // Upload product mapper
+    void updateProductFromDto(UpdateProductRequestDTO dto, @MappingTarget Product product);
+
+    @Mapping(target = "brand", expression = "java(createBrand(dto.getBrandId()))")
+    void updateProductDetailFromDto(UpdateProductRequestDTO dto, @MappingTarget ProductDetail detail);
+
+    /* BRAND HELPER */
+    default Brand createBrand(Integer id) {
+        if (id == null) return null;
+        return Brand.builder().id(id).build();
+    }
 }

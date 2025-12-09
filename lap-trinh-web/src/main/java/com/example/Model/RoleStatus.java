@@ -6,4 +6,8 @@ public enum RoleStatus {
     public String getRoleStatus() {
         return name().toLowerCase();
     }
+
+    public static RoleStatus fromString(String type) {
+        return RoleStatus.valueOf(type.trim().toUpperCase());
+    }
 }

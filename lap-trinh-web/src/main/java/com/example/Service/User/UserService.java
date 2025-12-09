@@ -16,7 +16,11 @@ public class UserService {
 
     public UserService() {
         this.userMapper = UserMapper.INSTANCE;
-        userDAO = new UserDAO();
+        this.userDAO = new UserDAO();
+    }
+    public UserService(Connection conn) {
+        this.userMapper = UserMapper.INSTANCE;
+        this.userDAO = new UserDAO(conn);
     }
 
     public UserProfileDTO getUserProfile(int userId) {
@@ -136,10 +140,20 @@ public class UserService {
             return null;
         }
     }
-
-    public User getUserById(int userId) throws SQLException {
-        return userDAO.getUserById(userId);
+    public User getUserById(int userId) {
+        try {
+            return userDAO.getUserById(userId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+
+
+//    public User getUserById(int userId) throws SQLException {
+//        return userDAO.getUserById(userId);
+//    }
+
 
     public boolean changePassword(String username, String password, String newPassword) {
 //        System.out.println("Info username: " + username + " password: " + password);
@@ -155,6 +169,14 @@ public class UserService {
             return userDAO.changePassword(username, newPassword);
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+    public boolean updateFullName(int userId, String fullName) {
+        try {
+            return userDAO.updateFullName(userId, fullName);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

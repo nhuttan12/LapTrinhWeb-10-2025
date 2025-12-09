@@ -6,16 +6,13 @@
     <div class="site-navbar-top">
         <div class="container">
             <div class="row align-items-center">
+
                 <div class="col-6 col-md-4 order-2 order-md-1 site-search-icon text-left">
                     <form class="site-block-top-search" method="get"
                           action="${pageContext.request.contextPath}/product-list">
                         <span class="icon icon-search2"></span>
-                        <input
-                                name="productName"
-                                type="text"
-                                class="form-control border-0"
-                                placeholder="<fmt:message key='search.placeholder'/>"
-                        />
+                        <input name="productName" type="text" class="form-control border-0"
+                               placeholder="Tìm kiếm sản phẩm">
                     </form>
                 </div>
 
@@ -49,7 +46,6 @@
                                     </div>
                                 </div>
                             </li>
-
                             <li>
                                 <a href="${pageContext.request.contextPath}/profile">
                                     <span class="icon icon-person"></span>
@@ -60,10 +56,18 @@
                                     <span class="icon icon-heart-o"></span>
                                 </a>
                             </li>
+                            <!-- Tính tổng số lượng sản phẩm trong giỏ -->
+                            <c:set var="cartQuantity" value="0"/>
+                            <c:if test="${not empty cart}">
+                                <c:forEach var="detail" items="${cart.cartDetails}">
+                                    <c:set var="cartQuantity" value="${cartQuantity + detail.quantity}"/>
+                                </c:forEach>
+                            </c:if>
                             <li>
                                 <a href="${pageContext.request.contextPath}/cart" class="site-cart">
                                     <span class="icon icon-shopping_cart"></span>
-                                    <span class="count">2</span>
+                                    <span class="count">${cartQuantity}</span>
+                                    <%--                                    <span class="count">${sessionScope.cartQuantity != null ? sessionScope.cartQuantity : 0}</span>--%>
                                 </a>
                             </li>
                             <li class="d-inline-block d-md-none ml-md-0">

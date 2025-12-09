@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Objects;
 
 @WebServlet("/profile")
 @MultipartConfig(
@@ -59,11 +60,17 @@ public class UserProfileController extends HttpServlet {
         int userId = (Integer) session.getAttribute("userId");
 
         // 1. Get parameter from form
-        String fullName = req.getParameter("fullName");
-        String phone = req.getParameter("phone");
-        String address1 = req.getParameter("address1");
-        String address2 = req.getParameter("address2");
-        String address3 = req.getParameter("address3");
+        String fullName = Objects.requireNonNullElse(req.getParameter("fullName"), "");
+        String phone = Objects.requireNonNullElse(req.getParameter("phone"), "");
+        String address1 = Objects.requireNonNullElse(req.getParameter("address1"), "");
+        String address2 = Objects.requireNonNullElse(req.getParameter("address2"), "");
+        String address3 = Objects.requireNonNullElse(req.getParameter("address3"), "");
+
+        System.out.println("fullname " + fullName +
+                " phone " + phone +
+                " address 1 " + address1 +
+                " address 2 " + address2 +
+                " address 3 " + address3);
 
         // 2. Upload image path
         String imagePath = imageService.upload(req, "avatar");

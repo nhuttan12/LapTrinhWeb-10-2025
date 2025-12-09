@@ -1,7 +1,10 @@
 package com.example.Controller.Auth;
 
+import com.example.Model.Cart;
+import com.example.Model.CartDetail;
 import com.example.Model.User;
 import com.example.Service.Auth.AuthService;
+import com.example.Service.Cart.CartService;
 import com.example.Service.Database.JDBCConnection;
 import com.example.Service.User.UserService;
 
@@ -69,6 +72,20 @@ public class Login extends HttpServlet {
             session.setAttribute("userId", user.getId());
             session.setAttribute("role", user);
 
+            try (Connection conn = JDBCConnection.getConnection()) {
+                CartService cartService = new CartService(conn);
+                Cart cart = cartService.getCartByUserId(user.getId());
+                int totalQuantity = 0;
+                if (cart != null && cart.getCartDetails() != null) {
+                    for (CartDetail d : cart.getCartDetails()) {
+                        totalQuantity += d.getQuantity();
+                    }
+                }
+                session.setAttribute("cart", cart);
+                session.setAttribute("cartQuantity", totalQuantity);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             /*
              * redirect to /home
              */

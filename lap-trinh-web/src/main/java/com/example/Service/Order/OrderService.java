@@ -33,4 +33,22 @@ public class OrderService {
             throw new RuntimeException(e);
         }
     }
+    public Order findOrderById(int orderId) {
+        try {
+            return orderDAO.findOrderById(orderId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public boolean cancelOrder(int orderId, int userId) {
+        try {
+            return orderDAO.cancelOrder(orderId, userId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }
