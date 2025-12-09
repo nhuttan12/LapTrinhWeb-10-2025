@@ -7,10 +7,14 @@
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<fmt:setBundle basename="messages" />
+
 <html>
 <head>
-    <title>Đổi mật khẩu</title>
+    <title><fmt:message key="changePassword.title"/></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -56,7 +60,9 @@
                     <form class="form" action="${pageContext.request.contextPath}/change-password" method="post">
                         <div class="form-group">
                             <div class="col-xs-6">
-                                <label for="username"><h4>Tài khoản:</h4></label>
+                                <label for="username">
+                                    <h4><fmt:message key="changePassword.username"/></h4>
+                                </label>
                                 <input type="text" class="form-control" name="username" id="username"
                                        value="${username}"
                                        <c:if test="${not empty username}">readonly</c:if>>
@@ -65,29 +71,30 @@
 
                         <div class="form-group">
                             <div class="col-xs-6">
-                                <label for="password"><h4>Mật khẩu:</h4></label>
+                                <label for="password"><h4><fmt:message key="changePassword.oldPassword"/></h4></label>
                                 <input type="password" class="form-control" name="password" id="password">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <div class="col-xs-6">
-                                <label for="newPassword"><h4>Mật khẩu mới: </h4></label>
+                                <label for="newPassword"><h4><fmt:message key="changePassword.newPassword"/></h4></label>
                                 <input type="password" class="form-control" name="newPassword" id="newPassword">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <div class="col-xs-6">
-                                <label for="retypePassword"><h4>Nhập lại mật khẩu:</h4></label>
+                                <label for="retypePassword"><h4><fmt:message key="changePassword.retypePassword"/></h4></label>
                                 <input type="password" class="form-control" name="retypePassword" id="retypePassword">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <div class="col-xs-12">
-                                <button class="btn btn-lg btn-success" type="submit"><i
-                                        class="glyphicon glyphicon-ok-sign"></i> Lưu thay đổi
+                                <button class="btn btn-lg btn-success" type="submit">
+                                    <i class="glyphicon glyphicon-ok-sign"></i>
+                                    <fmt:message key="changePassword.button.saveChanges"/>
                                 </button>
                             </div>
                         </div>

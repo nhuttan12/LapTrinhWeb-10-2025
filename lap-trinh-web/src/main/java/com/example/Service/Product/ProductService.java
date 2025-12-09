@@ -6,6 +6,7 @@ import com.example.DTO.Common.SortDirection;
 import com.example.DTO.Products.GetProductDetailResponseDTO;
 import com.example.DTO.Products.GetProductSameBrandDTO;
 import com.example.DTO.Products.GetProductsPagingResponseDTO;
+import com.example.DTO.Products.GetRandomProductResponseDTO;
 import com.example.Utils.AnalyzeDescription;
 import com.example.Mappers.ProductMapper;
 import com.example.Model.Product;
@@ -232,5 +233,13 @@ public class ProductService {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<GetRandomProductResponseDTO> getRandomProducts(int limit) {
+        List<Product> products = this.productDAO.getRandomProducts(limit);
+//        System.out.println("Double check get random products: ");
+//        products.forEach(product -> System.out.println("Price: " + product.getPrice() + " discount: " + product.getDiscount()));
+
+        return this.productMapper.toGetRandomProductResponseDTOList(products);
     }
 }

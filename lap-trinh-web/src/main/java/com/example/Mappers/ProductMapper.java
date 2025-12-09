@@ -2,7 +2,9 @@ package com.example.Mappers;
 
 import com.example.DTO.Products.*;
 import com.example.Model.*;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Collections;
@@ -39,8 +41,8 @@ public interface ProductMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "price", target = "price")
     @Mapping(source = "discount", target = "discount")
-    @Mapping(expression = "java(getFirstThumbnail(product.getProductImages()))", target = "thumbnail")
     @Mapping(source = "productDetail.brand.name", target = "brand")
+    @Mapping(expression = "java(getFirstThumbnail(product.getProductImages()))", target = "thumbnail")
     GetProductsPagingResponseDTO toGetProductsPagingResponseDTO(Product product);
 
     List<GetProductsPagingResponseDTO> toGetProductsPagingResponseDTOList(List<Product> products);
@@ -93,8 +95,15 @@ public interface ProductMapper {
 
     List<GetProductSameBrandDTO> toGetProductSameBrandDTOList(List<Product> products);
 
+    /**
+     * Random product mapping
+     */
+    @Mapping(target = "imageUrl", expression = "java(getFirstThumbnail(product.getProductImages()))")
+    GetRandomProductResponseDTO toGetRandomProductResponseDTO(Product product);
 
-    // create product mapper
+    List<GetRandomProductResponseDTO> toGetRandomProductResponseDTOList(List<Product> products);
+
+    // Create product mapper
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "status", target = "status")
     Product toProductEntity(CreateProductRequestDTO dto);
@@ -104,8 +113,7 @@ public interface ProductMapper {
     @Mapping(target = "brand", expression = "java(createBrand(dto.getBrandId()))")
     ProductDetail toProductDetailEntity(CreateProductRequestDTO dto);
 
-    //upload product mapper
-
+    // Upload product mapper
     void updateProductFromDto(UpdateProductRequestDTO dto, @MappingTarget Product product);
 
     @Mapping(target = "brand", expression = "java(createBrand(dto.getBrandId()))")

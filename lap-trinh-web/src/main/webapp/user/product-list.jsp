@@ -2,10 +2,12 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+<fmt:setBundle basename="messages"/>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Shoppers &mdash; Colorlib e-Commerce Template</title>
+    <title><fmt:message key="title.productList"/></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -13,6 +15,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/fonts/icomoon/style.css">
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/bootstrap.min.css">
+
+    <!-- bootstrap icon -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/bootstrap-icons.css">
+
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/magnific-popup.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/jquery-ui.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/owl.carousel.min.css">
@@ -32,9 +38,11 @@
     <div class="bg-light py-3">
         <div class="container">
             <div class="row">
-                <div class="col-md-12 mb-0"><a href="${pageContext.request.contextPath}/home">Trang chủ</a> <span
-                        class="mx-2 mb-0">/</span> <strong
-                        class="text-black">Danh sách sản phẩm</strong></div>
+                <div class="col-md-12 mb-0">
+                    <a href="${pageContext.request.contextPath}/home"><fmt:message key="nav.home"/></a>
+                    <span class="mx-2 mb-0">/</span>
+                    <strong class="text-black"><fmt:message key="products.list"/></strong>
+                </div>
             </div>
         </div>
     </div>
@@ -43,10 +51,15 @@
         <div class="container">
 
             <div class="row mb-5">
+
+                <!-- Left filter -->
                 <div class="col-md-3 order-1 mb-5 mb-md-0">
-                    <!-- Hiển thị thương hiệu -->
+
+                    <!-- Brand -->
                     <div class="border p-4 rounded mb-4">
-                        <h3 class="mb-3 h6 text-uppercase text-black d-block">Thương hiệu</h3>
+                        <h3 class="mb-3 h6 text-uppercase text-black d-block">
+                            <fmt:message key="filter.brand"/>
+                        </h3>
                         <ul class="list-unstyled mb-0">
                             <c:forEach var="brand" items="${brands}">
                                 <li class="mb-1">
@@ -58,11 +71,16 @@
                         </ul>
                     </div>
 
-                    <!-- Lọc sản phẩm -->
+                    <!-- Filters -->
                     <form action="${pageContext.request.contextPath}/product-filter" method="get">
                         <div class="border p-4 rounded mb-4">
+
+                            <!-- Price range -->
                             <div class="mb-4">
-                                <h3 class="mb-3 h6 text-uppercase text-black d-block">Lọc sản phẩm</h3>
+                                <h3 class="mb-3 h6 text-uppercase text-black d-block">
+                                    <fmt:message key="filter.price"/>
+                                </h3>
+
                                 <div
                                         id="slider-range"
                                         class="border-primary"
@@ -80,9 +98,11 @@
                                         value="<c:out value='${criteria.minPrice > 0 ? criteria.minPrice : 0} - ${criteria.maxPrice > 0 ? criteria.maxPrice : 30000000}'/>"/>
                             </div>
 
-                            <!-- Hệ điều hành -->
+                            <!-- OS -->
                             <div class="mb-4">
-                                <h3 class="mb-3 h6 text-uppercase text-black d-block">Hệ điều hành</h3>
+                                <h3 class="mb-3 h6 text-uppercase text-black d-block">
+                                    <fmt:message key="filter.os"/>
+                                </h3>
 
                                 <c:set var="osOptions" value="${['Android', 'iOS']}"/>
                                 <c:set var="selectedOs" value="${fn:join(criteria.osList, ',')}"/>
@@ -101,7 +121,9 @@
 
                             <!-- RAM -->
                             <div class="mb-4">
-                                <h3 class="mb-3 h6 text-uppercase text-black d-block">RAM</h3>
+                                <h3 class="mb-3 h6 text-uppercase text-black d-block">
+                                    <fmt:message key="filter.ram"/>
+                                </h3>
 
                                 <c:set var="ramOptions" value="${['4', '6', '8', '12', '16']}"/>
                                 <c:set var="selectedRam" value="${fn:join(criteria.ramList, ',')}"/>
@@ -118,9 +140,11 @@
                                 </c:forEach>
                             </div>
 
-                            <!-- Bộ nhớ trong (Storage) -->
+                            <!-- Storage -->
                             <div class="mb-4">
-                                <h3 class="mb-3 h6 text-uppercase text-black d-block">Bộ nhớ trong</h3>
+                                <h3 class="mb-3 h6 text-uppercase text-black d-block">
+                                    <fmt:message key="filter.storage"/>
+                                </h3>
 
                                 <c:set var="storageOptions" value="${['64', '128', '256', '512']}"/>
                                 <c:set var="selectedStorage" value="${fn:join(criteria.storageList, ',')}"/>
@@ -136,9 +160,11 @@
                                     </label></c:forEach>
                             </div>
 
-                            <!-- Công suất sạc tối đa -->
+                            <!-- Max wat charge -->
                             <div class="mb-4">
-                                <h3 class="mb-3 h6 text-uppercase text-black d-block">Công suất sạc tối đa</h3>
+                                <h3 class="mb-3 h6 text-uppercase text-black d-block">
+                                    <fmt:message key="filter.charge"/>
+                                </h3>
 
                                 <c:set var="chargeOptions" value="${['20', '25', '40', '45', '80']}"/>
                                 <c:set var="selectedCharge" value="${fn:join(criteria.chargeList, ',')}"/>
@@ -155,56 +181,68 @@
                                 </c:forEach>
                             </div>
 
-                            <button type="submit" class="btn btn-sm btn-primary">Lọc</button>
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                <fmt:message key="filter.apply"/>
+                            </button>
                         </div>
                     </form>
                 </div>
 
+                <!-- Right product list -->
                 <div class="col-md-9 order-2">
+
+                    <!-- Sort bar -->
                     <div class="row">
                         <div class="col-md-12 mb-5">
-                            <div class="float-md-left mb-4"><h2 class="text-black h5">Danh sách sản phẩm</h2></div>
+                            <div class="float-md-left mb-4">
+                                <h2 class="text-black h5"><fmt:message key="products.list"/></h2>
+                            </div>
+
                             <div class="d-flex">
+
+                                <!-- Price sort -->
                                 <div class="dropdown mr-1 ml-md-auto">
-                                    <button type="button" class="btn btn-secondary btn-sm dropdown-toggle"
-                                            id="dropdownMenuOffset" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false">
-                                        Giá
+                                    <button class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown">
+                                        <fmt:message key="sort.price"/>
                                     </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuOffset">
+
+                                    <div class="dropdown-menu">
                                         <a class="dropdown-item"
-                                           href="${pageContext.request.contextPath}/product-list?page=1
-                                           &pageSize=${meta.pageSize}
-                                           &sortBy=price
-                                           &sortDirection=asc">Thấp
-                                            tới cao</a>
+                                           href="${pageContext.request.contextPath}/product-list?page=1&pageSize=${meta.pageSize}&sortBy=price&sortDirection=asc">
+                                            <fmt:message key="sort.lowToHigh"/>
+                                        </a>
+
                                         <a class="dropdown-item"
-                                           href="${pageContext.request.contextPath}/product-list?page=1
-                                           &pageSize=${meta.pageSize}
-                                           &sortBy=price
-                                           &sortDirection=desc">Cao
-                                            tới thấp</a>
+                                           href="${pageContext.request.contextPath}/product-list?page=1&pageSize=${meta.pageSize}&sortBy=price&sortDirection=desc">
+                                            <fmt:message key="sort.highToLow"/>
+                                        </a>
                                     </div>
                                 </div>
+
+                                <!-- Name sort -->
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-secondary btn-sm dropdown-toggle"
-                                            id="dropdownMenuReference" data-toggle="dropdown">Thứ tự
+                                    <button class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown">
+                                        <fmt:message key="sort.order"/>
                                     </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuReference">
+
+                                    <div class="dropdown-menu">
                                         <a class="dropdown-item"
-                                           href="${pageContext.request.contextPath}/product-list?page=1&pageSize=${meta.pageSize}&sortBy=name&sortDirection=asc">A
-                                            to Z</a>
+                                           href="${pageContext.request.contextPath}/product-list?page=1&pageSize=${meta.pageSize}&sortBy=name&sortDirection=asc">
+                                            <fmt:message key="sort.aToZ"/>
+                                        </a>
+
                                         <a class="dropdown-item"
-                                           href="${pageContext.request.contextPath}/product-list?page=1&pageSize=${meta.pageSize}&sortBy=name&sortDirection=desc">Z
-                                            to A</a>
+                                           href="${pageContext.request.contextPath}/product-list?page=1&pageSize=${meta.pageSize}&sortBy=name&sortDirection=desc">
+                                            <fmt:message key="sort.zToA"/>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Product List -->
                     <div class="row mb-5">
-                        <!-- Product List -->
                         <c:forEach var="product" items="${products}">
                             <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
                                 <div class="block-4 text-center border">

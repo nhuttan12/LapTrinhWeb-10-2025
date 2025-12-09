@@ -2,6 +2,7 @@ package com.example.Service.Auth;
 
 import com.example.Model.User;
 import com.example.Service.User.UserService;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -22,11 +23,25 @@ public class AuthService {
      * @return true if login success
      */
     public boolean login(String username, String password) {
+        // 1. Validate data
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             return false;
         }
 
-        return userService.getUserByUsernameAndPassword(username, password);
+        // 2. Get user by username
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
+            return false;
+        }
+
+        // 3. Get hashed password by username
+        String hashedPassword = userService.getHashedPasswordByUsername(username);
+        if (hashedPassword == null) {
+            return false;
+        }
+
+        // 4. Check hashed password with password
+        return BCrypt.checkpw(password, hashedPassword);
     }
 
     /**

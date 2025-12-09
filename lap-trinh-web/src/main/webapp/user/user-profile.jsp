@@ -6,10 +6,14 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<fmt:setBundle basename="messages"/>
+
 <html>
 <head>
-    <title>Thông tin người dùng</title>
+    <title><fmt:message key="profile.title"/></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -67,59 +71,100 @@
                             <div class="col-md-8">
                                 <div class="form-group">
                                     <div class="col-xs-6">
-                                        <label for="fullName"><h4>Họ tên:</h4></label>
-                                        <input type="text" class="form-control" name="fullName" id="fullName"
-                                               value="${userProfile.fullName}">
+                                        <label for="fullName">
+                                            <h4>
+                                                <fmt:message key="profile.fullName"/>
+                                            </h4>
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               name="fullName"
+                                               id="fullName"
+                                               value="${userProfile.fullName}"/>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-xs-6">
-                                        <label for="phone"><h4>Số điện thoại:</h4></label>
-                                        <input type="tel" class="form-control" name="phone" id="phone"
-                                               value="${userProfile.phone}">
+                                        <label for="phone">
+                                            <h4>
+                                                <fmt:message key="profile.phone"/>
+                                            </h4>
+                                        </label>
+                                        <input type="tel"
+                                               class="form-control"
+                                               name="phone"
+                                               id="phone"
+                                               value="${userProfile.phone}"/>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-xs-6">
-                                        <label for="email"><h4>Email:</h4></label>
+                                        <label for="email">
+                                            <h4>
+                                                <fmt:message key="profile.email"/>
+                                            </h4>
+                                        </label>
                                         <input type="email"
                                                class="form-control"
                                                name="email" id="email"
                                                value="${userProfile.email}"
-                                               <c:if test="${not empty userProfile.email}">readonly</c:if>>
+                                               <c:if test="${not empty userProfile.email}">readonly</c:if>
+                                        />
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-xs-6">
-                                        <label for="address1"><h4>Địa chỉ 1:</h4></label>
-                                        <input type="text" class="form-control" name="address1" id="address1"
-                                               value="${userProfile.address1}">
+                                        <label for="address1">
+                                            <h4>
+                                                <fmt:message key="profile.address1"/>
+                                            </h4>
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               name="address1"
+                                               id="address1"
+                                               value="${userProfile.address1}"/>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-xs-6">
-                                        <label for="address2"><h4>Địa chỉ 2:</h4></label>
-                                        <input type="text" class="form-control" name="address2" id="address2"
-                                               value="${userProfile.address2}">
+                                        <label for="address2">
+                                            <h4>
+                                                <fmt:message key="profile.address2"/>
+                                            </h4>
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               name="address2"
+                                               id="address2"
+                                               value="${userProfile.address2}"/>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-xs-6">
-                                        <label for="address3"><h4>Địa chỉ 3:</h4></label>
-                                        <input type="text" class="form-control" name="address3" id="address3"
-                                               value="${userProfile.address3}">
+                                        <label for="address3">
+                                            <h4>
+                                                <fmt:message key="profile.address3"/>
+                                            </h4>
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               name="address3"
+                                               id="address3"
+                                               value="${userProfile.address3}"/>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="col-xs-12">
-                                        <button class="btn btn-lg btn-success" type="submit"><i
-                                                class="glyphicon glyphicon-ok-sign"></i> Lưu thay đổi
+                                        <button class="btn btn-lg btn-success" type="submit">
+                                            <i class="glyphicon glyphicon-ok-sign"></i>
+                                            <fmt:message key="profile.save"/>
                                         </button>
                                     </div>
                                 </div>
