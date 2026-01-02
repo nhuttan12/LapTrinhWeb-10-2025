@@ -23,10 +23,11 @@ public class CheckSessionFilter implements Filter {
             "/home",
             "/product-filter",
             "/product-detail",
-            "/payment/vnpay-return",  // ngoại lệ để VNPAY trả về
+            "/change-language",
+            "/payment/vnpay-return",
             "/payment/vnpay-ipn"
     );
-    // Thêm các endpoint VNPAY không cần login
+
     private static final List<String> VNPAY_PATHS = Arrays.asList(
             "/payment/vnpay-return",
             "/payment/vnpay-ipn"

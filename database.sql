@@ -3,7 +3,7 @@ BEGIN;
 -- ========================
 -- USERS & ROLES
 -- ========================
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     status VARCHAR(50) CHECK (status IN ('active','inactive')),
@@ -11,7 +11,7 @@ CREATE TABLE roles (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
     password TEXT NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE user_details (
+CREATE TABLE IF NOT EXISTS user_details (
     id SERIAL PRIMARY KEY,
     user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     phone VARCHAR(25),
@@ -37,7 +37,7 @@ CREATE TABLE user_details (
 -- ========================
 -- IMAGES
 -- ========================
-CREATE TABLE images (
+CREATE TABLE IF NOT EXISTS images (
     id SERIAL PRIMARY KEY,
     url TEXT NOT NULL,
     status VARCHAR(50) CHECK (status IN ('active','inactive')),
@@ -45,7 +45,7 @@ CREATE TABLE images (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE user_images (
+CREATE TABLE IF NOT EXISTS user_images (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     image_id INT REFERENCES images(id) ON DELETE CASCADE,
@@ -56,7 +56,7 @@ CREATE TABLE user_images (
 -- ========================
 -- CATEGORY
 -- ========================
---CREATE TABLE categories (
+--CREATE TABLE IF NOT EXISTS categories (
 --    id SERIAL PRIMARY KEY,
 --    name VARCHAR(255) UNIQUE NOT NULL,
 --    status VARCHAR(50) CHECK (status IN ('active','inactive')) DEFAULT 'active',
@@ -67,7 +67,7 @@ CREATE TABLE user_images (
 -- ========================
 -- BRANDS
 -- ========================
-CREATE TABLE brands (
+CREATE TABLE IF NOT EXISTS brands (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
     status VARCHAR(50) CHECK (status IN ('active','inactive')) DEFAULT 'active',
@@ -78,7 +78,7 @@ CREATE TABLE brands (
 -- ========================
 -- PRODUCTS
 -- ========================
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     price DOUBLE PRECISION NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE products (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE product_details (
+CREATE TABLE IF NOT EXISTS product_details (
     id SERIAL PRIMARY KEY,
     product_id INT UNIQUE REFERENCES products(id) ON DELETE CASCADE,
     brand_id INT REFERENCES brands(id) ON DELETE CASCADE,
@@ -116,7 +116,7 @@ CREATE TABLE product_details (
 	updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE product_images (
+CREATE TABLE IF NOT EXISTS product_images (
     id SERIAL PRIMARY KEY,
     image_id INT REFERENCES images(id) ON DELETE CASCADE,
     product_id INT REFERENCES products(id) ON DELETE CASCADE,
@@ -128,7 +128,7 @@ CREATE TABLE product_images (
 -- ========================
 -- CART
 -- ========================
-CREATE TABLE carts (
+CREATE TABLE IF NOT EXISTS carts (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     status VARCHAR(50) CHECK (status IN ('open','checked_out','abandoned')),
@@ -136,7 +136,7 @@ CREATE TABLE carts (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE cart_details (
+CREATE TABLE IF NOT EXISTS cart_details (
     id SERIAL PRIMARY KEY,
     cart_id INT REFERENCES carts(id) ON DELETE CASCADE,
     product_id INT REFERENCES products(id) ON DELETE CASCADE,
@@ -149,7 +149,7 @@ CREATE TABLE cart_details (
 -- ========================
 -- WISHLIST
 -- ========================
-CREATE TABLE wishlist_items (
+CREATE TABLE IF NOT EXISTS wishlist_items (
     id SERIAL PRIMARY KEY,
     product_id INT REFERENCES products(id) ON DELETE CASCADE,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
@@ -161,7 +161,7 @@ CREATE TABLE wishlist_items (
 -- ========================
 -- ORDERS
 -- ========================
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     price DOUBLE PRECISION NOT NULL,
@@ -170,7 +170,7 @@ CREATE TABLE orders (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE order_details (
+CREATE TABLE IF NOT EXISTS order_details (
     id SERIAL PRIMARY KEY,
     order_id INT REFERENCES orders(id) ON DELETE CASCADE,
     product_id INT REFERENCES products(id) ON DELETE CASCADE,
@@ -178,6 +178,27 @@ CREATE TABLE order_details (
     price DOUBLE PRECISION NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- ========================
+-- PAYMENTS 
+-- ========================
+CREATE TABLE IF NOT EXISTS payments (
+    id SERIAL PRIMARY KEY,
+    order_id INT REFERENCES orders(id) ON DELETE CASCADE,
+    payment_method VARCHAR(50) NOT NULL,
+    amount DOUBLE PRECISION NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
+    transaction_id VARCHAR(255),
+    provider VARCHAR(100),
+    raw_response JSONB,
+    paid_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    -- Ràng buộc kiểm tra phương thức thanh toán
+    CONSTRAINT payments_method_check CHECK (payment_method IN ('cod', 'bank_transfer', 'paypal_test', 'momo_test', 'vnpay_test')),
+    -- Ràng buộc kiểm tra trạng thái thanh toán
+    CONSTRAINT payments_status_check CHECK (status IN ('pending', 'completed', 'failed', 'refunded'))
 );
 
 COMMIT;

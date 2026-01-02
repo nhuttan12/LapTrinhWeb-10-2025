@@ -3,15 +3,13 @@ package com.example.Model;
 import java.sql.Timestamp;
 import java.util.List;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class Product {
     private Integer id;
     private String name;
