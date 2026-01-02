@@ -67,7 +67,7 @@ public class AdminProduct extends HttpServlet {
                 req.setAttribute("currentPage", page);
                 req.setAttribute("totalPages", totalPages);
 
-                req.getRequestDispatcher("/admin/pages/productManagement/product-list.jsp")
+                req.getRequestDispatcher("/admin/pages/productManagement/productManagement.jsp")
                         .forward(req, resp);
             } catch (SQLException e) {
                 e.printStackTrace();

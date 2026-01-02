@@ -2,6 +2,8 @@ package com.example.Service.Admin;
 
 import com.example.DAO.AdminOrderDAO;
 import com.example.Model.Order;
+import com.example.Model.PaymentStatus;
+import com.example.Model.ShippingStatus;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -19,8 +21,7 @@ public class AdminOrderService {
         return adminOrderDAO.getOrderById(orderId);
     }
 
-    public boolean updateOrderStatus(int orderId, String status) throws SQLException {
-        return adminOrderDAO.updateOrderStatus(orderId, status);
+    public boolean updateOrderStatus(int orderId, PaymentStatus paymentStatus, ShippingStatus shippingStatus) throws SQLException {
+        return adminOrderDAO.updateOrderStatus(orderId, paymentStatus, shippingStatus);
     }
-
 }

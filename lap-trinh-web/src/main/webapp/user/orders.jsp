@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/owl.theme.default.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/aos.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
 
 </head>
 
@@ -56,18 +58,23 @@
                                 </td>
 
                                 <td>
-                                    <span class="badge
-                                        <c:choose>
-                                            <c:when test="${order.status == 'PENDING'}">bg-warning text-dark</c:when>
-                                            <c:when test="${order.status == 'PAID'}">bg-info text-dark</c:when>
-                                            <c:when test="${order.status == 'SHIPPED'}">bg-primary</c:when>
-                                            <c:when test="${order.status == 'COMPLETED'}">bg-success</c:when>
-                                            <c:when test="${order.status == 'CANCELLED'}">bg-danger</c:when>
-                                            <c:otherwise>bg-secondary</c:otherwise>
-                                        </c:choose>
-                                    ">
-                                            ${order.status}
-                                    </span>
+                                    <c:choose>
+                                        <c:when test="${order.paymentStatus.status == 'pending' && order.shippingStatus.orderStatus == 'pending'}">
+                                            <span class="order-status pending">Chờ xử lý</span>
+                                        </c:when>
+                                        <c:when test="${order.paymentStatus.status == 'paid' && order.shippingStatus.orderStatus == 'pending'}">
+                                            <span class="order-status paid">Đã thanh toán</span>
+                                        </c:when>
+                                        <c:when test="${order.shippingStatus.orderStatus == 'shipped'}">
+                                            <span class="order-status shipped">Đang giao</span>
+                                        </c:when>
+                                        <c:when test="${order.shippingStatus.orderStatus == 'completed'}">
+                                            <span class="order-status completed">Hoàn thành</span>
+                                        </c:when>
+                                        <c:when test="${order.shippingStatus.orderStatus == 'cancelled'}">
+                                            <span class="order-status cancelled">Đã huỷ</span>
+                                        </c:when>
+                                    </c:choose>
                                 </td>
 
                                 <td>
@@ -75,22 +82,30 @@
                                 </td>
 
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <form action="${pageContext.request.contextPath}/order-detail" method="get">
-                                            <input type="hidden" name="orderId" value="${order.id}">
-                                            <button class="btn btn-sm btn-primary">
-                                                <i class="bi bi-file-text"></i> Xem
-                                            </button>
-                                        </form>
+                                    <div class="action-icons">
 
-                                        <c:if test="${order.status == 'PENDING'}">
-                                            <form action="${pageContext.request.contextPath}/cancel-order" method="post">
+                                        <!-- Xem chi tiết -->
+                                        <a href="${pageContext.request.contextPath}/order-detail?orderId=${order.id}"
+                                           class="action-icon view"
+                                           title="Xem chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                        <!-- Huỷ đơn -->
+                                        <c:if test="${order.shippingStatus.orderStatus == 'pending'}">
+                                        <form action="${pageContext.request.contextPath}/cancel-order"
+                                                  method="post"
+                                                  class="d-inline">
                                                 <input type="hidden" name="orderId" value="${order.id}">
-                                                <button class="btn btn-sm btn-outline-danger">
-                                                    <i class="bi bi-x-circle"></i> Hủy
+                                                <button type="submit"
+                                                        class="action-icon cancel"
+                                                        title="Huỷ đơn">
+                                                    <i class="bi bi-x-lg"></i>
                                                 </button>
                                             </form>
                                         </c:if>
+
+
                                     </div>
                                 </td>
 

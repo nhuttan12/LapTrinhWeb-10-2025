@@ -54,8 +54,11 @@ public class PaypalReturnController extends HttpServlet {
             int orderId = payment.getOrderId();
 
             // Step 3: update DB
-            paymentService.updatePaymentStatus(paymentId, PaymentStatus.COMPLETED);
-            orderService.updateOrderStatus(orderId, "paid");
+            if (payment.getStatus() != PaymentStatus.COMPLETED) {
+                paymentService.updatePaymentStatus(paymentId, PaymentStatus.COMPLETED);
+            }
+//            paymentService.updatePaymentStatus(paymentId, PaymentStatus.COMPLETED);
+//            orderService.updateOrderStatus(orderId, "paid");
 
             // Step 4: redirect user
             resp.sendRedirect(req.getContextPath() + "/order-detail?orderId=" + orderId);
