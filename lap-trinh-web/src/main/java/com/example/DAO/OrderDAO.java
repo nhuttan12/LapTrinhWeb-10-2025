@@ -3,7 +3,7 @@ package com.example.DAO;
 import com.example.Model.Cart;
 import com.example.Model.CartDetail;
 import com.example.Model.Order;
-import com.example.Model.OrderStatus;
+import com.example.Model.ShippingStatus;
 import com.example.Service.Database.JDBCConnection;
 
 import java.sql.*;
@@ -38,7 +38,7 @@ public class OrderDAO {
                             .id(rs.getInt("id"))
                             .userId(rs.getInt("user_id"))
                             .price(rs.getDouble("price"))
-                            .status(OrderStatus.fromString(rs.getString("status")))
+                            .status(ShippingStatus.fromString(rs.getString("status")))
                             .createdAt(rs.getTimestamp("created_at"))
                             .updatedAt(rs.getTimestamp("updated_at"))
                             .build();
@@ -126,7 +126,7 @@ public class OrderDAO {
                         .id(rs.getInt("id"))
                         .userId(rs.getInt("user_id"))
                         .price(rs.getDouble("price"))
-                        .status(OrderStatus.fromString(rs.getString("status")))
+                        .status(ShippingStatus.fromString(rs.getString("status")))
                         .createdAt(rs.getTimestamp("created_at"))
                         .updatedAt(rs.getTimestamp("updated_at"))
                         .build();

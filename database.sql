@@ -165,7 +165,15 @@ CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     price DOUBLE PRECISION NOT NULL,
-    status VARCHAR(50) CHECK (status IN ('pending','paid','shipped','completed','cancelled')),
+
+    shipping_status VARCHAR(50) CHECK (
+        shipping_status IN ('pending','shipped','completed','cancelled')
+    ) NOT NULL DEFAULT 'pending',
+
+    payment_status VARCHAR(50) CHECK (
+        payment_status IN ('unpaid','paid')
+    ) NOT NULL DEFAULT 'unpaid',
+
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );

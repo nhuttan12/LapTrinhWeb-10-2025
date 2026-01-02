@@ -4,7 +4,10 @@ import com.example.DAO.UserDAO;
 import com.example.DTO.Users.UserChangePasswordResponseDTO;
 import com.example.DTO.Users.UserProfileDTO;
 import com.example.Mappers.UserMapper;
+import com.example.Model.Role;
+import com.example.Model.RoleName;
 import com.example.Model.User;
+import com.example.Service.Role.RoleService;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
@@ -12,15 +15,19 @@ import java.sql.SQLException;
 
 public class UserService {
     private final UserDAO userDAO;
+    private final RoleService roleService;
     private final UserMapper userMapper;
 
     public UserService() {
         this.userMapper = UserMapper.INSTANCE;
         this.userDAO = new UserDAO();
+        this.roleService = new RoleService();
     }
+
     public UserService(Connection conn) {
         this.userMapper = UserMapper.INSTANCE;
         this.userDAO = new UserDAO(conn);
+        this.roleService = new RoleService();
     }
 
     public UserProfileDTO getUserProfile(int userId) {
@@ -140,6 +147,7 @@ public class UserService {
             return null;
         }
     }
+
     public User getUserById(int userId) {
         try {
             return userDAO.getUserById(userId);
@@ -148,12 +156,6 @@ public class UserService {
             return null;
         }
     }
-
-
-//    public User getUserById(int userId) throws SQLException {
-//        return userDAO.getUserById(userId);
-//    }
-
 
     public boolean changePassword(String username, String password, String newPassword) {
 //        System.out.println("Info username: " + username + " password: " + password);
@@ -171,12 +173,39 @@ public class UserService {
             throw new RuntimeException(e);
         }
     }
+
     public boolean updateFullName(int userId, String fullName) {
         try {
             return userDAO.updateFullName(userId, fullName);
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public User updateUserRole(int userID, String username, RoleName roleName) {
+        try {
+            /**
+             * Get role name
+             */
+            Role role = roleService.getRoleByRoleName(roleName.getRoleName());
+
+            /**
+             * Update user
+             */
+            boolean updateResult = userDAO.updateUserRole(userID, username, role.getId());
+            System.out.println("Update user: " + updateResult);
+
+            /**
+             * Get new user info after updated
+             */
+            User user = this.getUserById(userID);
+            System.out.println("User info after updated role: " + user);
+
+            return user;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

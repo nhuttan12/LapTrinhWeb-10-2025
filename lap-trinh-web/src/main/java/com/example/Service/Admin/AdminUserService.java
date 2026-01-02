@@ -1,11 +1,11 @@
-//package com.example.Service.Admin;
+package com.example.Service.Admin;
 //
 //import com.example.DAO.AdminUserDAO;
 //import com.example.Model.User;
 //
 //import java.util.List;
 //
-//public class AdminUserService {
+public class AdminUserService {
 //    private AdminUserDAO adminUserDAO;
 //    public AdminUserService(AdminUserDAO adminUserDAO) {
 //        this.adminUserDAO = adminUserDAO;
@@ -32,4 +32,4 @@
 //        // Có thể thêm validate role hợp lệ
 //        return adminUserDAO.changeUserRole(userId, newRoleId);
 //    }
-//}
+}

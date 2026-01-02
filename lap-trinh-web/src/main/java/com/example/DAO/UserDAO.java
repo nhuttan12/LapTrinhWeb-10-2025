@@ -525,4 +525,30 @@ public class UserDAO {
         }
     }
 
+    public boolean updateUserRole(int userID, String username, int roleID) throws SQLException {
+        String sql = """
+                    UPDATE users
+                    SET role_id = ?, updated_at = NOW()
+                    WHERE id = ?
+                      AND username = ?
+                      AND status = ?
+                """;
+
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, roleID);
+            ps.setInt(2, userID);
+            ps.setString(3, username);
+            ps.setString(4, RoleStatus.ACTIVE.getRoleStatus());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+
+    }
+
 }
