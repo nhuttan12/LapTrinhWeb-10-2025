@@ -11,9 +11,11 @@ import java.sql.SQLException;
 public class UserDAO {
     private final Connection conn;
     private static final int DEFAULT_IMAGE_ID = 1;
+
     public UserDAO() {
         this.conn = null;  // code cũ vẫn chạy, sẽ tự tạo connection khi null
     }
+
     public UserDAO(Connection conn) {
         this.conn = conn;
     }
@@ -24,14 +26,14 @@ public class UserDAO {
                         u.id AS u_id, u.username AS u_username, u.password AS u_password,
                         u.full_name AS u_full_name, u.email AS u_email, u.status AS u_status,
                         u.role_id AS u_role_id, u.created_at AS u_created_at, u.updated_at AS u_updated_at,
-                                
+                
                         ud.id AS ud_id, ud.phone AS ud_phone, ud.user_id AS ud_user_id,
                         ud.address_1 AS ud_address_1, ud.address_2 AS ud_address_2, ud.address_3 AS ud_address_3,
                         ud.created_at AS ud_created_at, ud.updated_at AS ud_updated_at,
-                                
+                
                         ui.id AS ui_id, ui.user_id AS ui_user_id, ui.image_id AS ui_image_id,
                         ui.created_at AS ui_created_at, ui.updated_at AS ui_updated_at,
-                                
+                
                         i.id AS i_id, i.url AS i_url, i.status AS i_status,
                         i.created_at AS i_created_at, i.updated_at AS i_updated_at
                     FROM users u
@@ -164,25 +166,56 @@ public class UserDAO {
 
     public User getUserByUsername(String username) {
         String sql = """
-                SELECT 
-                    u.id, u.username, u.password, u.email 
-                FROM users u 
-                WHERE u.username = ? 
-                  AND u.status = ?
+                    SELECT 
+                        u.id              AS u_id,
+                        u.username,
+                        u.password,
+                        u.full_name,
+                        u.email,
+                        u.status          AS u_status,
+                        u.role_id,
+                        u.created_at      AS u_created_at,
+                        u.updated_at      AS u_updated_at,
+                
+                        r.id              AS r_id,
+                        r.name            AS r_name,
+                        r.status          AS r_status,
+                        r.created_at      AS r_created_at,
+                        r.updated_at      AS r_updated_at
+                    FROM users u
+                    JOIN roles r ON u.role_id = r.id
+                    WHERE u.username = ?
+                      AND u.status = ?
+                      AND r.status = ?
                 """;
 
         try (Connection conn = JDBCConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
             ps.setString(2, UserStatus.ACTIVE.getUserStatus());
+            ps.setString(3, RoleStatus.ACTIVE.getRoleStatus());
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
+                    Role role = Role.builder()
+                            .id(rs.getInt("r_id"))
+                            .name(RoleName.fromString(rs.getString("r_name")))
+                            .status(RoleStatus.fromString(rs.getString("r_status")))
+                            .createdAt(rs.getTimestamp("r_created_at"))
+                            .updatedAt(rs.getTimestamp("r_updated_at"))
+                            .build();
+
                     return User.builder()
-                            .id(rs.getInt("id"))
+                            .id(rs.getInt("u_id"))
                             .username(rs.getString("username"))
                             .password(rs.getString("password"))
+                            .fullName(rs.getString("full_name"))
                             .email(rs.getString("email"))
+                            .status(UserStatus.valueOf(rs.getString("u_status").toUpperCase()))
+                            .roleId(rs.getInt("role_id")) // optional, but OK
+                            .createdAt(rs.getTimestamp("u_created_at"))
+                            .updatedAt(rs.getTimestamp("u_updated_at"))
+                            .role(role)
                             .build();
                 }
             }
@@ -280,11 +313,11 @@ public class UserDAO {
 
     public String getHashedPasswordByUsername(String username) throws SQLException {
         String sql = """
-            SELECT password 
-            FROM users 
-            WHERE username = ? 
-              AND status = ?
-            """;
+                SELECT password 
+                FROM users 
+                WHERE username = ? 
+                  AND status = ?
+                """;
 
         try (Connection conn = JDBCConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -311,27 +344,27 @@ public class UserDAO {
             String imageUrl
     ) throws SQLException {
         String updateSQL = """
-            WITH updated_user AS (
-                UPDATE users
-                SET full_name = ?, updated_at = NOW()
-                WHERE id = ?
-                RETURNING id
-            ),
-            updated_details AS (
-                UPDATE user_details
-                SET phone = ?, address_1 = ?, address_2 = ?, address_3 = ?, updated_at = NOW()
-                WHERE user_id = ?
-                RETURNING user_id
-            ),
-            inserted_image AS (
-                INSERT INTO images (url, status, created_at, updated_at)
-                VALUES (?, ?, NOW(), NOW())
-                RETURNING id
-            )
-            INSERT INTO user_images (user_id, image_id, created_at, updated_at)
-            SELECT ?, ii.id, NOW(), NOW()
-            FROM updated_details ud, inserted_image ii;
-            """;
+                WITH updated_user AS (
+                    UPDATE users
+                    SET full_name = ?, updated_at = NOW()
+                    WHERE id = ?
+                    RETURNING id
+                ),
+                updated_details AS (
+                    UPDATE user_details
+                    SET phone = ?, address_1 = ?, address_2 = ?, address_3 = ?, updated_at = NOW()
+                    WHERE user_id = ?
+                    RETURNING user_id
+                ),
+                inserted_image AS (
+                    INSERT INTO images (url, status, created_at, updated_at)
+                    VALUES (?, ?, NOW(), NOW())
+                    RETURNING id
+                )
+                INSERT INTO user_images (user_id, image_id, created_at, updated_at)
+                SELECT ?, ii.id, NOW(), NOW()
+                FROM updated_details ud, inserted_image ii;
+                """;
 
         Connection conn = null;
         boolean success = false;

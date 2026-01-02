@@ -70,7 +70,7 @@ public class Login extends HttpServlet {
 
             session.setAttribute("username", username);
             session.setAttribute("userId", user.getId());
-            session.setAttribute("role", user);
+            session.setAttribute("roleName", user.getRole().getName());
 
             try (Connection conn = JDBCConnection.getConnection()) {
                 CartService cartService = new CartService(conn);

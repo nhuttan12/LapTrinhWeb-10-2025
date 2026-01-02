@@ -27,6 +27,9 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/owl.carousel.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/owl.theme.default.min.css">
 
+    <!-- bootstrap icon -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/bootstrap-icons.css">
+
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/fonts/icomoon/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/aos.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/style.css">
