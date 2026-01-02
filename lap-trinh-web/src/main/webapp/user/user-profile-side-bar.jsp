@@ -24,7 +24,7 @@
     </a>
 
     <%--    Admin--%>
-    <c:if test="${sessionScope.roleName eq 'ADMIN'}">
+    <c:if test="${sessionScope.roleName eq 'admin'}">
         <a href="${pageContext.request.contextPath}/admin"
            class="list-group-item list-group-item-action">
             <i class="bi bi-shield-lock"></i>

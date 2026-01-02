@@ -1,5 +1,7 @@
 package com.example.Filter;
 
+import com.example.Model.RoleName;
+
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +24,7 @@ public class AdminAuthorizationFilter implements Filter {
 
         String roleName = (String) session.getAttribute("roleName");
 
-        if (!"ADMIN".equals(roleName)) {
+        if (!RoleName.ADMIN.getRoleName().equals(roleName)) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
