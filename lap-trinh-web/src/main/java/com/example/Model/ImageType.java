@@ -1,7 +1,7 @@
 package com.example.Model;
 
 public enum ImageType {
-    THUMBNAIL, GALLERY, PRODUCT;
+    THUMBNAIL, GALLERY, PRODUCT, BANNER;
 
     public String getImageType() {
         return name().toLowerCase();

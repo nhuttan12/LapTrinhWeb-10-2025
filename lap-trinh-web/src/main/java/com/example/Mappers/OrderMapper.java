@@ -16,7 +16,8 @@ public interface OrderMapper {
     @Mappings({
             @Mapping(target = "id", expression = "java(String.valueOf(order.getId()))"),
             @Mapping(target = "totalPrice", expression = "java(order.getPrice().intValue())"),
-            @Mapping(target = "status", expression = "java(order.getStatus().name())"),
+            @Mapping(target = "paymentStatus", expression = "java(order.getPaymentStatus())"),
+            @Mapping(target = "shippingStatus", expression = "java(order.getShippingStatus())"),
             @Mapping(target = "createdAt", expression = "java(order.getCreatedAt())")
     })
     OrderUserResponseDTO toOrderUserResponseDTO(Order order);

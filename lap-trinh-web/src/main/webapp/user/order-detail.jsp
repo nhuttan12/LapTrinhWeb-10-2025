@@ -4,12 +4,19 @@
 <html>
 <head>
     <title>Chi tiết hoá đơn</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mukta:300,400,700">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/fonts/icomoon/style.css">
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/bootstrap.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/magnific-popup.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/jquery-ui.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/owl.theme.default.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/aos.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+
 </head>
 
 <body>
@@ -43,19 +50,25 @@
                         </tr>
 
                         <tr>
-                            <th>Trạng thái đơn</th>
-                            <td>${order.status}</td>
+                            <th>Trạng thái thanh toán</th>
+                            <td>${order.paymentStatus}</td>
                         </tr>
+
+                        <tr>
+                            <th>Trạng thái đơn hàng</th>
+                            <td>${order.shippingStatus}</td>
+                        </tr>
+
 
                         <tr>
                             <th>Phương thức thanh toán</th>
                             <td>${payment.method}</td>
                         </tr>
 
-                        <tr>
-                            <th>Trạng thái thanh toán</th>
-                            <td>${payment.status}</td>
-                        </tr>
+<%--                        <tr>--%>
+<%--                            <th>Trạng thái thanh toán</th>--%>
+<%--                            <td>${payment.status}</td>--%>
+<%--                        </tr>--%>
 
                         <tr>
                             <th>Tổng tiền</th>

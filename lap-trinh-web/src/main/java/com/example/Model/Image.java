@@ -12,6 +12,7 @@ public class Image {
     private Integer id;
     private String url;
     private ImageStatus status;
+    private ImageType type;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }

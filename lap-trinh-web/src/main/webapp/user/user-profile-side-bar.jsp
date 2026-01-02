@@ -15,4 +15,7 @@
     <a href="${pageContext.request.contextPath}/orders" class="list-group-item list-group-item-action">
         <i class="fas fa-shopping-cart"></i> <fmt:message key="profile.sidebar.orders"/>
     </a>
+    <a href="${pageContext.request.contextPath}/logout" class="list-group-item list-group-item-action">
+        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+    </a>
 </div>

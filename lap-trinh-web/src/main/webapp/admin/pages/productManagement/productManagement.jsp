@@ -4,215 +4,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Product Management</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: #fff;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px 15px;
-            text-align: center;
-        }
-        th {
-            background-color: #f8f8f8;
-        }
-        img.thumbnail {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 25px;
-            gap: 5px;
-        }
-        .pagination a {
-            padding: 8px 14px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            color: #333;
-            text-decoration: none;
-        }
-        .pagination a.active {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        .pagination a:hover {
-            background-color: #e9ecef;
-        }
-        .action-btn {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        .action-btn button {
-            padding: 6px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            color: white;
-        }
-        .edit-btn { background-color: #28a745; }
-        .delete-btn { background-color: #dc3545; }
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Admin - Products</title>
 
-        /* Modal style */
-        #editModal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left:0;
-            top:0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-        }
-        #editModal .modal-content {
-            background: white;
-            width: 500px;
-            margin: 10% auto;
-            padding: 20px;
-            position: relative;
-            border-radius: 6px;
-        }
-        #editModal .close {
-            position: absolute;
-            top:10px;
-            right:10px;
-            cursor:pointer;
-            font-size:18px;
-            font-weight:bold;
-        }
-        #editModal input, #editModal select {
-            width: 100%;
-            margin: 5px 0 10px 0;
-            padding: 6px;
-        }
-    </style>
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/feather/feather.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/ti-icons/css/themify-icons.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/css/vendor.bundle.base.css">
+
+    <!-- layout css -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/css/vertical-layout-light/style.css">
+
+    <link rel="shortcut icon" href="${pageContext.request.contextPath}/admin/images/favicon.png"/>
 </head>
+
 <body>
-<h2>Product List</h2>
+<div class="container-scroller">
 
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Thumbnail</th>
-        <th>Name</th>
-        <th>Price</th>
-        <th>Discount</th>
-        <th>Brand</th>
-        <th>Action</th>
-    </tr>
-    </thead>
-    <tbody>
-    <c:forEach var="product" items="${products}">
-        <tr id="productRow${product.id}">
-            <td>${product.id}</td>
-            <td>
-                <c:choose>
-                    <c:when test="${not empty product.thumbnail}">
-                        <img class="thumbnail" src="${product.thumbnail}" alt="${product.name}">
-                    </c:when>
-                    <c:otherwise>
-                        <img class="thumbnail" src="default.jpg" alt="${product.name}">
-                    </c:otherwise>
-                </c:choose>
-            </td>
-            <td>${product.name}</td>
-            <td>${product.price}</td>
-            <td>${product.discount}</td>
-            <td>${product.brand}</td>
-            <td class="action-btn">
-                <button class="edit-btn" onclick="openEditModal(${product.id})">Edit</button>
-                <button class="delete-btn" onclick="deleteProduct(${product.id})">Delete</button>
-            </td>
-        </tr>
-    </c:forEach>
-    </tbody>
-</table>
+    <!-- Navbar -->
+    <jsp:include page="../../partials/navbar.jsp"/>
 
-<!-- Pagination -->
-<div class="pagination">
-    <c:if test="${currentPage > 1}">
-        <a href="?page=${currentPage - 1}">&laquo; Prev</a>
-    </c:if>
+    <div class="container-fluid page-body-wrapper">
 
-    <c:forEach begin="1" end="${totalPages}" var="i">
-        <a href="?page=${i}" class="${i == currentPage ? 'active' : ''}">${i}</a>
-    </c:forEach>
+        <!-- Settings panel -->
+        <jsp:include page="../../partials/settings-panel.jsp"/>
 
-    <c:if test="${currentPage < totalPages}">
-        <a href="?page=${currentPage + 1}">Next &raquo;</a>
-    </c:if>
+        <!-- Sidebar -->
+        <jsp:include page="../../partials/sidebar.jsp"/>
+
+        <!-- Main content -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+
+                <div class="row">
+                    <div class="col-12 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+
+                                <h4 class="card-title">Danh sách sản phẩm</h4>
+
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Thumbnail</th>
+                                            <th>Name</th>
+                                            <th>Price</th>
+                                            <th>Discount</th>
+                                            <th>Brand</th>
+                                            <th>Action</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <c:forEach var="product" items="${products}">
+                                            <tr id="productRow${product.id}">
+                                                <td>${product.id}</td>
+                                                <td>
+                                                    <img src="${not empty product.thumbnail ? product.thumbnail : 'default.jpg'}"
+                                                         style="width:60px;height:60px;object-fit:cover;border-radius:5px">
+                                                </td>
+                                                <td>${product.name}</td>
+                                                <td>${product.price}</td>
+                                                <td>${product.discount}</td>
+                                                <td>${product.brand}</td>
+                                                <td>
+                                                    <button class="btn btn-success btn-sm"
+                                                            onclick="openEditModal(${product.id})">
+                                                        Edit
+                                                    </button>
+                                                    <button class="btn btn-danger btn-sm"
+                                                            onclick="deleteProduct(${product.id})">
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </c:forEach>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Pagination -->
+                                <nav class="mt-3">
+                                    <ul class="pagination justify-content-center">
+                                        <c:if test="${currentPage > 1}">
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=${currentPage - 1}">Prev</a>
+                                            </li>
+                                        </c:if>
+
+                                        <c:forEach begin="1" end="${totalPages}" var="i">
+                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                <a class="page-link" href="?page=${i}">${i}</a>
+                                            </li>
+                                        </c:forEach>
+
+                                        <c:if test="${currentPage < totalPages}">
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=${currentPage + 1}">Next</a>
+                                            </li>
+                                        </c:if>
+                                    </ul>
+                                </nav>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <jsp:include page="../../partials/footer.jsp"/>
+        </div>
+        <!-- main-panel ends -->
+    </div>
 </div>
 
 <!-- Edit Modal -->
-<div id="editModal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h3>Edit Product</h3>
-        <form id="editForm">
-            <input type="hidden" name="id" id="editProductId">
-            Name: <input type="text" name="name" id="editName"><br>
-            Price: <input type="text" name="price" id="editPrice"><br>
-            Discount: <input type="text" name="discount" id="editDiscount"><br>
-            <!-- Thêm các field khác theo DTO -->
-            <button type="submit">Update</button>
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="editForm" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Product</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editProductId" name="id">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input class="form-control" id="editName" name="name">
+                </div>
+                <div class="form-group">
+                    <label>Price</label>
+                    <input class="form-control" id="editPrice" name="price">
+                </div>
+                <div class="form-group">
+                    <label>Discount</label>
+                    <input class="form-control" id="editDiscount" name="discount">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="submit">Update</button>
+            </div>
         </form>
     </div>
 </div>
 
+<!-- plugins:js -->
+<script src="${pageContext.request.contextPath}/admin/vendors/js/vendor.bundle.base.js"></script>
+<!-- endinject -->
+<!-- inject:js -->
+<script src="${pageContext.request.contextPath}/admin/js/off-canvas.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/hoverable-collapse.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/template.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/settings.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/todolist.js"></script>
+
 <script>
     function openEditModal(id) {
-        fetch(`/admin/products/get?id=${id}`)
+        fetch(`/admin/products/get?id=` + id)
             .then(res => res.json())
-            .then(product => {
-                document.getElementById("editProductId").value = product.id;
-                document.getElementById("editName").value = product.name;
-                document.getElementById("editPrice").value = product.price;
-                document.getElementById("editDiscount").value = product.discount;
-                // thêm các field khác
-                document.getElementById("editModal").style.display = "block";
+            .then(p => {
+                editProductId.value = p.id;
+                editName.value = p.name;
+                editPrice.value = p.price;
+                editDiscount.value = p.discount;
+                $('#editModal').modal('show');
             });
     }
 
-    function closeModal() {
-        document.getElementById("editModal").style.display = "none";
-    }
-
-    document.getElementById("editForm").addEventListener("submit", function(e){
+    document.getElementById("editForm").addEventListener("submit", function (e) {
         e.preventDefault();
-        const formData = new FormData(this);
         fetch('/admin/products?action=update', {
             method: 'POST',
-            body: formData
-        })
-            .then(res => res.text())
-            .then(data => {
-                alert("Product updated!");
-                closeModal();
-                location.reload(); // hoặc update row trực tiếp
-            });
+            body: new FormData(this)
+        }).then(() => location.reload());
     });
 
-    function deleteProduct(id){
-        if(confirm("Are you sure to delete?")){
-            fetch(`/admin/products?action=delete&id=${id}`, { method:'POST' })
-                .then(res => res.text())
-                .then(data => {
-                    alert("Product deleted!");
-                    document.getElementById(`productRow${id}`).remove();
-                });
+    function deleteProduct(id) {
+        if (confirm("Delete this product?")) {
+            fetch(`/admin/products?action=delete&id=${id}`, {method: 'POST'})
+                .then(() => document.getElementById("productRow" + id).remove());
         }
     }
 </script>
+
 </body>
 </html>

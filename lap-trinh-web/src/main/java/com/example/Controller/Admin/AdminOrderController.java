@@ -2,6 +2,8 @@ package com.example.Controller.Admin;
 
 import com.example.DAO.AdminOrderDAO;
 import com.example.Model.Order;
+import com.example.Model.PaymentStatus;
+import com.example.Model.ShippingStatus;
 import com.example.Service.Admin.AdminOrderService;
 
 import com.example.Service.Database.JDBCConnection;
@@ -51,7 +53,15 @@ public class AdminOrderController extends HttpServlet {
         String status = req.getParameter("status");
 
         try {
-            boolean updated = adminOrderService.updateOrderStatus(orderId, status);
+            // Chuyển String sang Enum
+            String paymentStatusStr = req.getParameter("paymentStatus");
+            String shippingStatusStr = req.getParameter("shippingStatus");
+
+            PaymentStatus paymentStatus = PaymentStatus.fromString(paymentStatusStr);
+            ShippingStatus shippingStatus = ShippingStatus.fromString(shippingStatusStr);
+
+            boolean updated = adminOrderService.updateOrderStatus(orderId, paymentStatus, shippingStatus);
+
             if (updated) {
                 resp.sendRedirect("/admin/orders?success=1");
             } else {
@@ -59,6 +69,9 @@ public class AdminOrderController extends HttpServlet {
             }
         } catch (SQLException e) {
             throw new ServletException(e);
+        } catch (IllegalArgumentException e) {
+            // Nếu enum không hợp lệ
+            resp.sendRedirect("/admin/orders?error=invalid_status");
         }
     }
 }
