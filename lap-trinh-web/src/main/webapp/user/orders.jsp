@@ -82,19 +82,25 @@
 
                                         <td>
                                             <c:choose>
-                                                <c:when test="${order.paymentStatus.status == 'pending' && order.shippingStatus.orderStatus == 'pending'}">
+                                                <c:when test="${order.paymentStatus == 'UNPAID'
+            && order.shippingStatus == 'PENDING'}">
                                                     <span class="order-status pending">Chờ xử lý</span>
                                                 </c:when>
-                                                <c:when test="${order.paymentStatus.status == 'paid' && order.shippingStatus.orderStatus == 'pending'}">
+
+                                                <c:when test="${order.paymentStatus == 'PAID'
+            && order.shippingStatus == 'PENDING'}">
                                                     <span class="order-status paid">Đã thanh toán</span>
                                                 </c:when>
-                                                <c:when test="${order.shippingStatus.orderStatus == 'shipped'}">
+
+                                                <c:when test="${order.shippingStatus == 'SHIPPED'}">
                                                     <span class="order-status shipped">Đang giao</span>
                                                 </c:when>
-                                                <c:when test="${order.shippingStatus.orderStatus == 'completed'}">
+
+                                                <c:when test="${order.shippingStatus == 'COMPLETED'}">
                                                     <span class="order-status completed">Hoàn thành</span>
                                                 </c:when>
-                                                <c:when test="${order.shippingStatus.orderStatus == 'cancelled'}">
+
+                                                <c:when test="${order.shippingStatus == 'CANCELLED'}">
                                                     <span class="order-status cancelled">Đã huỷ</span>
                                                 </c:when>
                                             </c:choose>
@@ -113,7 +119,8 @@
                                                     </button>
                                                 </form>
 
-                                                <c:if test="${order.status == 'PENDING'}">
+                                                <c:if test="${order.paymentStatus == 'UNPAID'
+                                                    && order.shippingStatus == 'PENDING'}">
                                                     <form action="${pageContext.request.contextPath}/cancel-order" method="post">
                                                         <input type="hidden" name="orderId" value="${order.id}">
                                                         <button class="btn btn-sm btn-outline-danger">
@@ -121,6 +128,7 @@
                                                         </button>
                                                     </form>
                                                 </c:if>
+
                                             </div>
                                         </td>
                                     </tr>
