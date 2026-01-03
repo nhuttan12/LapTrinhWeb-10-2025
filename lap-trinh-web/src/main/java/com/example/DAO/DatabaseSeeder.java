@@ -3,11 +3,14 @@ package com.example.DAO;
 import com.example.Model.ImageStatus;
 import com.example.Model.RoleName;
 import com.example.Model.RoleStatus;
+import com.example.Model.User;
 import com.example.Service.Database.JDBCConnection;
+import com.example.Service.User.UserService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class DatabaseSeeder {
 
@@ -40,6 +43,8 @@ public class DatabaseSeeder {
             } else {
                 System.out.println("Default image already exists.");
             }
+
+            createAdminAccount();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -91,4 +96,41 @@ public class DatabaseSeeder {
         }
     }
 
+    private static void createAdminAccount() {
+        try {
+            /**
+             * Admin account info for creating
+             */
+            String username = "admin";
+            String password = "admin";
+            String email = "admin@gmail.com";
+
+            /**
+             * Inject instance
+             */
+            UserService userService = new UserService();
+
+            /**
+             * Check user exist
+             */
+            boolean isAdminExist = userService.existsByUsername(username);
+
+            /**
+             * Create user with admin role if not exist
+             */
+            if (!isAdminExist) {
+                boolean insertResult = userService.insertNewUser(username, password, email);
+                if (!insertResult) throw new SQLException("Failed to insert admin account");
+
+                /**
+                 * Get user after created
+                 */
+                User userCreated = userService.getUserByUsername(username);
+                User user = userService.updateUserRole(userCreated.getId(), userCreated.getUsername(), RoleName.ADMIN);
+                if (user == null) throw new SQLException("Failed to change role to admin");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

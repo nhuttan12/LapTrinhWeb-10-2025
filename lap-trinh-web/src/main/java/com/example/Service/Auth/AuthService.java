@@ -84,6 +84,15 @@ public class AuthService {
     }
 
     public boolean changePassword(String username, String password, String newPassword) {
-        return userService.changePassword(username, password, newPassword);
+        // 1. Authenticate user before change password
+        boolean authenticationUser = this.login(username, password);
+
+        if(!authenticationUser) return false;
+
+        // 2. Create hashed password
+        String newHashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+
+        // 3. Call user service to change password with new password
+        return userService.changePassword(username, newHashedPassword);
     }
 }

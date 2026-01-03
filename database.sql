@@ -45,6 +45,22 @@ CREATE TABLE IF NOT EXISTS images (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- ========================
+-- BANNERS
+-- ========================
+CREATE TABLE IF NOT EXISTS banners (
+    id SERIAL PRIMARY KEY,
+    image_id INT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+
+    CONSTRAINT fk_banner_image
+        FOREIGN KEY (image_id)
+        REFERENCES images(id)
+        ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS user_images (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
@@ -120,7 +136,7 @@ CREATE TABLE IF NOT EXISTS product_images (
     id SERIAL PRIMARY KEY,
     image_id INT REFERENCES images(id) ON DELETE CASCADE,
     product_id INT REFERENCES products(id) ON DELETE CASCADE,
-    type VARCHAR(50) CHECK (type IN ('thumbnail','gallery','other')),
+    type VARCHAR(50) CHECK (type IN ('thumbnail','gallery','product')),
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -165,7 +181,11 @@ CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     price DOUBLE PRECISION NOT NULL,
-    status VARCHAR(50) CHECK (status IN ('pending','paid','shipped','completed','cancelled')),
+
+    shipping_status VARCHAR(50) CHECK (
+        shipping_status IN ('pending','shipped','completed','cancelled')
+    ) NOT NULL DEFAULT 'pending',
+
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );

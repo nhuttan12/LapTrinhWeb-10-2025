@@ -3,6 +3,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
 <fmt:setBundle basename="messages" />
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -114,14 +115,14 @@
                         <tbody>
                         <c:forEach var="entry" items="${detail.description}" varStatus="loop">
                             <tr class="${loop.index >= 5 ? 'collapse extra-spec' : ''}">
-                                <td><strong>${entry.key}</strong></td>
-                                <td>${entry.value}</td>
+                                <td><strong>${entry.value.label}</strong></td>
+                                <td>${entry.value.value}</td>
                             </tr>
                         </c:forEach>
                         <c:forEach var="entry" items="${specs}" varStatus="loop2">
                             <tr class="${loop2.index + fn:length(detail.description) >= 5 ? 'collapse extra-spec' : ''}">
-                                <td>${entry.key}</td>
-                                <td>${entry.value}</td>
+                                <td>${entry.value.label}</td>
+                                <td>${entry.value.value}</td>
                             </tr>
                         </c:forEach>
                         </tbody>

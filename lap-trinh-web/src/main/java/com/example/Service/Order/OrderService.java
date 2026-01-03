@@ -5,7 +5,6 @@ import com.example.DAO.OrderDAO;
 import com.example.DTO.Orders.OrderUserResponseDTO;
 import com.example.Mappers.OrderMapper;
 import com.example.Model.Order;
-import com.example.Model.OrderStatus;
 import com.example.Model.ShippingStatus;
 
 import java.sql.Connection;

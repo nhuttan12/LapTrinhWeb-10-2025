@@ -23,23 +23,23 @@ public class AdminProductDAO {
         List<GetProductsPagingResponseDTO> products = new ArrayList<>();
 
         String sql = """
-    SELECT 
-        p.id AS product_id,
-        p.name AS product_name,
-        p.price,
-        p.discount,
-        b.name AS brand_name,
-        i.url AS thumbnail_url
-    FROM products p
-    LEFT JOIN product_details pd ON p.id = pd.product_id
-    LEFT JOIN brands b ON pd.brand_id = b.id
-    LEFT JOIN product_images pi 
-           ON pi.product_id = p.id AND UPPER(pi.type) = 'THUMBNAIL'
-    LEFT JOIN images i ON pi.image_id = i.id
-    WHERE p.status = 'active'
-    ORDER BY p.id DESC
-    LIMIT ? OFFSET ?
-""";
+                    SELECT 
+                        p.id AS product_id,
+                        p.name AS product_name,
+                        p.price,
+                        p.discount,
+                        b.name AS brand_name,
+                        i.url AS thumbnail_url
+                    FROM products p
+                    LEFT JOIN product_details pd ON p.id = pd.product_id
+                    LEFT JOIN brands b ON pd.brand_id = b.id
+                    LEFT JOIN product_images pi 
+                           ON pi.product_id = p.id AND UPPER(pi.type) = 'THUMBNAIL'
+                    LEFT JOIN images i ON pi.image_id = i.id
+                    WHERE p.status = 'active'
+                    ORDER BY p.id DESC
+                    LIMIT ? OFFSET ?
+                """;
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, limit);
@@ -76,15 +76,15 @@ public class AdminProductDAO {
     // Create Product
     public int insertProduct(Product product) throws SQLException {
         String sql = """
-            INSERT INTO products (name, price, discount, status, created_at)
-            VALUES (?, ?, ?, ?, NOW())
-        """;
+                    INSERT INTO products (name, price, discount, status, created_at)
+                    VALUES (?, ?, ?, ?, NOW())
+                """;
 
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, product.getName());
             ps.setDouble(2, product.getPrice());
             ps.setDouble(3, product.getDiscount());
-            ps.setString(4, product.getStatus().name());
+            ps.setString(4, product.getStatus().getProductStatus());
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
@@ -95,13 +95,13 @@ public class AdminProductDAO {
 
     public void insertProductDetail(ProductDetail detail) throws SQLException {
         String sql = """
-            INSERT INTO product_details (
-                product_id, brand_id, os, ram, storage, battery_capacity,
-                screen_size, screen_resolution, mobile_network, cpu, gpu,
-                water_resistance, max_charge_watt, design, memory_card,
-                cpu_speed, release_date, rating, description, created_at
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())
-        """;
+                    INSERT INTO product_details (
+                        product_id, brand_id, os, ram, storage, battery_capacity,
+                        screen_size, screen_resolution, mobile_network, cpu, gpu,
+                        water_resistance, max_charge_watt, design, memory_card,
+                        cpu_speed, release_date, rating, description, created_at
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())
+                """;
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             int k = 1;
@@ -112,30 +112,39 @@ public class AdminProductDAO {
             else ps.setNull(k++, Types.INTEGER);
 
             ps.setString(k++, detail.getOs());
-            if (detail.getRam() != null) ps.setInt(k++, detail.getRam()); else ps.setNull(k++, Types.INTEGER);
-            if (detail.getStorage() != null) ps.setInt(k++, detail.getStorage()); else ps.setNull(k++, Types.INTEGER);
-            if (detail.getBatteryCapacity() != null) ps.setInt(k++, detail.getBatteryCapacity()); else ps.setNull(k++, Types.INTEGER);
-            if (detail.getScreenSize() != null) ps.setDouble(k++, detail.getScreenSize()); else ps.setNull(k++, Types.DOUBLE);
+            if (detail.getRam() != null) ps.setInt(k++, detail.getRam());
+            else ps.setNull(k++, Types.INTEGER);
+            if (detail.getStorage() != null) ps.setInt(k++, detail.getStorage());
+            else ps.setNull(k++, Types.INTEGER);
+            if (detail.getBatteryCapacity() != null) ps.setInt(k++, detail.getBatteryCapacity());
+            else ps.setNull(k++, Types.INTEGER);
+            if (detail.getScreenSize() != null) ps.setDouble(k++, detail.getScreenSize());
+            else ps.setNull(k++, Types.DOUBLE);
             ps.setString(k++, detail.getScreenResolution());
             ps.setString(k++, detail.getMobileNetwork());
             ps.setString(k++, detail.getCpu());
             ps.setString(k++, detail.getGpu());
             ps.setString(k++, detail.getWaterResistance());
-            if (detail.getMaxChargeWatt() != null) ps.setInt(k++, detail.getMaxChargeWatt()); else ps.setNull(k++, Types.INTEGER);
+            if (detail.getMaxChargeWatt() != null) ps.setInt(k++, detail.getMaxChargeWatt());
+            else ps.setNull(k++, Types.INTEGER);
             ps.setString(k++, detail.getDesign());
             ps.setString(k++, detail.getMemoryCard());
-            if (detail.getCpuSpeed() != null) ps.setDouble(k++, detail.getCpuSpeed()); else ps.setNull(k++, Types.DOUBLE);
+            if (detail.getCpuSpeed() != null) ps.setDouble(k++, detail.getCpuSpeed());
+            else ps.setNull(k++, Types.DOUBLE);
             ps.setTimestamp(k++, detail.getReleaseDate());
-            if (detail.getRating() != null) ps.setDouble(k++, detail.getRating()); else ps.setNull(k++, Types.DOUBLE);
+            if (detail.getRating() != null) ps.setDouble(k++, detail.getRating());
+            else ps.setNull(k++, Types.DOUBLE);
             ps.setString(k++, detail.getDescription());
             ps.executeUpdate();
         }
     }
 
     public int insertImage(String url) throws SQLException {
-        String sql = "INSERT INTO images (url, created_at) VALUES (?, NOW())";
+        String sql = "INSERT INTO images (url, status, created_at) VALUES (?, ?, NOW())";
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, url);
+            ps.setString(2, ImageStatus.ACTIVE.getImageStatus());
+
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) return rs.getInt(1);
@@ -143,26 +152,26 @@ public class AdminProductDAO {
         }
     }
 
-    public void insertProductImage(int productId, int imageId, String type) throws SQLException {
+    public void insertProductImage(int productId, int imageId, ImageType type) throws SQLException {
         String sql = """
-        INSERT INTO product_images (product_id, image_id, type, created_at)
-        VALUES (?, ?, ?, NOW())
-    """;
+                    INSERT INTO product_images (product_id, image_id, type, created_at)
+                    VALUES (?, ?, ?, NOW())
+                """;
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.setInt(2, imageId);
-            ps.setString(3, type != null ? type.toUpperCase() : null);
+            ps.setString(3, type != null ? type.getImageType() : null);
             ps.executeUpdate();
         }
     }
 
     // delete product_images by product and type (useful when replacing thumbnail)
-    public void deleteProductImagesByType(int productId, String type) throws SQLException {
-        String sql = "DELETE FROM product_images WHERE product_id = ? AND UPPER(type) = ?";
+    public void deleteProductImagesByType(int productId, ImageType type) throws SQLException {
+        String sql = "DELETE FROM product_images WHERE product_id = ? AND type = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
-            ps.setString(2, type.toUpperCase());
+            ps.setString(2, type.getImageType());
             ps.executeUpdate();
         }
     }
@@ -170,16 +179,16 @@ public class AdminProductDAO {
     // Update Products
     public void updateProduct(Product product) throws SQLException {
         String sql = """
-            UPDATE products
-            SET name=?, price=?, discount=?, status=?, updated_at=NOW()
-            WHERE id=?
-        """;
+                    UPDATE products
+                    SET name=?, price=?, discount=?, status=?, updated_at=NOW()
+                    WHERE id=?
+                """;
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, product.getName());
             ps.setDouble(2, product.getPrice());
             ps.setDouble(3, product.getDiscount());
-            ps.setString(4, product.getStatus().name());
+            ps.setString(4, product.getStatus().getProductStatus());
             ps.setInt(5, product.getId());
             ps.executeUpdate();
         }
@@ -187,33 +196,41 @@ public class AdminProductDAO {
 
     public void updateProductDetail(ProductDetail detail) throws SQLException {
         String sql = """
-            UPDATE product_details
-            SET brand_id=?, os=?, ram=?, storage=?, battery_capacity=?,
-                screen_size=?, screen_resolution=?, mobile_network=?, cpu=?, gpu=?,
-                water_resistance=?, max_charge_watt=?, design=?, memory_card=?,
-                cpu_speed=?, release_date=?, rating=?, description=?, updated_at=NOW()
-            WHERE product_id=?
-        """;
+                    UPDATE product_details
+                    SET brand_id=?, os=?, ram=?, storage=?, battery_capacity=?,
+                        screen_size=?, screen_resolution=?, mobile_network=?, cpu=?, gpu=?,
+                        water_resistance=?, max_charge_watt=?, design=?, memory_card=?,
+                        cpu_speed=?, release_date=?, rating=?, description=?, updated_at=NOW()
+                    WHERE product_id=?
+                """;
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             int k = 1;
-            if (detail.getBrand() != null) ps.setInt(k++, detail.getBrand().getId()); else ps.setNull(k++, Types.INTEGER);
+            if (detail.getBrand() != null) ps.setInt(k++, detail.getBrand().getId());
+            else ps.setNull(k++, Types.INTEGER);
             ps.setString(k++, detail.getOs());
-            if (detail.getRam() != null) ps.setInt(k++, detail.getRam()); else ps.setNull(k++, Types.INTEGER);
-            if (detail.getStorage() != null) ps.setInt(k++, detail.getStorage()); else ps.setNull(k++, Types.INTEGER);
-            if (detail.getBatteryCapacity() != null) ps.setInt(k++, detail.getBatteryCapacity()); else ps.setNull(k++, Types.INTEGER);
-            if (detail.getScreenSize() != null) ps.setDouble(k++, detail.getScreenSize()); else ps.setNull(k++, Types.DOUBLE);
+            if (detail.getRam() != null) ps.setInt(k++, detail.getRam());
+            else ps.setNull(k++, Types.INTEGER);
+            if (detail.getStorage() != null) ps.setInt(k++, detail.getStorage());
+            else ps.setNull(k++, Types.INTEGER);
+            if (detail.getBatteryCapacity() != null) ps.setInt(k++, detail.getBatteryCapacity());
+            else ps.setNull(k++, Types.INTEGER);
+            if (detail.getScreenSize() != null) ps.setDouble(k++, detail.getScreenSize());
+            else ps.setNull(k++, Types.DOUBLE);
             ps.setString(k++, detail.getScreenResolution());
             ps.setString(k++, detail.getMobileNetwork());
             ps.setString(k++, detail.getCpu());
             ps.setString(k++, detail.getGpu());
             ps.setString(k++, detail.getWaterResistance());
-            if (detail.getMaxChargeWatt() != null) ps.setInt(k++, detail.getMaxChargeWatt()); else ps.setNull(k++, Types.INTEGER);
+            if (detail.getMaxChargeWatt() != null) ps.setInt(k++, detail.getMaxChargeWatt());
+            else ps.setNull(k++, Types.INTEGER);
             ps.setString(k++, detail.getDesign());
             ps.setString(k++, detail.getMemoryCard());
-            if (detail.getCpuSpeed() != null) ps.setDouble(k++, detail.getCpuSpeed()); else ps.setNull(k++, Types.DOUBLE);
+            if (detail.getCpuSpeed() != null) ps.setDouble(k++, detail.getCpuSpeed());
+            else ps.setNull(k++, Types.DOUBLE);
             ps.setTimestamp(k++, detail.getReleaseDate());
-            if (detail.getRating() != null) ps.setDouble(k++, detail.getRating()); else ps.setNull(k++, Types.DOUBLE);
+            if (detail.getRating() != null) ps.setDouble(k++, detail.getRating());
+            else ps.setNull(k++, Types.DOUBLE);
             ps.setString(k++, detail.getDescription());
             ps.setInt(k++, detail.getProductId());
             ps.executeUpdate();
@@ -243,20 +260,20 @@ public class AdminProductDAO {
     public Product getProductById(int id) throws SQLException {
 //        String sql = "SELECT id, name, price, discount, status FROM products WHERE id = ?";
         String sql = """
-        SELECT
-            p.id,
-            p.name,
-            p.price,
-            p.discount,
-            p.status,
-            i.url AS thumbnail
-        FROM products p
-        LEFT JOIN product_images pi 
-            ON pi.product_id = p.id AND UPPER(pi.type) = 'THUMBNAIL'
-        LEFT JOIN images i 
-            ON pi.image_id = i.id
-        WHERE p.id = ?
-    """;
+                    SELECT
+                        p.id,
+                        p.name,
+                        p.price,
+                        p.discount,
+                        p.status,
+                        i.url AS thumbnail
+                    FROM products p
+                    LEFT JOIN product_images pi 
+                        ON pi.product_id = p.id AND UPPER(pi.type) = 'THUMBNAIL'
+                    LEFT JOIN images i 
+                        ON pi.image_id = i.id
+                    WHERE p.id = ?
+                """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -278,11 +295,11 @@ public class AdminProductDAO {
     // ========== New: get product detail by product id ==========
     public ProductDetail getProductDetailByProductId(int productId) throws SQLException {
         String sql = """
-        SELECT pd.*, b.name AS brand_name
-        FROM product_details pd
-        LEFT JOIN brands b ON pd.brand_id = b.id
-        WHERE pd.product_id = ?
-    """;
+                    SELECT pd.*, b.name AS brand_name
+                    FROM product_details pd
+                    LEFT JOIN brands b ON pd.brand_id = b.id
+                    WHERE pd.product_id = ?
+                """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -328,12 +345,12 @@ public class AdminProductDAO {
     public List<String> getProductDetailImages(int productId) throws SQLException {
         List<String> urls = new ArrayList<>();
         String sql = """
-        SELECT i.url
-        FROM product_images pi
-        JOIN images i ON pi.image_id = i.id
-        WHERE pi.product_id = ? AND UPPER(pi.type) = 'DETAIL'
-        ORDER BY pi.id ASC
-    """;
+                    SELECT i.url
+                    FROM product_images pi
+                    JOIN images i ON pi.image_id = i.id
+                    WHERE pi.product_id = ? AND UPPER(pi.type) = 'DETAIL'
+                    ORDER BY pi.id ASC
+                """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             try (ResultSet rs = ps.executeQuery()) {

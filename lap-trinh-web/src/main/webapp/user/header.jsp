@@ -12,7 +12,7 @@
                           action="${pageContext.request.contextPath}/product-list">
                         <span class="icon icon-search2"></span>
                         <input name="productName" type="text" class="form-control border-0"
-                               placeholder="Tìm kiếm sản phẩm">
+                               placeholder="<fmt:message key="search.placeholder"/>">
                     </form>
                 </div>
 

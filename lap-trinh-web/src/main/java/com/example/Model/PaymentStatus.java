@@ -3,7 +3,8 @@ package com.example.Model;
 public enum PaymentStatus {
 
     PENDING, COMPLETED, FAILED, REFUNDED, UNPAID, PAID;
-//    PENDING, COMPLETED, FAILED, REFUNDED;
+
+    //    PENDING, COMPLETED, FAILED, REFUNDED;
     public String getStatus() {
         return name().toLowerCase();
     }

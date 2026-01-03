@@ -11,6 +11,10 @@
         <exception-type>java.lang.Throwable</exception-type>
         <location>/admin/pages/samples/error-404.jsp</location>
     </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/admin/pages/samples/error-404.jsp</location>
+    </error-page>
 
     <filter>
         <filter-name>encodingFilter</filter-name>

@@ -22,6 +22,8 @@ public class User {
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
+    private Role role;
+    private Order order;
     private UserDetail userDetail;
     private UserImage userImage;
 }

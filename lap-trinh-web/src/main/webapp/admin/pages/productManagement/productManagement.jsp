@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Admin - Products</title>
+    <title>Quản lý sản phẩm</title>
 
     <!-- plugins:css -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/feather/feather.css">
@@ -48,13 +48,13 @@
                                     <table class="table table-bordered table-hover">
                                         <thead>
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Thumbnail</th>
-                                            <th>Name</th>
-                                            <th>Price</th>
-                                            <th>Discount</th>
-                                            <th>Brand</th>
-                                            <th>Action</th>
+                                            <th>Mã sản phẩm</th>
+                                            <th>Hình ảnh</th>
+                                            <th>Tên sản phẩm</th>
+                                            <th>Giá</th>
+                                            <th>Giảm giá</th>
+                                            <th>Thương hiệu</th>
+                                            <th>Thao tác</th>
                                         </tr>
                                         </thead>
                                         <tbody>

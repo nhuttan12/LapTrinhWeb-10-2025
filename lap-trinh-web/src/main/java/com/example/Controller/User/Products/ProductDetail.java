@@ -38,7 +38,7 @@ public class ProductDetail extends HttpServlet {
              */
             List<GetProductSameBrandDTO> sameBrandProducts = productService.getProductByBrandName(detailResponseDTO.getBrandName());
 
-            Map<String, Object> specs = analyzeSpecs.analyzeSpecs(detailResponseDTO);
+            Map<String, Map<String, Object>> specs = analyzeSpecs.analyzeSpecs(detailResponseDTO);
 
             req.setAttribute("specs", specs);
             req.setAttribute("detail", detailResponseDTO);

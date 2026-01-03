@@ -1,6 +1,9 @@
 package com.example.Service.Admin;
 
 import com.example.DAO.AdminOrderDAO;
+import com.example.DTO.Common.PagingResponse;
+import com.example.DTO.Orders.GetOrdersPagingResponseAdminDTO;
+import com.example.Mappers.OrderMapper;
 import com.example.Model.Order;
 import com.example.Model.PaymentStatus;
 import com.example.Model.ShippingStatus;
@@ -10,11 +13,27 @@ import java.util.List;
 
 public class AdminOrderService {
     private final AdminOrderDAO adminOrderDAO;
-    public AdminOrderService(AdminOrderDAO adminOrderDAO){
-         this.adminOrderDAO = adminOrderDAO;
+    private final OrderMapper orderMapper;
+
+    public AdminOrderService(AdminOrderDAO adminOrderDAO) {
+        this.adminOrderDAO = adminOrderDAO;
+        this.orderMapper = OrderMapper.INSTANCE;
     }
-    public List<Order> getAllOrders(int page, int pageSize) throws SQLException {
-        return adminOrderDAO.getAllOrders(page, pageSize);
+
+    public PagingResponse<GetOrdersPagingResponseAdminDTO> getAllOrderPaging(int page, int pageSize) throws SQLException {
+        int offset = (page - 1) * pageSize;
+
+        PagingResponse<Order> orderPagingResponse = adminOrderDAO.getAllOrders(offset, page, pageSize);
+
+        List<GetOrdersPagingResponseAdminDTO> mappedOrders =
+                this.orderMapper
+                        .toGetOrdersPagingResponseAdminDTOList(orderPagingResponse.getItems());
+
+        return PagingResponse.<GetOrdersPagingResponseAdminDTO>builder()
+                .items(mappedOrders)
+                .meta(orderPagingResponse.getMeta())
+                .build();
+
     }
 
     public Order getOrderById(int orderId) throws SQLException {
