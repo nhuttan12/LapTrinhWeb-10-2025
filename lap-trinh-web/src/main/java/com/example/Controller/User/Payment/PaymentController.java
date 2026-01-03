@@ -1,9 +1,6 @@
 package com.example.Controller.User.Payment;
 
-import com.example.Model.Cart;
-import com.example.Model.Payment;
-import com.example.Model.PaymentMethod;
-import com.example.Model.PaymentStatus;
+import com.example.Model.*;
 import com.example.Service.Cart.CartService;
 import com.example.Service.Database.JDBCConnection;
 import com.example.Service.Order.OrderServiceSimple;
@@ -155,8 +152,16 @@ public class PaymentController extends HttpServlet {
             }
 
             // 6. Cập nhật trạng thái Payment + Order
-            paymentService.updatePaymentStatus(paymentId, PaymentStatus.COMPLETED);
-            orderService.updateOrderStatus(orderId, "paid");
+            if (method == PaymentMethod.COD) {
+                // COD: khách thanh toán khi nhận hàng
+                paymentService.updatePaymentStatus(paymentId, PaymentStatus.PENDING);
+                orderService.updateShippingStatus(orderId, ShippingStatus.PENDING); // shipping bắt đầu pending
+            } else {
+                // Thanh toán online (PayPal, VNPAY,...)
+                paymentService.updatePaymentStatus(paymentId, PaymentStatus.COMPLETED);
+                orderService.updateShippingStatus(orderId, ShippingStatus.PENDING); // hàng chưa gửi nhưng thanh toán xong
+            }
+
 
             // 7. Chuyển hướng sang chi tiết đơn hàng
             resp.sendRedirect(req.getContextPath() + "/order-detail?orderId=" + orderId);

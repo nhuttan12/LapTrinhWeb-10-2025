@@ -15,7 +15,9 @@ public class Order {
     private Integer id;
     private Integer userId;
     private Double price;
-    private ShippingStatus status;
+//    private OrderStatus status;
+    private PaymentStatus paymentStatus;
+    private ShippingStatus shippingStatus;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 }

@@ -5,6 +5,7 @@ import com.example.DAO.OrderDAO;
 import com.example.DTO.Orders.OrderUserResponseDTO;
 import com.example.Mappers.OrderMapper;
 import com.example.Model.Order;
+import com.example.Model.ShippingStatus;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -40,7 +41,14 @@ public class OrderService {
             throw new RuntimeException(e);
         }
     }
-
+    public ShippingStatus getShippingStatus(int orderId) {
+        try {
+            String statusStr = orderDAO.getShippingStatus(orderId); // mới: trả về shipping_status
+            return ShippingStatus.fromString(statusStr);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public boolean cancelOrder(int orderId, int userId) {
         try {

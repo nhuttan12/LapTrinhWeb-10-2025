@@ -33,6 +33,9 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/fonts/icomoon/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/aos.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+
 </head>
 <body>
 <div class="container bootstrap snippet">
@@ -81,18 +84,29 @@
                                         </td>
 
                                         <td>
-                                    <span class="badge
-                                        <c:choose>
-                                            <c:when test="${order.status == 'PENDING'}">bg-warning text-dark</c:when>
-                                            <c:when test="${order.status == 'PAID'}">bg-info text-dark</c:when>
-                                            <c:when test="${order.status == 'SHIPPED'}">bg-primary</c:when>
-                                            <c:when test="${order.status == 'COMPLETED'}">bg-success</c:when>
-                                            <c:when test="${order.status == 'CANCELLED'}">bg-danger</c:when>
-                                            <c:otherwise>bg-secondary</c:otherwise>
-                                        </c:choose>
-                                    ">
-                                            ${order.status}
-                                    </span>
+                                            <c:choose>
+                                                <c:when test="${order.paymentStatus == 'UNPAID'
+            && order.shippingStatus == 'PENDING'}">
+                                                    <span class="order-status pending">Chờ xử lý</span>
+                                                </c:when>
+
+                                                <c:when test="${order.paymentStatus == 'PAID'
+            && order.shippingStatus == 'PENDING'}">
+                                                    <span class="order-status paid">Đã thanh toán</span>
+                                                </c:when>
+
+                                                <c:when test="${order.shippingStatus == 'SHIPPED'}">
+                                                    <span class="order-status shipped">Đang giao</span>
+                                                </c:when>
+
+                                                <c:when test="${order.shippingStatus == 'COMPLETED'}">
+                                                    <span class="order-status completed">Hoàn thành</span>
+                                                </c:when>
+
+                                                <c:when test="${order.shippingStatus == 'CANCELLED'}">
+                                                    <span class="order-status cancelled">Đã huỷ</span>
+                                                </c:when>
+                                            </c:choose>
                                         </td>
 
                                         <td>
@@ -108,7 +122,8 @@
                                                     </button>
                                                 </form>
 
-                                                <c:if test="${order.status == 'PENDING'}">
+                                                <c:if test="${order.paymentStatus == 'UNPAID'
+                                                    && order.shippingStatus == 'PENDING'}">
                                                     <form action="${pageContext.request.contextPath}/cancel-order" method="post">
                                                         <input type="hidden" name="orderId" value="${order.id}">
                                                         <button class="btn btn-sm btn-outline-danger">
@@ -116,9 +131,9 @@
                                                         </button>
                                                     </form>
                                                 </c:if>
+
                                             </div>
                                         </td>
-
                                     </tr>
                                 </c:forEach>
                             </c:when>

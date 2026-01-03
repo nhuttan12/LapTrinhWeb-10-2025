@@ -15,6 +15,7 @@ public class CheckSessionFilter implements Filter {
     private static final List<String> PUBLIC_PATHS = Arrays.asList(
             "/",
             "/login",
+            "/logout",
             "/product-list",
             "/about",
             "/contact",

@@ -71,7 +71,7 @@ public class VNPayReturnController extends HttpServlet {
             // Cập nhật trạng thái payment và order
             if ("00".equals(responseCode)) {
                 paymentService.updatePaymentStatus(paymentId, PaymentStatus.COMPLETED);
-                orderService.updateOrderStatus(orderId, "paid");
+//                orderService.updateOrderStatus(orderId, "paid");
                 resp.sendRedirect(req.getContextPath() + "/payment-success?orderId=" + orderId);
             } else {
                 paymentService.updatePaymentStatus(paymentId, PaymentStatus.FAILED);

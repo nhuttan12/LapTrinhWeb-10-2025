@@ -31,4 +31,9 @@
             <fmt:message key="profile.sidebar.admin"/>
         </a>
     </c:if>
+
+    <%--    Logout--%>
+    <a href="${pageContext.request.contextPath}/logout" class="list-group-item list-group-item-action">
+        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+    </a>
 </div>

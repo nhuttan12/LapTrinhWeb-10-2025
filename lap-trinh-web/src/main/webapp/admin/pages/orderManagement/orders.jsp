@@ -53,7 +53,8 @@
                                             <th>ID</th>
                                             <th>User ID</th>
                                             <th>Price</th>
-                                            <th>Status</th>
+                                            <th>Payment Status</th> <!-- payment -->
+                                            <th>Shipping Status</th> <!-- shipping -->
                                             <th>Created At</th>
                                             <th>Updated At</th>
                                             <th>Action</th>
@@ -65,19 +66,30 @@
                                             <td><%= order.getId() %></td>
                                             <td><%= order.getUserId() %></td>
                                             <td><%= order.getPrice() %></td>
-                                            <td><%= order.getStatus() %></td>
+                                            <td><%= order.getPaymentStatus().name() %></td> <!-- hiển thị PaymentStatus -->
+                                            <td><%= order.getShippingStatus().name() %></td> <!-- hiển thị ShippingStatus -->
                                             <td><%= order.getCreatedAt() %></td>
                                             <td><%= order.getUpdatedAt() %></td>
                                             <td>
                                                 <form action="/admin/orders" method="post" class="form-inline">
                                                     <input type="hidden" name="orderId" value="<%= order.getId() %>"/>
-                                                    <select name="status" class="form-control mr-2">
-                                                        <option value="pending" <%= order.getStatus().toString().equals("pending") ? "selected" : "" %>>Pending</option>
-                                                        <option value="paid" <%= order.getStatus().toString().equals("paid") ? "selected" : "" %>>Paid</option>
-                                                        <option value="shipped" <%= order.getStatus().toString().equals("shipped") ? "selected" : "" %>>Shipped</option>
-                                                        <option value="completed" <%= order.getStatus().toString().equals("completed") ? "selected" : "" %>>Completed</option>
-                                                        <option value="cancelled" <%= order.getStatus().toString().equals("cancelled") ? "selected" : "" %>>Cancelled</option>
+
+                                                    <!-- Payment Status -->
+                                                    <select name="paymentStatus" class="form-control mr-2">
+                                                        <option value="PENDING" <%= order.getPaymentStatus() == com.example.Model.PaymentStatus.PENDING ? "selected" : "" %>>Pending</option>
+                                                        <option value="COMPLETED" <%= order.getPaymentStatus() == com.example.Model.PaymentStatus.COMPLETED ? "selected" : "" %>>Completed</option>
+                                                        <option value="FAILED" <%= order.getPaymentStatus() == com.example.Model.PaymentStatus.FAILED ? "selected" : "" %>>Failed</option>
+                                                        <option value="REFUNDED" <%= order.getPaymentStatus() == com.example.Model.PaymentStatus.REFUNDED ? "selected" : "" %>>Refunded</option>
                                                     </select>
+
+                                                    <!-- Shipping Status -->
+                                                    <select name="shippingStatus" class="form-control mr-2">
+                                                        <option value="PENDING" <%= order.getShippingStatus() == com.example.Model.ShippingStatus.PENDING ? "selected" : "" %>>Pending</option>
+                                                        <option value="SHIPPED" <%= order.getShippingStatus() == com.example.Model.ShippingStatus.SHIPPED ? "selected" : "" %>>Shipped</option>
+                                                        <option value="COMPLETED" <%= order.getShippingStatus() == com.example.Model.ShippingStatus.COMPLETED ? "selected" : "" %>>Completed</option>
+                                                        <option value="CANCELLED" <%= order.getShippingStatus() == com.example.Model.ShippingStatus.CANCELLED ? "selected" : "" %>>Cancelled</option>
+                                                    </select>
+
                                                     <button type="submit" class="btn btn-primary btn-sm">Update</button>
                                                 </form>
                                             </td>

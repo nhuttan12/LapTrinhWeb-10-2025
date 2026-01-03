@@ -15,17 +15,23 @@ public class CartService {
         this.cartDAO = new CartDAO(conn);
     }
 
-    /** Lấy giỏ hàng hiện tại của user */
+    /**
+     * Lấy giỏ hàng hiện tại của user
+     */
     public Cart getCartByUserId(int userId) {
         return cartDAO.getActiveCartByUserId(userId);
     }
 
-    /** Lấy danh sách cartDetail */
+    /**
+     * Lấy danh sách cartDetail
+     */
     public List<CartDetail> getCartDetails(int cartId) {
         return cartDAO.getCartDetailsByCartId(cartId);
     }
 
-    /** Thêm sản phẩm vào giỏ */
+    /**
+     * Thêm sản phẩm vào giỏ
+     */
     public void addProductToCart(int userId, int productId, int quantity) {
         Cart cart = cartDAO.getActiveCartByUserId(userId);
         if (cart == null) {
@@ -39,7 +45,9 @@ public class CartService {
         cartDAO.addProductToCartDetail(cart.getId(), productId, quantity);
     }
 
-    /** Xóa sản phẩm khỏi giỏ */
+    /**
+     * Xóa sản phẩm khỏi giỏ
+     */
     public void removeProductFromCart(int userId, int productId) throws SQLException {
         Cart cart = cartDAO.getActiveCartByUserId(userId);
         if (cart != null) {
@@ -47,7 +55,9 @@ public class CartService {
         }
     }
 
-    /** Cập nhật số lượng */
+    /**
+     * Cập nhật số lượng
+     */
     public void updateQuantity(int userId, int productId, int quantity) throws SQLException {
         Cart cart = cartDAO.getActiveCartByUserId(userId);
         if (cart != null) {
@@ -55,12 +65,15 @@ public class CartService {
         }
     }
 
-    /** Tạo cart cho user */
+    /**
+     * Tạo cart cho user
+     */
     public Cart createCartForUser(int userId) throws SQLException {
         Cart cart = cartDAO.createCartForUser(userId);
         if (cart == null) throw new RuntimeException("Failed to create cart for user " + userId);
         return cart;
     }
+
     public void removePurchasedItems(int userId, List<CartDetail> items) throws SQLException {
         Cart cart = cartDAO.getActiveCartByUserId(userId);
         if (cart != null) {

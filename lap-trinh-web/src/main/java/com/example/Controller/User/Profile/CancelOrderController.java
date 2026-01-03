@@ -1,5 +1,6 @@
 package com.example.Controller.User.Profile;
 
+import com.example.Model.ShippingStatus;
 import com.example.Service.Database.JDBCConnection;
 import com.example.Service.Order.OrderService;
 
@@ -30,17 +31,29 @@ public class CancelOrderController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        HttpSession session = req.getSession(false);
+        HttpSession session = req.getSession(); // tạo session nếu chưa có
         int userId = (Integer) session.getAttribute("userId");
         int orderId = Integer.parseInt(req.getParameter("orderId"));
 
-        boolean success = orderService.cancelOrder(orderId, userId);
+        try {
+            boolean success = orderService.cancelOrder(orderId, userId);
 
-        if (success) {
+            if (success) {
+                session.setAttribute("successMessage", "Đơn hàng đã hủy thành công!");
+            } else {
+                ShippingStatus currentStatus = orderService.getShippingStatus(orderId);
+                String message = switch (currentStatus) {
+                    case SHIPPED, COMPLETED -> "Đơn hàng đã giao hoặc hoàn tất, không thể hủy.";
+                    case CANCELLED -> "Đơn hàng đã hủy trước đó.";
+                    default -> "Không thể hủy đơn hàng này.";
+                };
+                session.setAttribute("errorMessage", message);
+            }
+
             resp.sendRedirect(req.getContextPath() + "/order-detail?orderId=" + orderId);
-        } else {
-            req.setAttribute("error", "Không thể hủy đơn hàng này.");
-            req.getRequestDispatcher("/user/order-detail.jsp").forward(req, resp);
+
+        } catch (RuntimeException e) { // chỉ catch RuntimeException thay vì SQLException
+            throw new ServletException("Lỗi khi hủy đơn hàng", e);
         }
     }
 }
