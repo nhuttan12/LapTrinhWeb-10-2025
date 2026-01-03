@@ -177,7 +177,7 @@ public class ProductService {
             /**
              * Analyzing description
              */
-            Map<String, String> analyzeDescription = this.analyzeDescription.analyzeDescription(
+            Map<String, Map<String, Object>> analyzeDescription = this.analyzeDescription.analyzeDescription(
                     product.getProductDetail().getDescription()
             );
 

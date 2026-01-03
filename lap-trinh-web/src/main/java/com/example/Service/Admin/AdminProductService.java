@@ -6,6 +6,7 @@ import com.example.DTO.Products.GetProductsPagingResponseDTO;
 import com.example.DTO.Products.UpdateProductRequestDTO;
 import com.example.Mappers.ProductMapper;
 import com.example.Model.Brand;
+import com.example.Model.ImageType;
 import com.example.Model.Product;
 import com.example.Model.ProductDetail;
 
@@ -21,6 +22,7 @@ public class AdminProductService {
         this.productDAO = productDAO;
         this.mapper = ProductMapper.INSTANCE;
     }
+
     public List<GetProductsPagingResponseDTO> getProductsPaging(int page, int limit) throws SQLException {
         int offset = (page - 1) * limit;
         return productDAO.getProductsPaging(offset, limit);
@@ -49,7 +51,7 @@ public class AdminProductService {
             // thumbnail
             if (dto.getThumbnail() != null && !dto.getThumbnail().isBlank()) {
                 int imageId = productDAO.insertImage(dto.getThumbnail());
-                productDAO.insertProductImage(productId, imageId, "THUMBNAIL");
+                productDAO.insertProductImage(productId, imageId, ImageType.THUMBNAIL);
             }
 
             conn.commit();
@@ -89,11 +91,11 @@ public class AdminProductService {
             // nếu client gửi thumbnailUrl -> thay thumbnail
             if (dto.getThumbnail() != null && !dto.getThumbnail().isBlank()) {
                 // xóa product_images type=THUMBNAIL (chỉ mapping)
-                productDAO.deleteProductImagesByType(existing.getId(), "THUMBNAIL");
+                productDAO.deleteProductImagesByType(existing.getId(), ImageType.THUMBNAIL);
 
                 // insert new image + mapping
                 int imageId = productDAO.insertImage(dto.getThumbnail());
-                productDAO.insertProductImage(existing.getId(), imageId, "THUMBNAIL");
+                productDAO.insertProductImage(existing.getId(), imageId, ImageType.THUMBNAIL);
             }
 
             conn.commit();

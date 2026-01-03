@@ -2,6 +2,8 @@ package com.example.DAO;
 
 import com.example.DTO.Brands.GetBrandResponseDTO;
 import com.example.DTO.Products.GetProductsPagingResponseDTO;
+import com.example.Model.Brand;
+import com.example.Model.BrandStatus;
 import com.example.Service.Database.JDBCConnection;
 
 import java.sql.Connection;
@@ -40,6 +42,51 @@ public class BrandDAO {
             return results;
         } catch (SQLException e) {
             e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public Brand getBrandByName(String name) throws SQLException {
+        String sql = """
+                    SELECT id, name, status, created_at, updated_at
+                    FROM brands
+                    WHERE name = ?
+                    LIMIT 1
+                """;
+
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, name);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Brand.builder()
+                            .id(rs.getInt("id"))
+                            .name(rs.getString("name"))
+                            .status(BrandStatus.fromString(rs.getString("status")))
+                            .createdAt(rs.getTimestamp("created_at"))
+                            .updatedAt(rs.getTimestamp("updated_at"))
+                            .build();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public boolean createBrandWithBrandName(String name) throws SQLException {
+        String sql = "INSERT INTO brands (name) VALUES (?)";
+
+        try (Connection conn = JDBCConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, name);
+
+            int affectedRows = ps.executeUpdate();
+
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
             throw e;
         }
     }

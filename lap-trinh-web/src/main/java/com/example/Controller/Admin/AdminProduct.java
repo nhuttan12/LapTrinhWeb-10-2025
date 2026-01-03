@@ -1,13 +1,20 @@
 package com.example.Controller.Admin;
 
 import com.example.DTO.Products.CreateProductRequestDTO;
+import com.example.DTO.Products.GetProductDetailResponseDTO;
 import com.example.DTO.Products.GetProductsPagingResponseDTO;
 import com.example.DTO.Products.UpdateProductRequestDTO;
+import com.example.Model.Brand;
 import com.example.Model.Product;
 import com.example.Model.ProductDetail;
 import com.example.Model.ProductStatus;
 import com.example.Service.Admin.AdminProductService;
+import com.example.Service.Brands.BrandService;
 import com.example.Service.Database.JDBCConnection;
+import com.example.Service.Image.ImageService;
+import com.example.Service.Product.ProductService;
+import com.example.Utils.AnalyzeSpecs;
+import com.example.Utils.MergeDescription;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -20,7 +27,9 @@ import java.nio.file.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @WebServlet("/admin/products/*")
@@ -31,13 +40,23 @@ import java.util.UUID;
 )
 public class AdminProduct extends HttpServlet {
 
-    private AdminProductService productService;
+    private AdminProductService adminProductService;
+    private ProductService productService;
+    private AnalyzeSpecs analyzeSpecs;
+    private MergeDescription mergeDescription;
+    private BrandService brandService;
+    private ImageService imageService;
 
     @Override
     public void init() {
         try {
             Connection conn = JDBCConnection.getConnection();
-            productService = new AdminProductService(new com.example.DAO.AdminProductDAO(conn));
+            adminProductService = new AdminProductService(new com.example.DAO.AdminProductDAO(conn));
+            analyzeSpecs = new AnalyzeSpecs();
+            productService = new ProductService();
+            mergeDescription = new MergeDescription();
+            brandService = new BrandService();
+            imageService = new ImageService();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -56,12 +75,13 @@ public class AdminProduct extends HttpServlet {
             if (pageParam != null) {
                 try {
                     page = Integer.parseInt(pageParam);
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                }
             }
 
             try {
-                List<GetProductsPagingResponseDTO> products = productService.getProductsPaging(page, limit);
-                int totalPages = productService.getTotalPages(limit);
+                List<GetProductsPagingResponseDTO> products = adminProductService.getProductsPaging(page, limit);
+                int totalPages = adminProductService.getTotalPages(limit);
 
                 req.setAttribute("products", products);
                 req.setAttribute("currentPage", page);
@@ -75,25 +95,34 @@ public class AdminProduct extends HttpServlet {
             }
         } else if (path.equals("/add")) {
             // SHOW add form
+            GetProductDetailResponseDTO empty = GetProductDetailResponseDTO.builder()
+                    .status("active")
+                    .build();
+
+            Map<String, Map<String, Object>> specs = analyzeSpecs.analyzeSpecs(empty);
+
+            req.setAttribute("detail", empty);
+            req.setAttribute("specs", specs);
+
             req.getRequestDispatcher("/admin/pages/productManagement/product-form.jsp")
                     .forward(req, resp);
         } else if (path.equals("/edit")) {
             // SHOW edit form: load product + detail and set to request
             String idParam = req.getParameter("id");
-            if (idParam != null) {
-                try {
-                    int productId = Integer.parseInt(idParam);
-                    Product p = productService.getProductById(productId);
-                    ProductDetail d = productService.getProductDetailByProductId(productId);
 
-                    req.setAttribute("product", p);
-                    req.setAttribute("detail", d);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database error");
-                    return;
-                }
+            if (idParam != null) {
+                int productId = Integer.parseInt(idParam);
+
+                GetProductDetailResponseDTO detailResponseDTO = productService.getProductDetailByProductId(productId);
+                System.out.println("Detail response: " + detailResponseDTO);
+
+                Map<String, Map<String, Object>> specs = analyzeSpecs.analyzeSpecs(detailResponseDTO);
+                System.out.println("Specs: " + specs);
+
+                req.setAttribute("specs", specs);
+                req.setAttribute("detail", detailResponseDTO);
             }
+
             req.getRequestDispatcher("/admin/pages/productManagement/product-form.jsp")
                     .forward(req, resp);
         } else {
@@ -103,22 +132,23 @@ public class AdminProduct extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
-
+            throws ServletException, IOException {
         // ensure UTF-8 correctness
         req.setCharacterEncoding("UTF-8");
 
         String action = req.getParameter("action");
+        System.out.println("Do post action: " + action);
 
         try {
             switch (action) {
 
                 case "create" -> {
                     // handle file upload for thumbnail (optional)
-                    String thumbnailUrl = handleThumbnailUpload(req);
+                    String thumbnailUrl = imageService.upload(req, "thumbnailFile");
 
                     CreateProductRequestDTO dto = buildCreateDTO(req, thumbnailUrl);
-                    productService.createProduct(dto);
+
+                    adminProductService.createProduct(dto);
                     resp.sendRedirect(req.getContextPath() + "/admin/products?success=1");
                 }
 
@@ -126,20 +156,25 @@ public class AdminProduct extends HttpServlet {
                     Integer id = Integer.valueOf(req.getParameter("id"));
 
                     // load existing
-                    Product existing = productService.getProductById(id);
-                    ProductDetail detail = productService.getProductDetailByProductId(id);
+                    Product existing = adminProductService.getProductById(id);
+                    ProductDetail detail = adminProductService.getProductDetailByProductId(id);
 
                     // handle thumbnail upload: if uploaded, returns new path; else returns null
-                    String thumbnailUrl = handleThumbnailUpload(req);
+                    String thumbnailUrl = imageService.upload(req, "thumbnailFile");
+
+                    if (thumbnailUrl == null) {
+                        thumbnailUrl = existing.getThumbnail();
+                    }
+
                     UpdateProductRequestDTO dto = buildUpdateDTO(req, thumbnailUrl);
 
-                    productService.updateProduct(existing, detail, dto);
-                    resp.sendRedirect(req.getContextPath() + "/admin/products?updated=1");
+                    adminProductService.updateProduct(existing, detail, dto);
+                    resp.sendRedirect(req.getContextPath() + "/admin/products/edit?id=" + id);
                 }
 
                 case "delete" -> {
                     Integer id = Integer.valueOf(req.getParameter("id"));
-                    productService.softDelete(id);
+                    adminProductService.softDelete(id);
                     resp.sendRedirect(req.getContextPath() + "/admin/products?deleted=1");
                 }
 
@@ -190,8 +225,22 @@ public class AdminProduct extends HttpServlet {
 
     /* DTO builder for create: thumbnailUrl param (may be null) */
     private CreateProductRequestDTO buildCreateDTO(HttpServletRequest req, String uploadedThumbnailUrl) {
-        String thumbnailInput = req.getParameter("thumbnail"); // text input
-        String thumbnail = (uploadedThumbnailUrl != null && !uploadedThumbnailUrl.isBlank()) ? uploadedThumbnailUrl : thumbnailInput;
+        /**
+         * Get dynamic description
+         */
+        String mergedDescription = mergeDescription.mergeDynamicSpecs(req);
+
+        /**
+         * Get brand by name
+         */
+        Brand brand = brandService.getBrandByName(req.getParameter("brandName"));
+
+        /**
+         * Create new brand if not exist
+         */
+        if (brand == null) {
+            brand = brandService.createBrandByBrandName(req.getParameter("brandName"));
+        }
 
         return CreateProductRequestDTO.builder()
                 .name(req.getParameter("name"))
@@ -215,17 +264,32 @@ public class AdminProduct extends HttpServlet {
                 .cpuSpeed(parseDoubleSafe(req.getParameter("cpuSpeed")))
                 .releaseDate(parseTimestampSafe(req.getParameter("releaseDate")))
                 .rating(parseDoubleSafe(req.getParameter("rating")))
-                .description(req.getParameter("description"))
+                .description(mergedDescription)
 
-                .brandId(parseIntSafe(req.getParameter("brandId")))
-                .thumbnail(thumbnail)
+                .brandId(brand.getId())
+                .thumbnail(uploadedThumbnailUrl)
                 .build();
     }
 
     /* DTO builder for update: thumbnailUrl param (may be null) */
     private UpdateProductRequestDTO buildUpdateDTO(HttpServletRequest req, String uploadedThumbnailUrl) {
-        String thumbnailInput = req.getParameter("thumbnail"); // text input
-        String thumbnail = (uploadedThumbnailUrl != null && !uploadedThumbnailUrl.isBlank()) ? uploadedThumbnailUrl : thumbnailInput;
+        /**
+         * Get description
+         */
+        Map<String, String> descriptionMap = mergeDescription.extractDescriptionMap(req);
+        String mergedDescription = mergeDescription.mergeDescription(descriptionMap);
+
+        /**
+         * Get brand by name
+         */
+        Brand brand = brandService.getBrandByName(req.getParameter("brandName"));
+
+        /**
+         * Create new brand if not exist
+         */
+        if (brand == null) {
+            brand = brandService.createBrandByBrandName(req.getParameter("brandName"));
+        }
 
         return UpdateProductRequestDTO.builder()
                 .id(parseIntSafe(req.getParameter("id")))
@@ -250,21 +314,37 @@ public class AdminProduct extends HttpServlet {
                 .cpuSpeed(parseDoubleSafe(req.getParameter("cpuSpeed")))
                 .releaseDate(parseTimestampSafe(req.getParameter("releaseDate")))
                 .rating(parseDoubleSafe(req.getParameter("rating")))
-                .description(req.getParameter("description"))
-
-                .brandId(parseIntSafe(req.getParameter("brandId")))
-                .thumbnail(thumbnail)
+                .description(mergedDescription)
+                .brandId(brand.getId())
+                .thumbnail(uploadedThumbnailUrl)
                 .build();
     }
 
     /* safe parsers */
     private Integer parseIntSafe(String s) {
-        try { if (s == null || s.isBlank()) return null; return Integer.valueOf(s); } catch (Exception e) { return null; }
+        try {
+            if (s == null || s.isBlank()) return null;
+            return Integer.valueOf(s);
+        } catch (Exception e) {
+            return null;
+        }
     }
+
     private Double parseDoubleSafe(String s) {
-        try { if (s == null || s.isBlank()) return null; return Double.valueOf(s); } catch (Exception e) { return null; }
+        try {
+            if (s == null || s.isBlank()) return null;
+            return Double.valueOf(s);
+        } catch (Exception e) {
+            return null;
+        }
     }
+
     private Timestamp parseTimestampSafe(String s) {
-        try { if (s == null || s.isBlank()) return null; return Timestamp.valueOf(s + " 00:00:00"); } catch (Exception e) { return null; }
+        try {
+            if (s == null || s.isBlank()) return null;
+            return Timestamp.valueOf(s + " 00:00:00");
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

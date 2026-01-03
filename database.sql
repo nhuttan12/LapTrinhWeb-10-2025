@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS product_images (
     id SERIAL PRIMARY KEY,
     image_id INT REFERENCES images(id) ON DELETE CASCADE,
     product_id INT REFERENCES products(id) ON DELETE CASCADE,
-    type VARCHAR(50) CHECK (type IN ('thumbnail','gallery','other')),
+    type VARCHAR(50) CHECK (type IN ('thumbnail','gallery','product')),
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -169,10 +169,6 @@ CREATE TABLE IF NOT EXISTS orders (
     shipping_status VARCHAR(50) CHECK (
         shipping_status IN ('pending','shipped','completed','cancelled')
     ) NOT NULL DEFAULT 'pending',
-
-    payment_status VARCHAR(50) CHECK (
-        payment_status IN ('unpaid','paid')
-    ) NOT NULL DEFAULT 'unpaid',
 
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()

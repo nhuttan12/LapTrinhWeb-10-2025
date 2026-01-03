@@ -5,6 +5,7 @@ import com.example.Model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Collections;
@@ -15,6 +16,16 @@ import java.util.stream.Collectors;
 @Mapper()
 public interface ProductMapper {
     ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
+
+    @Named("stringToStatus")
+    default ProductStatus mapStringToStatus(String status) {
+        return ProductStatus.fromString(status);
+    }
+
+    @Named("statusToString")
+    default String mapStatusToString(ProductStatus status) {
+        return status == null ? null : status.getProductStatus();
+    }
 
     default String getFirstThumbnail(List<ProductImage> images) {
         if (images == null) return null;
@@ -45,8 +56,6 @@ public interface ProductMapper {
     @Mapping(expression = "java(getFirstThumbnail(product.getProductImages()))", target = "thumbnail")
     GetProductsPagingResponseDTO toGetProductsPagingResponseDTO(Product product);
 
-    List<GetProductsPagingResponseDTO> toGetProductsPagingResponseDTOList(List<Product> products);
-
     /**
      * Product detail mapping
      */
@@ -72,6 +81,7 @@ public interface ProductMapper {
     @Mapping(source = "product.productDetail.cpuSpeed", target = "cpuSpeed")
     @Mapping(source = "product.productDetail.releaseDate", target = "releaseDate")
     @Mapping(source = "product.productDetail.rating", target = "rating")
+    @Mapping(source = "product.status", target = "status", qualifiedByName = "statusToString")
     @Mapping(target = "description", ignore = true)
 
     // Brand
@@ -81,6 +91,8 @@ public interface ProductMapper {
     @Mapping(expression = "java(getFirstThumbnail(product.getProductImages()))", target = "thumbnailImages")
     @Mapping(expression = "java(getDetailImageUrls(product.getProductImages()))", target = "detailImages")
     GetProductDetailResponseDTO toGetProductDetailResponseDTO(Product product);
+
+    List<GetProductsPagingResponseDTO> toGetProductsPagingResponseDTOList(List<Product> products);
 
     List<GetProductDetailResponseDTO> toGetProductDetailResponseDTOList(List<Product> products);
 

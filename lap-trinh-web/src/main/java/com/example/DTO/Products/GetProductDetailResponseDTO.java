@@ -43,7 +43,8 @@ public class GetProductDetailResponseDTO {
     private Timestamp releaseDate;
     private Double rating;
 
-    private Map<String, String> description;
+    private Map<String, Map<String, Object>> description;
+    private String status;
 
     /**
      * Brand
