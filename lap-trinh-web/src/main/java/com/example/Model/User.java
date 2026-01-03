@@ -23,6 +23,7 @@ public class User {
     private Timestamp updatedAt;
 
     private Role role;
+    private Order order;
     private UserDetail userDetail;
     private UserImage userImage;
 }

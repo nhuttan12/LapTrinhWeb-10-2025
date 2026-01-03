@@ -1,15 +1,20 @@
 package com.example.Controller.Admin;
-import com.example.Model.Image;
+
+import com.example.DTO.Banners.GetBannerImagesPagingResponseDTO;
+import com.example.DTO.Common.PagingResponse;
 import com.example.Service.Admin.BannerService;
 import com.example.Service.Database.JDBCConnection;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Optional;
+
 @WebServlet("/admin/banners")
 public class AdminBannerController extends HttpServlet{
     private BannerService bannerService;
@@ -28,8 +33,19 @@ public class AdminBannerController extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            List<Image> banners = bannerService.getAllBanners();
-            req.setAttribute("banners", banners);
+            int page = Optional.ofNullable(req.getParameter("page"))
+                    .map(Integer::parseInt)
+                    .orElse(1);
+
+            int pageSize = Optional.ofNullable(req.getParameter("pageSize"))
+                    .map(Integer::parseInt)
+                    .orElse(10);
+
+            PagingResponse<GetBannerImagesPagingResponseDTO> banners = bannerService.getBannersPaging(page, pageSize);
+            System.out.println("Logging banner: "+banners);
+
+            req.setAttribute("banners", banners.getItems());
+            req.setAttribute("meta", banners.getMeta());
             req.getRequestDispatcher("/admin/pages/banner/banner-list.jsp").forward(req, resp);
         } catch (Exception e) {
             throw new ServletException(e);
@@ -38,18 +54,10 @@ public class AdminBannerController extends HttpServlet{
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = req.getParameter("action");
-        try {
-            if ("add".equals(action)) {
-                String url = req.getParameter("url");
-                bannerService.addBanner(url);
-            } else if ("delete".equals(action)) {
-                int id = Integer.parseInt(req.getParameter("id"));
-                bannerService.deleteBanner(id);
-            }
-            resp.sendRedirect(req.getContextPath() + "/admin/banners");
-        } catch (Exception e) {
-            throw new ServletException(e);
-        }
+        int thumbnailID = Integer.parseInt(req.getParameter("id"));
+
+        this.bannerService.deleteBanner(thumbnailID);
+
+        resp.sendRedirect(req.getContextPath() + "/admin/banners");
     }
 }

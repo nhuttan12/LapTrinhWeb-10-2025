@@ -44,6 +44,7 @@ public class OrderController extends HttpServlet {
                 .orElse(10);
 
         List<OrderUserResponseDTO> orders = orderService.findOrdersByUserId(userId, page, pageSize);
+        System.out.println("Get user order: "+orders);
 
         req.setAttribute("orders", orders);
         req.getRequestDispatcher("/user/orders.jsp").forward(req, resp);

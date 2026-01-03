@@ -1,6 +1,8 @@
 package com.example.Controller.Admin;
 
 import com.example.DAO.AdminOrderDAO;
+import com.example.DTO.Common.PagingResponse;
+import com.example.DTO.Orders.GetOrdersPagingResponseAdminDTO;
 import com.example.Model.Order;
 import com.example.Model.PaymentStatus;
 import com.example.Model.ShippingStatus;
@@ -38,8 +40,13 @@ public class AdminOrderController extends HttpServlet {
         int pageSize = Optional.ofNullable(req.getParameter("pageSize")).map(Integer::parseInt).orElse(10);
 
         try {
-            List<Order> orders = adminOrderService.getAllOrders(page, pageSize);
-            req.setAttribute("orders", orders);
+            PagingResponse<GetOrdersPagingResponseAdminDTO> orders =
+                    adminOrderService.getAllOrderPaging(page, pageSize);
+            System.out.println("Logging get order paging admin: "+orders);
+
+            req.setAttribute("orders", orders.getItems());
+            req.setAttribute("meta", orders.getMeta());
+
             req.getRequestDispatcher("/admin/pages/orderManagement/orders.jsp").forward(req, resp);
         } catch (SQLException e) {
             throw new ServletException(e);

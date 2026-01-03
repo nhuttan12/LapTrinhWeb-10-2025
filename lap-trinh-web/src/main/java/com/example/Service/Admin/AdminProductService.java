@@ -110,5 +110,4 @@ public class AdminProductService {
     public void softDelete(int id) throws SQLException {
         productDAO.softDelete(id);
     }
-
 }

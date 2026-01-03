@@ -247,15 +247,16 @@
                             <div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
                                 <div class="block-4 text-center border">
                                     <figure class="block-4-image">
-                                        <a href="${pageContext.request.contextPath}/product-detail?productId=${product.id}"><img
-                                                src="${product.thumbnail}"
-                                                alt="${product.name}"
-                                                class="img-fluid"></a>
+                                        <a href="${pageContext.request.contextPath}/product-detail?productId=${product.id}">
+                                            <img src="${product.thumbnail}"alt="${product.name}" class="img-fluid">
+                                        </a>
                                     </figure>
                                     <div class="block-4-text p-4">
                                         <h3>
                                             <a href="${pageContext.request.contextPath}/product-detail?id=${product.id}"
-                                               class="fw-light">${product.name}</a>
+                                               class="fw-light">
+                                                    ${product.name}
+                                            </a>
                                         </h3>
                                         <p class="text-primary font-weight-bold pt-1">
                                             <c:choose>

@@ -462,7 +462,7 @@ public class UserDAO {
     }
 
     public boolean changePassword(String username, String password) throws SQLException {
-        String sql = "UPDATE users SET password = ? WHERE username = ?";
+        String sql = "UPDATE users SET password = ?, updated_at = NOW() WHERE username = ?";
 
         Connection conn = null;
 

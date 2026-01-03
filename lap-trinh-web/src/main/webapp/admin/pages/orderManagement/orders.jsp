@@ -1,10 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="com.example.Model.Order" %>
-<%@ page import="java.util.List" %>
-
-<%
-    List<Order> orders = (List<Order>) request.getAttribute("orders");
-%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,7 +8,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Admin - Orders</title>
+    <title>Admin - Quản lý thôgn tin hoá đơn</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/feather/feather.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/vendors/ti-icons/css/themify-icons.css">
@@ -50,54 +46,122 @@
                                     <table class="table table-bordered table-hover">
                                         <thead>
                                         <tr>
-                                            <th>ID</th>
-                                            <th>User ID</th>
-                                            <th>Price</th>
-                                            <th>Payment Status</th> <!-- payment -->
-                                            <th>Shipping Status</th> <!-- shipping -->
-                                            <th>Created At</th>
-                                            <th>Updated At</th>
-                                            <th>Action</th>
+                                            <th>Mã hoá đơn</th>
+                                            <th>Tài khoản người đặt hàng</th>
+                                            <th>Tổng giá tiền</th>
+                                            <th>Trạng thái thanh toán</th> <!-- payment -->
+                                            <th>Trạng thái vận chuyển</th> <!-- shipping -->
+                                            <th>Ngày khởi tạo hoá đơn</th>
+                                            <th>Ngày điều chỉnh hoá đơn</th>
+                                            <th>Thao tác</th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <% for (Order order : orders) { %>
-                                        <tr>
-                                            <td><%= order.getId() %></td>
-                                            <td><%= order.getUserId() %></td>
-                                            <td><%= order.getPrice() %></td>
-                                            <td><%= order.getPaymentStatus().name() %></td> <!-- hiển thị PaymentStatus -->
-                                            <td><%= order.getShippingStatus().name() %></td> <!-- hiển thị ShippingStatus -->
-                                            <td><%= order.getCreatedAt() %></td>
-                                            <td><%= order.getUpdatedAt() %></td>
-                                            <td>
-                                                <form action="/admin/orders" method="post" class="form-inline">
-                                                    <input type="hidden" name="orderId" value="<%= order.getId() %>"/>
+                                        <c:forEach var="order" items="${orders}">
+                                            <tr>
+                                                <td>${order.id}</td>
+                                                <td>${order.username}</td>
+                                                <td>${order.price}</td>
 
-                                                    <!-- Payment Status -->
-                                                    <select name="paymentStatus" class="form-control mr-2">
-                                                        <option value="PENDING" <%= order.getPaymentStatus() == com.example.Model.PaymentStatus.PENDING ? "selected" : "" %>>Pending</option>
-                                                        <option value="COMPLETED" <%= order.getPaymentStatus() == com.example.Model.PaymentStatus.COMPLETED ? "selected" : "" %>>Completed</option>
-                                                        <option value="FAILED" <%= order.getPaymentStatus() == com.example.Model.PaymentStatus.FAILED ? "selected" : "" %>>Failed</option>
-                                                        <option value="REFUNDED" <%= order.getPaymentStatus() == com.example.Model.PaymentStatus.REFUNDED ? "selected" : "" %>>Refunded</option>
-                                                    </select>
+                                                <!-- Payment Status -->
+<%--                                                PENDING, COMPLETED, FAILED, REFUNDED, UNPAID, PAID;--%>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${order.paymentStatus == 'COMPLETED'}">Đã thanh toán hoàn tất</c:when>
+                                                        <c:when test="${order.paymentStatus == 'UNPAID'}">Chưa thanh toán</c:when>
+                                                        <c:when test="${order.paymentStatus == 'PAID'}">Đã thanh toán</c:when>
+                                                        <c:when test="${order.paymentStatus == 'PENDING'}">Chờ thanh toán</c:when>
+                                                        <c:when test="${order.paymentStatus == 'FAILED'}">Thất bại</c:when>
+                                                        <c:when test="${order.paymentStatus == 'REFUNDED'}">Hoàn tiền</c:when>
+                                                        <c:otherwise>${order.paymentStatus}</c:otherwise>
+                                                    </c:choose>
+                                                </td>
 
-                                                    <!-- Shipping Status -->
-                                                    <select name="shippingStatus" class="form-control mr-2">
-                                                        <option value="PENDING" <%= order.getShippingStatus() == com.example.Model.ShippingStatus.PENDING ? "selected" : "" %>>Pending</option>
-                                                        <option value="SHIPPED" <%= order.getShippingStatus() == com.example.Model.ShippingStatus.SHIPPED ? "selected" : "" %>>Shipped</option>
-                                                        <option value="COMPLETED" <%= order.getShippingStatus() == com.example.Model.ShippingStatus.COMPLETED ? "selected" : "" %>>Completed</option>
-                                                        <option value="CANCELLED" <%= order.getShippingStatus() == com.example.Model.ShippingStatus.CANCELLED ? "selected" : "" %>>Cancelled</option>
-                                                    </select>
+                                                <!-- Shipping Status -->
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${order.shippingStatus == 'PENDING'}">Chờ xử lý</c:when>
+                                                        <c:when test="${order.shippingStatus == 'SHIPPED'}">Đang giao</c:when>
+                                                        <c:when test="${order.shippingStatus == 'COMPLETED'}">Hoàn tất</c:when>
+                                                        <c:when test="${order.shippingStatus == 'CANCELLED'}">Đã huỷ</c:when>
+                                                        <c:otherwise>${order.shippingStatus}</c:otherwise>
+                                                    </c:choose>
+                                                </td>
 
-                                                    <button type="submit" class="btn btn-primary btn-sm">Update</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                        <% } %>
+                                                <td>${order.createdAt}</td>
+                                                <td>${order.updatedAt}</td>
+
+                                                <!-- Action -->
+                                                <td>
+                                                    <form action="${pageContext.request.contextPath}/admin/orders"
+                                                          method="post"
+                                                          class="form-inline">
+
+                                                        <input type="hidden" name="orderId" value="${order.id}"/>
+
+                                                        <!-- Payment Status -->
+                                                        <select name="paymentStatus" class="form-control mr-2">
+                                                            <c:forEach var="ps" items="${['PENDING','COMPLETED','FAILED','REFUNDED']}">
+                                                                <option value="${ps}"
+                                                                    ${ps == order.paymentStatus ? 'selected' : ''}>
+                                                                        ${ps}
+                                                                </option>
+                                                            </c:forEach>
+                                                        </select>
+
+                                                        <!-- Shipping Status -->
+                                                        <select name="shippingStatus" class="form-control mr-2">
+                                                            <c:forEach var="ss" items="${['PENDING','SHIPPED','COMPLETED','CANCELLED']}">
+                                                                <option value="${ss}"
+                                                                    ${ss == order.shippingStatus ? 'selected' : ''}>
+                                                                        ${ss}
+                                                                </option>
+                                                            </c:forEach>
+                                                        </select>
+
+                                                        <button type="submit" class="btn btn-primary btn-sm">
+                                                            Update
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        </c:forEach>
                                         </tbody>
                                     </table>
                                 </div>
+
+                                <!-- Pagination -->
+                                <nav class="mt-3">
+                                    <ul class="pagination justify-content-center">
+
+                                        <!-- Prev -->
+                                        <li class="page-item ${!meta.hasPrevious ? 'disabled' : ''}">
+                                            <a class="page-link"
+                                               href="?page=${meta.currentPage - 1}&pageSize=${meta.pageSize}">
+                                                Prev
+                                            </a>
+                                        </li>
+
+                                        <!-- Page numbers -->
+                                        <c:forEach begin="1" end="${meta.totalPages}" var="i">
+                                            <li class="page-item ${i == meta.currentPage ? 'active' : ''}">
+                                                <a class="page-link"
+                                                   href="?page=${i}&pageSize=${meta.pageSize}">
+                                                        ${i}
+                                                </a>
+                                            </li>
+                                        </c:forEach>
+
+                                        <!-- Next -->
+                                        <li class="page-item ${!meta.hasNext ? 'disabled' : ''}">
+                                            <a class="page-link"
+                                               href="?page=${meta.currentPage + 1}&pageSize=${meta.pageSize}">
+                                                Next
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     </div>

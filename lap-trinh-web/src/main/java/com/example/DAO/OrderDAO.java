@@ -64,7 +64,7 @@ public class OrderDAO {
     public void updateShippingStatus(int orderId, ShippingStatus status) throws SQLException {
         String sql = "UPDATE orders SET shipping_status = ?, updated_at = NOW() WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, status.getOrderStatus());
+            ps.setString(1, status.getStatus());
             ps.setInt(2, orderId);
             ps.executeUpdate();
         }

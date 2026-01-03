@@ -45,6 +45,22 @@ CREATE TABLE IF NOT EXISTS images (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- ========================
+-- BANNERS
+-- ========================
+CREATE TABLE IF NOT EXISTS banners (
+    id SERIAL PRIMARY KEY,
+    image_id INT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+
+    CONSTRAINT fk_banner_image
+        FOREIGN KEY (image_id)
+        REFERENCES images(id)
+        ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS user_images (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,

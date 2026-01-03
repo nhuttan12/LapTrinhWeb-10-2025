@@ -20,4 +20,6 @@ public class Order {
     private ShippingStatus shippingStatus;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+
+    private User user;
 }

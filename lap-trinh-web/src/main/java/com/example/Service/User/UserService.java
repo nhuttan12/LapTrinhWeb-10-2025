@@ -157,17 +157,8 @@ public class UserService {
         }
     }
 
-    public boolean changePassword(String username, String password, String newPassword) {
-//        System.out.println("Info username: " + username + " password: " + password);
-        boolean userExist = false;
+    public boolean changePassword(String username, String newPassword) {
         try {
-            userExist = userDAO.getUserByUsernameAndPassword(username, password);
-            System.out.println("Check user exist in user service: " + userExist);
-
-            if (!userExist) {
-                return false;
-            }
-
             return userDAO.changePassword(username, newPassword);
         } catch (SQLException e) {
             throw new RuntimeException(e);
