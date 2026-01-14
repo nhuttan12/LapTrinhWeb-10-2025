@@ -79,8 +79,8 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <c:if test="${cart != null && cart.cartDetails != null}">
-                            <c:forEach var="detail" items="${cart.cartDetails}">
+                        <c:if test="${cart != null}">
+                            <c:forEach var="detail" items="${cartDetails}">
                                 <tr>
                                     <td class="product-thumbnail">
                                         <a href="${pageContext.request.contextPath}/product-detail?productId=${detail.product.id}">
@@ -192,7 +192,7 @@
                             </div>
 
                             <c:set var="subtotal" value="0"/>
-                            <c:forEach var="detail" items="${cart.cartDetails}">
+                            <c:forEach var="detail" items="${cartDetails}">
                                 <c:set var="subtotal" value="${subtotal + (detail.product.price * detail.quantity)}"/>
                             </c:forEach>
 

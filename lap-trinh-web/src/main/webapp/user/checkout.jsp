@@ -39,11 +39,11 @@
 
                     <!-- Thông tin khách hàng -->
                     <div class="col-md-6 mb-5 mb-md-0">
-                        <h2 class="h3 mb-3 text-black">Billing Details</h2>
+                        <h2 class="h3 mb-3 text-black"> Thông tin đặt hàng </h2>
                         <div class="p-3 p-lg-5 border">
 
                             <div class="form-group">
-                                <label class="text-black">Full Name <span class="text-danger">*</span></label>
+                                <label class="text-black">Họ và tên <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="fullName"
                                        value="${fullName}" required>
                             </div>
@@ -55,19 +55,19 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="text-black">Phone <span class="text-danger">*</span></label>
+                                <label class="text-black">Số điện thoại <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="phone"
                                        value="${phone}" required>
                             </div>
 
                             <div class="form-group">
-                                <label class="text-black">Address <span class="text-danger">*</span></label>
+                                <label class="text-black">Địa chỉ <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="address"
                                        value="${address}" required>
                             </div>
 
                             <div class="form-group">
-                                <label class="text-black">Order Notes</label>
+                                <label class="text-black">Ghi chú đơn hàng</label>
                                 <textarea name="notes" class="form-control" placeholder="Ghi chú đơn hàng"></textarea>
                             </div>
 
@@ -76,13 +76,13 @@
 
                     <!-- Thông tin sản phẩm và tổng tiền -->
                     <div class="col-md-6">
-                        <h2 class="h3 mb-3 text-black">Your Order</h2>
+                        <h2 class="h3 mb-3 text-black">Đơn hàng của bạn</h2>
                         <div class="p-3 p-lg-5 border">
 
                             <table class="table site-block-order-table mb-5">
                                 <thead>
-                                <th>Product</th>
-                                <th>Total</th>
+                                <th>Sản phẩm</th>
+                                <th> Tổng </th>
                                 </thead>
                                 <tbody>
                                 <c:set var="total" value="0"/>
@@ -97,11 +97,11 @@
                                 </c:forEach>
 
                                 <tr>
-                                    <td class="text-black font-weight-bold"><strong>Cart Subtotal</strong></td>
+                                    <td class="text-black font-weight-bold"><strong>Tổng phụ</strong></td>
                                     <td class="text-black font-weight-bold"><fmt:formatNumber value="${total}" type="number" groupingUsed="true"/> vnđ</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-black font-weight-bold"><strong>Order Total</strong></td>
+                                    <td class="text-black font-weight-bold"><strong>Tổng tiền</strong></td>
                                     <td class="text-black font-weight-bold"><strong><fmt:formatNumber value="${total}" type="number" groupingUsed="true"/> vnđ</strong></td>
                                 </tr>
                                 </tbody>
@@ -111,27 +111,27 @@
                             <div class="border p-3 mb-3">
                                 <label>
                                     <input type="radio" name="method" value="cod" checked>
-                                    Cash on Delivery (COD)
+                                    Thanh toán khi nhận hàng
                                 </label>
                             </div>
 
                             <div class="border p-3 mb-3">
                                 <label>
                                     <input type="radio" name="method" value="paypal_test">
-                                    PayPal Test Payment
+                                    Thanh toán PayPal
                                 </label>
                             </div>
 
                             <div class="border p-3 mb-3">
                                 <label>
                                     <input type="radio" name="method" value="vnpay_test">
-                                    VNPAY Test Payment
+                                    Thanh toán VNPAY
                                 </label>
                             </div>
 
                             <div class="form-group">
                                 <button class="btn btn-primary btn-lg py-3 btn-block" type="submit">
-                                    Place Order
+                                    Thanh toán
                                 </button>
                             </div>
 
