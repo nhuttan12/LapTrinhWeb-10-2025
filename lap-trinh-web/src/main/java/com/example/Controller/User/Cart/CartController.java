@@ -56,6 +56,12 @@ public class CartController extends HttpServlet {
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
+                int cartQuantity = 0;
+                List<CartDetail> details = cartService.getCartDetails(cart.getId());
+                for (CartDetail d : details) {
+                    cartQuantity += d.getQuantity();
+                }
+                req.getSession().setAttribute("cartQuantity", cartQuantity);
             }
 
             resp.sendRedirect(req.getContextPath() + "/cart");
@@ -88,6 +94,8 @@ public class CartController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        System.out.println("=== CART DO POST CALLED ===");
+
         String action = req.getParameter("action");
         Integer userId = (Integer) req.getSession().getAttribute("userId");
 
@@ -111,13 +119,18 @@ public class CartController extends HttpServlet {
             // =====================================
             //  REMOVE (POST)
             // =====================================
+
             else if ("remove".equalsIgnoreCase(action)) {
                 int productId = Integer.parseInt(req.getParameter("productId"));
-
+                System.out.println("REMOVE PRODUCT ID = " + productId);
                 Cart cart = cartService.getCartByUserId(userId);
                 if (cart != null) {
                     cartService.removeProductFromCart(cart.getId(), productId);
                 }
+            }
+
+            if ("remove".equals(action)) {
+                System.out.println("REMOVE PRODUCT ID = " + req.getParameter("productId"));
             }
 
             // =====================================

@@ -48,12 +48,16 @@ public class CartService {
     /**
      * Xóa sản phẩm khỏi giỏ
      */
-    public void removeProductFromCart(int userId, int productId) throws SQLException {
-        Cart cart = cartDAO.getActiveCartByUserId(userId);
-        if (cart != null) {
-            cartDAO.removeProductFromCart(cart.getId(), productId);
-        }
+//    public void removeProductFromCart(int userId, int productId) throws SQLException {
+//        Cart cart = cartDAO.getActiveCartByUserId(userId);
+//        if (cart != null) {
+//            cartDAO.removeProductFromCart(cart.getId(), productId);
+//        }
+//    }
+    public void removeProductFromCart(int cartId, int productId) throws SQLException {
+        cartDAO.removeProductFromCart(cartId, productId);
     }
+
 
     /**
      * Cập nhật số lượng
