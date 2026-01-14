@@ -80,10 +80,11 @@ public class CheckSessionFilter implements Filter {
                         path.endsWith(".woff2") ||
                         path.endsWith(".ttf");
 
-        if (isPublic || loggedIn || isStaticResource ||token != null) {
+//        if (isPublic || loggedIn || isStaticResource ||token != null) {
             /*
              * Allow request to continue
              */
+        if (isPublic || loggedIn || isStaticResource || req.getParameter("token") != null) {
             chain.doFilter(request, response);
         } else {
             /*
@@ -92,5 +93,9 @@ public class CheckSessionFilter implements Filter {
             resp.sendRedirect(req.getContextPath() + "/login");
         }
     }
+    @Override
+    public void init(FilterConfig filterConfig) {}
+    @Override
+    public void destroy() {}
 }
 

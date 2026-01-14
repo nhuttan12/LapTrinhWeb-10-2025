@@ -4,9 +4,6 @@ import com.example.Model.User;
 import com.example.Service.User.UserService;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 public class AuthService {
     private final UserService userService;
 
@@ -30,18 +27,23 @@ public class AuthService {
 
         // 2. Get user by username
         User user = userService.getUserByUsername(username);
+        System.out.println("Get user by username: " + user);
         if (user == null) {
             return false;
         }
 
         // 3. Get hashed password by username
         String hashedPassword = userService.getHashedPasswordByUsername(username);
+        System.out.println("Get hashed password by username: " + hashedPassword);
         if (hashedPassword == null) {
             return false;
         }
 
         // 4. Check hashed password with password
-        return BCrypt.checkpw(password, hashedPassword);
+        boolean checkResult = BCrypt.checkpw(password, hashedPassword);
+        System.out.println("Check hashed password with password: " + checkResult);
+
+        return checkResult;
     }
 
     /**
@@ -87,7 +89,7 @@ public class AuthService {
         // 1. Authenticate user before change password
         boolean authenticationUser = this.login(username, password);
 
-        if(!authenticationUser) return false;
+        if (!authenticationUser) return false;
 
         // 2. Create hashed password
         String newHashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());

@@ -185,6 +185,10 @@ CREATE TABLE IF NOT EXISTS orders (
     shipping_status VARCHAR(50) CHECK (
         shipping_status IN ('pending','shipped','completed','cancelled')
     ) NOT NULL DEFAULT 'pending',
+    
+    payment_status VARCHAR(50) CHECK (
+        payment_status IN ('unpaid','paid')
+    ) NOT NULL DEFAULT 'unpaid',
 
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()

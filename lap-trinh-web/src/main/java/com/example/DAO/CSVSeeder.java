@@ -81,7 +81,7 @@ public class CSVSeeder {
 
             try (PreparedStatement ps = conn.prepareStatement("ALTER SEQUENCE images_id_seq RESTART WITH 2")) {
                 ps.executeUpdate();
-                System.out.println("Sequence 'images_id_seq' restarted from 2 ✅");
+                System.out.println("Sequence 'images_id_seq' restarted from 2 ");
             }
 
             String[] header = reader.readNext();
@@ -113,7 +113,7 @@ public class CSVSeeder {
             }
 
             conn.commit();
-            System.out.println("✅ Import thành công!");
+            System.out.println(" Import thành công!");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -213,7 +213,7 @@ public class CSVSeeder {
         if (imageMainUrl != null && !imageMainUrl.isEmpty()) {
             int imageId = insertImage(conn, imageMainUrl, ImageStatus.ACTIVE.getImageStatus());
             insertProductImage(conn, imageId, productId, "thumbnail");
-            System.out.println("🖼️ Inserted main image: URL=" + imageMainUrl + ", imageId=" + imageId + ", productId=" + productId + ", type=thumbnail");
+            System.out.println("Inserted main image: URL=" + imageMainUrl + ", imageId=" + imageId + ", productId=" + productId + ", type=thumbnail");
         }
 
         // --- Insert images_detail (gallery) ---
@@ -223,11 +223,11 @@ public class CSVSeeder {
             for (String url : urls) {
                 int imageId = insertImage(conn, url, ImageStatus.ACTIVE.getImageStatus());
                 insertProductImage(conn, imageId, productId, "gallery");
-                System.out.println("🖼️ Inserted gallery image #" + count + ": URL=" + url + ", imageId=" + imageId + ", productId=" + productId + ", type=gallery");
+                System.out.println(" Inserted gallery image #" + count + ": URL=" + url + ", imageId=" + imageId + ", productId=" + productId + ", type=gallery");
             }
         }
 
-        System.out.println("✅ Inserted: " + name + " (ID: " + productId + ") - Brand: " + brandName);
+        System.out.println(" Inserted: " + name + " (ID: " + productId + ") - Brand: " + brandName);
     }
 
     /**

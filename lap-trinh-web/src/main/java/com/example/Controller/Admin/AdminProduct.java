@@ -4,6 +4,7 @@ import com.example.DTO.Products.CreateProductRequestDTO;
 import com.example.DTO.Products.GetProductDetailResponseDTO;
 import com.example.DTO.Products.GetProductsPagingResponseDTO;
 import com.example.DTO.Products.UpdateProductRequestDTO;
+import com.example.DTO.Users.UserProfileDTO;
 import com.example.Model.Brand;
 import com.example.Model.Product;
 import com.example.Model.ProductDetail;
@@ -13,6 +14,7 @@ import com.example.Service.Brands.BrandService;
 import com.example.Service.Database.JDBCConnection;
 import com.example.Service.Image.ImageService;
 import com.example.Service.Product.ProductService;
+import com.example.Service.User.UserService;
 import com.example.Utils.AnalyzeSpecs;
 import com.example.Utils.MergeDescription;
 
@@ -46,6 +48,7 @@ public class AdminProduct extends HttpServlet {
     private MergeDescription mergeDescription;
     private BrandService brandService;
     private ImageService imageService;
+    private UserService userService;
 
     @Override
     public void init() {
@@ -57,6 +60,7 @@ public class AdminProduct extends HttpServlet {
             mergeDescription = new MergeDescription();
             brandService = new BrandService();
             imageService = new ImageService();
+            userService = new UserService();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -65,6 +69,11 @@ public class AdminProduct extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+        req.setAttribute("activeMenu", "products");
+        HttpSession session = req.getSession(false);
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        UserProfileDTO profile = userService.getUserProfile(userId);
 
         String path = req.getPathInfo();
         if (path == null || path.equals("/")) {
@@ -87,7 +96,11 @@ public class AdminProduct extends HttpServlet {
                 req.setAttribute("currentPage", page);
                 req.setAttribute("totalPages", totalPages);
 
-                req.getRequestDispatcher("/admin/pages/productManagement/productManagement.jsp")
+                if (profile != null) {
+                    req.setAttribute("userProfile", profile);
+                }
+
+                req.getRequestDispatcher("/admin/pages/productManagement/product-list.jsp")
                         .forward(req, resp);
             } catch (SQLException e) {
                 e.printStackTrace();

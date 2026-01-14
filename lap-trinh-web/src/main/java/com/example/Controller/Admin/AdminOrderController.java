@@ -3,12 +3,14 @@ package com.example.Controller.Admin;
 import com.example.DAO.AdminOrderDAO;
 import com.example.DTO.Common.PagingResponse;
 import com.example.DTO.Orders.GetOrdersPagingResponseAdminDTO;
+import com.example.DTO.Users.UserProfileDTO;
 import com.example.Model.Order;
 import com.example.Model.PaymentStatus;
 import com.example.Model.ShippingStatus;
 import com.example.Service.Admin.AdminOrderService;
 
 import com.example.Service.Database.JDBCConnection;
+import com.example.Service.User.UserService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,12 +24,14 @@ import java.util.Optional;
 @WebServlet("/admin/orders")
 public class AdminOrderController extends HttpServlet {
     private AdminOrderService adminOrderService;
+    private UserService userService;
 
     @Override
     public void init() throws ServletException {
         try {
             Connection conn = JDBCConnection.getConnection();
             adminOrderService = new AdminOrderService(new AdminOrderDAO(conn));
+            userService = new UserService();
         } catch (SQLException e) {
             throw new ServletException("Failed to initialize DB connection", e);
         }
@@ -39,14 +43,23 @@ public class AdminOrderController extends HttpServlet {
         int page = Optional.ofNullable(req.getParameter("page")).map(Integer::parseInt).orElse(1);
         int pageSize = Optional.ofNullable(req.getParameter("pageSize")).map(Integer::parseInt).orElse(10);
 
+        HttpSession session = req.getSession(false);
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        UserProfileDTO profile = userService.getUserProfile(userId);
+
         try {
             PagingResponse<GetOrdersPagingResponseAdminDTO> orders =
                     adminOrderService.getAllOrderPaging(page, pageSize);
             System.out.println("Logging get order paging admin: "+orders);
 
+            if (profile != null) {
+                req.setAttribute("userProfile", profile);
+            }
+
             req.setAttribute("orders", orders.getItems());
             req.setAttribute("meta", orders.getMeta());
-
+            req.setAttribute("activeMenu", "orders");
             req.getRequestDispatcher("/admin/pages/orderManagement/orders.jsp").forward(req, resp);
         } catch (SQLException e) {
             throw new ServletException(e);

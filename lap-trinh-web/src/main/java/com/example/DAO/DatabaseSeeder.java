@@ -119,7 +119,7 @@ public class DatabaseSeeder {
              * Create user with admin role if not exist
              */
             if (!isAdminExist) {
-                boolean insertResult = userService.insertNewUser(username, password, email);
+                boolean insertResult = userService.insertNewUser(username, email, password);
                 if (!insertResult) throw new SQLException("Failed to insert admin account");
 
                 /**
