@@ -42,69 +42,85 @@
                         <div class="card">
                             <div class="card-body">
 
-                                <h4 class="card-title">Danh sách sản phẩm</h4>
-
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover">
-                                        <thead>
-                                        <tr>
-                                            <th>Mã sản phẩm</th>
-                                            <th>Hình ảnh</th>
-                                            <th>Tên sản phẩm</th>
-                                            <th>Giá</th>
-                                            <th>Giảm giá</th>
-                                            <th>Thương hiệu</th>
-                                            <th>Thao tác</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <c:forEach var="product" items="${products}">
-                                            <tr id="productRow${product.id}">
-                                                <td>${product.id}</td>
-                                                <td>
-                                                    <img src="${not empty product.thumbnail ? product.thumbnail : 'default.jpg'}"
-                                                         style="width:60px;height:60px;object-fit:cover;border-radius:5px">
-                                                </td>
-                                                <td>${product.name}</td>
-                                                <td>${product.price}</td>
-                                                <td>${product.discount}</td>
-                                                <td>${product.brand}</td>
-                                                <td>
-                                                    <button class="btn btn-success btn-sm"
-                                                            onclick="openEditModal(${product.id})">
-                                                        Edit
-                                                    </button>
-                                                    <button class="btn btn-danger btn-sm"
-                                                            onclick="deleteProduct(${product.id})">
-                                                        Delete
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </c:forEach>
-                                        </tbody>
-                                    </table>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <h3>
+                                        <fmt:message key="admin.title"/>
+                                    </h3>
+                                    <a href="/admin/products/add" class="btn btn-success">
+                                        <fmt:message key="admin.add"/>
+                                    </a>
                                 </div>
 
-                                <!-- Pagination -->
-                                <nav class="mt-3">
-                                    <ul class="pagination justify-content-center">
-                                        <c:if test="${currentPage > 1}">
-                                            <li class="page-item">
-                                                <a class="page-link" href="?page=${currentPage - 1}">Prev</a>
-                                            </li>
-                                        </c:if>
+                                <table class="table table-bordered text-center align-middle">
+                                    <thead class="thead-dark">
+                                    <tr>
+                                        <th>
+                                            <fmt:message key="admin.table.id"/>
+                                        </th>
+                                        <th>
+                                            <fmt:message key="admin.table.thumbnail"/>
+                                        </th>
+                                        <th>
+                                            <fmt:message key="admin.table.name"/>
+                                        </th>
+                                        <th>
+                                            <fmt:message key="admin.table.price"/>
+                                        </th>
+                                        <th>
+                                            <fmt:message key="admin.table.discount"/>
+                                        </th>
+                                        <th>
+                                            <fmt:message key="admin.table.brand"/>
+                                        </th>
+                                        <th style="width:150px;">
+                                            <fmt:message key="admin.table.action"/>
+                                        </th>
+                                    </tr>
+                                    </thead>
 
-                                        <c:forEach begin="1" end="${totalPages}" var="i">
-                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                <a class="page-link" href="?page=${i}">${i}</a>
+                                    <tbody>
+                                    <c:forEach var="p" items="${products}">
+                                        <tr>
+                                            <td>${p.id}</td>
+
+                                            <td>
+                                                <img src="${p.thumbnail}" style="width:60px;height:60px;object-fit:cover;">
+                                            </td>
+
+                                            <td>${p.name}</td>
+                                            <td>
+                                                <fmt:formatNumber value="${p.price}" type="number" minFractionDigits="0" maxFractionDigits="2"/>
+                                            </td>
+                                            <td>${p.discount}</td>
+                                            <td>${p.brand}</td>
+
+                                            <td>
+                                                <a href="/admin/products/edit?id=${p.id}" class="btn btn-primary btn-sm">
+                                                    <fmt:message key="admin.action.edit"/>
+                                                </a>
+
+                                                <form action="/admin/products" method="post" style="display:inline;">
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <input type="hidden" name="id" value="${p.id}">
+                                                    <button class="btn btn-danger btn-sm"
+                                                            onclick="return confirm('<fmt:message key="admin.confirm.delete"/>');">
+                                                        <fmt:message key="admin.action.delete"/>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                    </tbody>
+                                </table>
+
+                                <!-- Pagination -->
+                                <nav>
+                                    <ul class="pagination justify-content-center">
+                                        <c:forEach begin="1" end="${totalPages}" var="page">
+                                            <li class="page-item ${page == currentPage ? 'active' : ''}">
+                                                <a class="page-link" href="?page=${page}">${page}</a>
                                             </li>
                                         </c:forEach>
-
-                                        <c:if test="${currentPage < totalPages}">
-                                            <li class="page-item">
-                                                <a class="page-link" href="?page=${currentPage + 1}">Next</a>
-                                            </li>
-                                        </c:if>
                                     </ul>
                                 </nav>
 
@@ -153,12 +169,13 @@
 </div>
 
 <!-- plugins:js -->
-<script src="${pageContext.request.contextPath}/admin/vendors/js/vendor.bundle.base.js"></script>
+<%--<script src="${pageContext.request.contextPath}/admin/vendors/js/vendor.bundle.base.js"></script>--%>
 <!-- endinject -->
 <!-- inject:js -->
+
 <script src="${pageContext.request.contextPath}/admin/js/off-canvas.js"></script>
 <script src="${pageContext.request.contextPath}/admin/js/hoverable-collapse.js"></script>
-<script src="${pageContext.request.contextPath}/admin/js/template.js"></script>
+<%--<script src="${pageContext.request.contextPath}/admin/js/template.js"></script>--%>
 <script src="${pageContext.request.contextPath}/admin/js/settings.js"></script>
 <script src="${pageContext.request.contextPath}/admin/js/todolist.js"></script>
 

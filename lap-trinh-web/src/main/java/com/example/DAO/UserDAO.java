@@ -144,7 +144,7 @@ public class UserDAO {
     public boolean existsByUsername(String username) {
         String sql = """
                 SELECT id 
-                FROM users 
+                FROM users u
                 WHERE username = ?
                   AND u.status = ?
                 """;

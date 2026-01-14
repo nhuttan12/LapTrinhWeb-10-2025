@@ -15,6 +15,8 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @WebServlet("/profile")
@@ -24,6 +26,7 @@ import java.util.Objects;
         maxRequestSize = 1024 * 1024 * 15    // 15 MB
 )
 public class UserProfileController extends HttpServlet {
+
     private UserService userService;
     private ImageService imageService;
 
@@ -39,10 +42,16 @@ public class UserProfileController extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, ServletException {
+
         HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+
         int userId = (Integer) session.getAttribute("userId");
-        System.out.println("User id in session" + userId);
 
         UserProfileDTO profile = userService.getUserProfile(userId);
 
@@ -55,30 +64,57 @@ public class UserProfileController extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
         HttpSession session = req.getSession(false);
         int userId = (Integer) session.getAttribute("userId");
 
-        // 1. Get parameter from form
+        // 1. Get form data
         String fullName = Objects.requireNonNullElse(req.getParameter("fullName"), "");
         String phone = Objects.requireNonNullElse(req.getParameter("phone"), "");
         String address1 = Objects.requireNonNullElse(req.getParameter("address1"), "");
         String address2 = Objects.requireNonNullElse(req.getParameter("address2"), "");
         String address3 = Objects.requireNonNullElse(req.getParameter("address3"), "");
 
-        System.out.println("fullname " + fullName +
-                " phone " + phone +
-                " address 1 " + address1 +
-                " address 2 " + address2 +
-                " address 3 " + address3);
+        Map<String, String> errors = new HashMap<>();
 
-        // 2. Upload image path
+        if (fullName.isEmpty()) {
+            errors.put("fullName", "Họ tên không được để trống");
+        }
+
+        /**
+         * Regex for number, start with 0, and containing 10 character
+         */
+        if (phone.isEmpty()) {
+            errors.put("phone", "Số điện thoại không được để trống");
+        }
+        else if (!phone.matches("^0\\d{9}$")) {
+            errors.put("phone", "Số điện thoại không hợp lệ");
+        }
+
+        if(address1.isEmpty()){
+            errors.put("address1", "Địa chỉ không được để trống");
+        }
+
+        if (!errors.isEmpty()) {
+            req.setAttribute("errors", errors);
+
+            UserProfileDTO profile = userService.getUserProfile(userId);
+            req.setAttribute("userProfile", profile);
+
+            req.getRequestDispatcher("/user/user-profile.jsp").forward(req, resp);
+            return;
+        }
+
+        // 2. Upload avatar (có thể null nếu không chọn ảnh)
         String imagePath = imageService.upload(req, "avatar");
 
-        // 3. Update user profile
-        UserProfileDTO profile = userService.updateUserProfile(userId, fullName, phone, address1, address2, address3, imagePath);
+        // 3. Update profile
+        UserProfileDTO profile = userService.updateUserProfile(
+                userId, fullName, phone, address1, address2, address3, imagePath
+        );
 
-        // 4. Check user profile updated successfully
         if (profile != null) {
             req.setAttribute("userProfile", profile);
             req.getRequestDispatcher("/user/user-profile.jsp").forward(req, resp);

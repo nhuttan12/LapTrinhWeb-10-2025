@@ -25,7 +25,7 @@
 
     <%--    Admin--%>
     <c:if test="${sessionScope.roleName eq 'admin'}">
-        <a href="${pageContext.request.contextPath}/admin"
+        <a href="${pageContext.request.contextPath}/admin/products"
            class="list-group-item list-group-item-action">
             <i class="bi bi-shield-lock"></i>
             <fmt:message key="profile.sidebar.admin"/>
@@ -34,6 +34,6 @@
 
     <%--    Logout--%>
     <a href="${pageContext.request.contextPath}/logout" class="list-group-item list-group-item-action">
-        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+        <i class="bi bi-box-arrow-right"></i> Đăng xuất
     </a>
 </div>

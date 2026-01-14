@@ -1,9 +1,11 @@
 package com.example.Controller.Admin;
 
 import com.example.DAO.AdminUserDAO;
+import com.example.DTO.Users.UserProfileDTO;
 import com.example.Model.RoleName;
 import com.example.Model.User;
 import com.example.Service.Database.JDBCConnection;
+import com.example.Service.User.UserService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,12 +18,14 @@ import java.util.List;
 @WebServlet("/admin/users")
 public class AdminUser extends HttpServlet {
     private AdminUserDAO adminUserDAO;
+    private UserService userService;
 
     @Override
     public void init() {
         try {
             Connection conn = JDBCConnection.getConnection();
             adminUserDAO = new AdminUserDAO(conn);
+            userService = new UserService();
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to initialize AdminUserServlet: " + e.getMessage());
@@ -54,7 +58,17 @@ public class AdminUser extends HttpServlet {
             System.out.println("==== DEBUG: users == null");
         }
 
+        HttpSession session = req.getSession(false);
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        UserProfileDTO profile = userService.getUserProfile(userId);
+
+        if (profile != null) {
+            req.setAttribute("userProfile", profile);
+        }
+
         req.setAttribute("users", users);
+        req.setAttribute("activeMenu", "users");
         req.getRequestDispatcher("/admin/pages/UserManagement/Usermanagement.jsp")
                 .forward(req, resp);
     }

@@ -31,23 +31,23 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/aos.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/style.css">
     <script>
-      $(document).ready(function () {
-        var readURL = function (input) {
-          if (input.files && input.files[0]) {
-            var reader = new FileReader();
+        $(document).ready(function () {
+            var readURL = function (input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
 
-            reader.onload = function (e) {
-              $('.avatar').attr('src', e.target.result);
+                    reader.onload = function (e) {
+                        $('.avatar').attr('src', e.target.result);
+                    }
+
+                    reader.readAsDataURL(input.files[0]);
+                }
             }
 
-            reader.readAsDataURL(input.files[0]);
-          }
-        }
-
-        $(".file-upload").on('change', function () {
-          readURL(this);
+            $(".file-upload").on('change', function () {
+                readURL(this);
+            });
         });
-      });
     </script>
 </head>
 
@@ -79,11 +79,23 @@
                                                 <fmt:message key="profile.fullName"/>
                                             </h4>
                                         </label>
+                                        <%--                                        <input type="text"--%>
+                                        <%--                                               class="form-control"--%>
+                                        <%--                                               name="fullName"--%>
+                                        <%--                                               id="fullName"--%>
+                                        <%--                                               value="${userProfile.fullName}"/>--%>
                                         <input type="text"
-                                               class="form-control"
-                                               name="fullName"
                                                id="fullName"
-                                               value="${userProfile.fullName}"/>
+                                               class="form-control ${errors.fullName != null ? 'is-invalid' : ''}"
+                                               name="fullName"
+                                               value="${param.fullName != null ? param.fullName : userProfile.fullName}"/>
+
+                                        <c:if test="${errors.fullName != null}">
+                                            <div class="invalid-feedback">
+                                                    ${errors.fullName}
+                                            </div>
+                                        </c:if>
+
                                     </div>
                                 </div>
 
@@ -95,10 +107,22 @@
                                             </h4>
                                         </label>
                                         <input type="tel"
-                                               class="form-control"
+                                               class="form-control ${errors.phone != null ? 'is-invalid' : ''}"
                                                name="phone"
                                                id="phone"
-                                               value="${userProfile.phone}"/>
+                                               value="${param.phone != null ? param.phone : userProfile.phone}"/>
+
+                                        <c:if test="${errors.phone != null}">
+                                            <div class="invalid-feedback">
+                                                    ${errors.phone}
+                                            </div>
+                                        </c:if>
+
+                                        <%--                                        <input type="tel"--%>
+                                        <%--                                               class="form-control"--%>
+                                        <%--                                               name="phone"--%>
+                                        <%--                                               id="phone"--%>
+                                        <%--                                               value="${userProfile.phone}"/>--%>
                                     </div>
                                 </div>
 
@@ -126,10 +150,17 @@
                                             </h4>
                                         </label>
                                         <input type="text"
-                                               class="form-control"
+                                               class="form-control ${errors.address1 != null ? 'is-invalid' : ''}"
                                                name="address1"
                                                id="address1"
-                                               value="${userProfile.address1}"/>
+                                               value="${param.address1 != null ? param.address1 : userProfile.address1}"/>
+
+                                        <c:if test="${errors.address1 != null}">
+                                            <div class="invalid-feedback">
+                                                    ${errors.address1}
+                                            </div>
+                                        </c:if>
+
                                     </div>
                                 </div>
 
@@ -209,18 +240,18 @@
 
 <!-- Image preview script -->
 <script>
-  $(function () {
-    $(".file-upload").on("change", function () {
-      const input = this;
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          $(".avatar").attr("src", e.target.result);
-        };
-        reader.readAsDataURL(input.files[0]);
-      }
+    $(function () {
+        $(".file-upload").on("change", function () {
+            const input = this;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    $(".avatar").attr("src", e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
     });
-  });
 </script>
 </body>
 </html>

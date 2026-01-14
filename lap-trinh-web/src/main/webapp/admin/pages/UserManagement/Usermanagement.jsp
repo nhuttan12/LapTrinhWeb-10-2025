@@ -121,11 +121,13 @@
     </div>
 </div>
 
-<script src="${pageContext.request.contextPath}/admin/vendors/js/vendor.bundle.base.js"></script>
+<%--<script src="${pageContext.request.contextPath}/admin/vendors/js/vendor.bundle.base.js"></script>--%>
 <script src="${pageContext.request.contextPath}/admin/js/off-canvas.js"></script>
 <script src="${pageContext.request.contextPath}/admin/js/hoverable-collapse.js"></script>
-<script src="${pageContext.request.contextPath}/admin/js/template.js"></script>
+<%--<script src="${pageContext.request.contextPath}/admin/js/template.js"></script>--%>
 <script src="${pageContext.request.contextPath}/admin/js/settings.js"></script>
 <script src="${pageContext.request.contextPath}/admin/js/todolist.js"></script>
+
+
 </body>
 </html>

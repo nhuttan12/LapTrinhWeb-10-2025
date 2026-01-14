@@ -630,15 +630,15 @@
       '</table>';
   }
   var table = $('#example').DataTable( {
-    "ajax": "js/data.txt",
+    "ajax": "/admin/js/data.txt",
     "columns": [
         { "data": "Quote" },
         { "data": "Product" },
         { "data": "Business" },
-        { "data": "Policy" }, 
-        { "data": "Premium" }, 
-        { "data": "Status" }, 
-        { "data": "Updated" }, 
+        { "data": "Policy" },
+        { "data": "Premium" },
+        { "data": "Status" },
+        { "data": "Updated" },
         {
           "className":      'details-control',
           "orderable":      false,
