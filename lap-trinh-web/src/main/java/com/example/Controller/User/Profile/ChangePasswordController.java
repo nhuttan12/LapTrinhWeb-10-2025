@@ -49,7 +49,27 @@ public class ChangePasswordController extends HttpServlet {
         String retypePassword = req.getParameter("retypePassword");
         System.out.println("Info username: " + username + " password: " + password + " newPassword: " + newPassword + " retypePassword: " + retypePassword);
 
-        if (newPassword == null || !newPassword.equals(retypePassword)) {
+        /**
+         * Check null password
+         */
+        if (isBlank(password) || isBlank(newPassword) || isBlank(retypePassword)) {
+            req.setAttribute("error", "Mật khẩu không được để trống");
+            req.setAttribute("username", username);
+            req.getRequestDispatcher("/user/change-password.jsp").forward(req, resp);
+            return;
+        }
+
+        /**
+         * CHeck password have length smaller than 5
+         */
+        if (newPassword.length() < 5) {
+            req.setAttribute("error", "Mật khẩu mới phải có ít nhất 5 ký tự");
+            req.setAttribute("username", username);
+            req.getRequestDispatcher("/user/change-password.jsp").forward(req, resp);
+            return;
+        }
+
+        if (!newPassword.equals(retypePassword)) {
             req.setAttribute("error", "Nhập lại mật khẩu không khớp");
             req.setAttribute("username", username);
             req.getRequestDispatcher("/user/change-password.jsp").forward(req, resp);
@@ -69,5 +89,9 @@ public class ChangePasswordController extends HttpServlet {
         req.setAttribute("message", "Đổi mật khẩu thành công!");
         req.setAttribute("username", username);
         req.getRequestDispatcher("/user/change-password.jsp").forward(req, resp);
+    }
+
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
     }
 }

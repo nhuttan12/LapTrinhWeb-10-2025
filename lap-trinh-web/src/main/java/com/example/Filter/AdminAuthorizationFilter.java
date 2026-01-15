@@ -16,27 +16,8 @@ public class AdminAuthorizationFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
-//        String path = req.getRequestURI().substring(req.getContextPath().length());
-//
-//        // Allow static resources
-//        if (path.endsWith(".css") ||
-//                path.endsWith(".js") ||
-//                path.endsWith(".png") ||
-//                path.endsWith(".jpg") ||
-//                path.endsWith(".jpeg") ||
-//                path.endsWith(".gif") ||
-//                path.endsWith(".svg") ||
-//                path.endsWith(".woff") ||
-//                path.endsWith(".woff2") ||
-//                path.endsWith(".ttf")) {
-//
-//            chain.doFilter(request, response);
-//            return;
-//        }
-        // AdminAuthorizationFilter.java
         String path = req.getRequestURI().substring(req.getContextPath().length());
 
-// Cho phép tất cả static file đi qua
         if (path.startsWith("/admin/css/") ||
                 path.startsWith("/admin/js/") ||
                 path.startsWith("/admin/images/") ||
@@ -71,7 +52,6 @@ public class AdminAuthorizationFilter implements Filter {
             return;
         }
 
-        // User is ADMIN → allow
         chain.doFilter(request, response);
     }
 

@@ -123,23 +123,11 @@
                 <div class="col-md-5 ml-auto">
                     <div class="p-4 border mb-3">
                         <span class="d-block text-primary h6 text-uppercase">
-                            <fmt:message key="contact.city.newyork"/>
+                            Thủ đức
                         </span>
-                        <p class="mb-0"><fmt:message key="contact.address.sample"/></p>
-                    </div>
-
-                    <div class="p-4 border mb-3">
-                        <span class="d-block text-primary h6 text-uppercase">
-                            <fmt:message key="contact.city.london"/>
-                        </span>
-                        <p class="mb-0"><fmt:message key="contact.address.sample"/></p>
-                    </div>
-
-                    <div class="p-4 border mb-3">
-                        <span class="d-block text-primary h6 text-uppercase">
-                            <fmt:message key="contact.city.canada"/>
-                        </span>
-                        <p class="mb-0"><fmt:message key="contact.address.sample"/></p>
+                        <p class="mb-0">
+                            Khu phố 6, phường Linh Trung, Tp. Thủ Đức
+                        </p>
                     </div>
                 </div>
             </div>

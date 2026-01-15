@@ -9,11 +9,11 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-<fmt:setBundle basename="messages" />
+<fmt:setBundle basename="messages"/>
 
 <html>
 <head>
-    <title><fmt:message key="orders.title" /></title>
+    <title><fmt:message key="orders.title"/></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -80,7 +80,8 @@
                                         <td class="fw-bold text-primary">#${order.id}</td>
 
                                         <td>
-                                            <fmt:formatNumber value="${order.totalPrice}" type="number" groupingUsed="true"/> đ
+                                            <fmt:formatNumber value="${order.totalPrice}" type="number"
+                                                              groupingUsed="true"/> đ
                                         </td>
 
                                         <td>
@@ -115,7 +116,8 @@
 
                                         <td class="text-center">
                                             <div class="d-flex justify-content-center gap-2">
-                                                <form action="${pageContext.request.contextPath}/order-detail" method="get">
+                                                <form action="${pageContext.request.contextPath}/order-detail"
+                                                      method="get">
                                                     <input type="hidden" name="orderId" value="${order.id}">
                                                     <button class="btn btn-sm btn-primary">
                                                         <i class="bi bi-file-text"></i> Xem
@@ -124,7 +126,8 @@
 
                                                 <c:if test="${order.paymentStatus == 'UNPAID'
                                                     && order.shippingStatus == 'PENDING'}">
-                                                    <form action="${pageContext.request.contextPath}/cancel-order" method="post">
+                                                    <form action="${pageContext.request.contextPath}/cancel-order"
+                                                          method="post">
                                                         <input type="hidden" name="orderId" value="${order.id}">
                                                         <button class="btn btn-sm btn-outline-danger">
                                                             <i class="bi bi-x-circle"></i> Hủy
