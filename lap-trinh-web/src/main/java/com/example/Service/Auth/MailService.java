@@ -7,8 +7,8 @@ import jakarta.mail.internet.MimeMessage;
 import java.util.Properties;
 
 public class MailService {
-    private final String email = "thucho037@gmail.com";
-    private final String appPassword = "dixs wlgy jikr tmpw";
+    private final String email = "phamnhuttan.9a6.2017@gmail.com";
+    private final String appPassword = "pvqm yoom rfog kgcj";
     private final String smtpHost;
     private final String smtpPort;
 

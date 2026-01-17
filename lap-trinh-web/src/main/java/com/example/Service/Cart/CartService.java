@@ -78,11 +78,7 @@ public class CartService {
         return cart;
     }
 
-    public void removePurchasedItems(int userId, List<CartDetail> items) throws SQLException {
-        Cart cart = cartDAO.getActiveCartByUserId(userId);
-        if (cart != null) {
-            cartDAO.removePurchasedItems(cart.getId(), items);
-        }
+    public void removePurchasedItems(int cartId, List<CartDetail> items) throws SQLException {
+        cartDAO.removePurchasedItems(cartId, items);
     }
-
 }

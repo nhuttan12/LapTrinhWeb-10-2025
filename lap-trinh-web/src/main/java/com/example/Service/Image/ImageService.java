@@ -30,9 +30,8 @@ public class ImageService {
         String timestamp = String.valueOf(System.currentTimeMillis());
         String newFileName = originalFileName + "_" + timestamp + extension;
 
-        // 📂 Lưu trong thư mục deploy hiện tại (target)
+        // Lưu trong thư mục build hiện tại (target)
         String appPath = request.getServletContext().getRealPath("");
-        // appPath thường sẽ là .../target/lap-trinh-web-1.0-SNAPSHOT/
         String uploadPath = appPath + File.separator + "image-upload";
 
         File uploadDir = new File(uploadPath);
